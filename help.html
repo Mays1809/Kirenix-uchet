@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Kirenix Учёт — инструкция</title>
+<style>
+  :root{
+    --bg:#F6F7FB; --card:#fff; --accent:#3B5BDB; --accent-light:#EDF2FF;
+    --text:#1A1A2E; --muted:#6B7280; --border:#E5E7EB; --danger:#E53935; --ok:#2E7D32; --warn:#B45309;
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  html,body{margin:0;padding:0}
+  body{
+    background:var(--bg); color:var(--text);
+    font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;
+    padding:22px 18px 60px; -webkit-font-smoothing:antialiased; line-height:1.6;
+  }
+  .container{max-width:760px;margin:0 auto}
+  .title{font-size:24px;font-weight:700;margin:0}
+  .lead{margin:6px 0 0;color:var(--muted);font-size:14px}
+  a{color:var(--accent)}
+
+  .toc{background:var(--accent-light);border:1px solid #D7E0FF;border-radius:12px;padding:16px 18px;margin:18px 0 8px}
+  .toc-title{font-weight:700;font-size:14px;margin-bottom:8px;color:#2C3A78}
+  .toc ol{margin:0;padding-left:20px;font-size:14px;color:#2C3A78}
+  .toc li{margin-bottom:5px}
+  .toc a{text-decoration:none}
+  .toc a:hover{text-decoration:underline}
+
+  .card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:22px;margin:16px 0}
+  h2{font-size:18px;margin:0 0 12px;display:flex;align-items:center;gap:8px}
+  h2 .num{background:var(--accent);color:#fff;border-radius:8px;min-width:28px;height:28px;display:inline-flex;
+    align-items:center;justify-content:center;font-size:14px;flex-shrink:0}
+  h3{font-size:15px;margin:18px 0 6px}
+  p{margin:0 0 10px;font-size:14.5px}
+  ol,ul{margin:0 0 10px;padding-left:22px;font-size:14.5px}
+  li{margin-bottom:7px}
+  li:last-child{margin-bottom:0}
+  b{font-weight:700}
+
+  .kbd{background:#F1F3F8;border:1px solid var(--border);border-radius:6px;padding:2px 7px;font-size:13px;white-space:nowrap}
+  .btn-demo{background:var(--accent);color:#fff;border-radius:8px;padding:4px 10px;font-size:13px;font-weight:600;white-space:nowrap}
+  .btn-demo.outline{background:#fff;color:var(--accent);border:1.5px solid var(--accent)}
+
+  .note{background:#FFF8E1;border:1px solid #FFE0A3;border-radius:10px;padding:11px 14px;font-size:13.5px;color:#7A5D00;margin:12px 0}
+  .note b{font-weight:700}
+  .good{background:#E8F5E9;border:1px solid #A5D6A7;border-radius:10px;padding:11px 14px;font-size:13.5px;color:#1B5E20;margin:12px 0}
+
+  .badge{border-radius:8px;padding:5px 10px;font-size:12.5px;font-weight:600;border:1px solid;white-space:nowrap}
+  .badge.first{background:#E3F2FD;color:#1565C0;border-color:#90CAF9}
+  .badge.regular{background:#E8F5E9;color:#2E7D32;border-color:#A5D6A7}
+  .badge.course{background:#FFF3E0;color:#E65100;border-color:#FFCC80}
+
+  table{width:100%;border-collapse:collapse;font-size:13.5px;margin:8px 0 4px}
+  th,td{text-align:left;padding:8px 10px;border-bottom:1px solid var(--border);vertical-align:top}
+  th{font-size:11.5px;text-transform:uppercase;letter-spacing:.04em;color:var(--muted)}
+  td:first-child{white-space:nowrap;font-weight:600}
+  .star{color:var(--danger);font-weight:700}
+
+  .faq-q{font-weight:700;margin:16px 0 4px;font-size:14.5px}
+  .faq-q:first-of-type{margin-top:0}
+  .faq-a{color:var(--text);font-size:14px;margin:0 0 4px}
+
+  .footer-note{max-width:760px;margin:26px auto 0;text-align:center;font-size:12px;color:#9CA3AF;line-height:1.55}
+  @media print{ body{background:#fff;padding:10px} .card{border:none;padding:12px 0;margin:8px 0} .toc{display:none} }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <h1 class="title"><span style="color:var(--accent)">Kirenix</span> Учёт — инструкция</h1>
+  <p class="lead">Программа для учёта пациентов и косметологических процедур. Версия 1.1</p>
+
+  <nav class="toc">
+    <div class="toc-title">Содержание</div>
+    <ol>
+      <li><a href="#start">Как начать работу</a></li>
+      <li><a href="#icon">Значок на экране телефона</a></li>
+      <li><a href="#add">Как добавить пациента</a></li>
+      <li><a href="#status">Статусы пациентов</a></li>
+      <li><a href="#find">Поиск, фильтры и сортировка</a></li>
+      <li><a href="#backup">Сохранение и резервные копии</a></li>
+      <li><a href="#restore">Восстановление и перенос на другое устройство</a></li>
+      <li><a href="#important">Важно знать</a></li>
+      <li><a href="#faq">Частые вопросы</a></li>
+    </ol>
+  </nav>
+
+  <div class="card" id="start">
+    <h2><span class="num">1</span>Как начать работу</h2>
+    <ol>
+      <li>Откройте в браузере адрес <b><a href="https://uchet.kirenix.ru">uchet.kirenix.ru</a></b> — на телефоне или на компьютере.</li>
+      <li>Введите <b>код доступа</b> вида <span class="kbd">KX-XXXXX-X</span> — вы получили его при покупке. Код вводится <b>один раз</b>, запоминать и вводить его каждый день не нужно.</li>
+      <li>Введите <b>ваше имя</b> — оно будет показано в шапке программы.</li>
+      <li>Нажмите <span class="btn-demo">Начать работу</span>.</li>
+    </ol>
+    <div class="good">Всё. Больше никаких настроек: можно сразу добавлять пациентов. Программа не требует регистрации, почты и пароля.</div>
+    <p style="margin-bottom:0">Если код не принимается — проверьте опечатки: буква О и ноль, латинские буквы. Проще всего не печатать код вручную, а скопировать и вставить.</p>
+  </div>
+
+  <div class="card" id="icon">
+    <h2><span class="num">2</span>Значок на экране телефона</h2>
+    <p>Чтобы каждый раз не искать ссылку, добавьте программу на главный экран — она будет открываться как обычное приложение.</p>
+    <h3>iPhone (Safari)</h3>
+    <ol>
+      <li>Откройте uchet.kirenix.ru в Safari.</li>
+      <li>Нажмите кнопку <b>«Поделиться»</b> — квадрат со стрелкой вверх внизу экрана.</li>
+      <li>В списке выберите <b>«На экран "Домой"»</b> и нажмите <b>«Добавить»</b>.</li>
+    </ol>
+    <h3>Android (Chrome)</h3>
+    <ol>
+      <li>Откройте uchet.kirenix.ru в Chrome.</li>
+      <li>Нажмите <b>три точки</b> в правом верхнем углу.</li>
+      <li>Выберите <b>«Добавить на главный экран»</b> (или «Установить приложение») и подтвердите.</li>
+    </ol>
+    <h3>Компьютер</h3>
+    <p style="margin-bottom:0">Сохраните страницу в закладки: <span class="kbd">Ctrl+D</span> (Windows) или <span class="kbd">Cmd+D</span> (Mac).</p>
+  </div>
+
+  <div class="card" id="add">
+    <h2><span class="num">3</span>Как добавить пациента</h2>
+    <p>Нажмите <span class="btn-demo">+ Пациент</span> в правом верхнем углу. Обязательных полей всего три — они отмечены звёздочкой. Остальное заполняйте по желанию, это можно сделать и позже.</p>
+    <table>
+      <tr><th>Поле</th><th>Для чего</th></tr>
+      <tr><td>Фамилия <span class="star">*</span></td><td>Обязательное поле.</td></tr>
+      <tr><td>Имя <span class="star">*</span></td><td>Обязательное поле.</td></tr>
+      <tr><td>Отчество</td><td>По желанию.</td></tr>
+      <tr><td>Телефон</td><td>Чтобы номер был под рукой. По телефону работает и поиск.</td></tr>
+      <tr><td>Дата рождения</td><td>Возраст программа посчитает сама и покажет рядом с фамилией — важно для процедур.</td></tr>
+      <tr><td>Дата визита <span class="star">*</span></td><td>Когда пациент был на процедуре.</td></tr>
+      <tr><td>Следующий визит</td><td>Когда ждёте пациента снова. По этой дате можно сортировать список — удобно видеть, кто на очереди.</td></tr>
+      <tr><td>Процедура</td><td>Что делали на приёме: чистка, пилинг, ботокс, мезотерапия…</td></tr>
+      <tr><td>Противопоказания</td><td>Аллергии, беременность и т.п. Показывается в карточке с пометкой ⚠ — сразу бросается в глаза.</td></tr>
+      <tr><td>Статус</td><td>Первичный, постоянный или на курсе — подробнее в разделе 4.</td></tr>
+      <tr><td>Заметки</td><td>Всё, что полезно помнить: пожелания, реакция кожи, рекомендации.</td></tr>
+    </table>
+    <p>Нажмите <span class="btn-demo">Добавить пациента</span> — запись сохранится автоматически.</p>
+    <p style="margin-bottom:0"><b>Изменить</b> запись — значок ✎ в карточке пациента. <b>Удалить</b> — значок ✕ (программа переспросит; удаление отменить нельзя).</p>
+  </div>
+
+  <div class="card" id="status">
+    <h2><span class="num">4</span>Статусы пациентов</h2>
+    <p>У каждого пациента есть цветная метка статуса:</p>
+    <ul>
+      <li><span class="badge first">Первичный</span> — пациент пришёл впервые.</li>
+      <li><span class="badge regular">Постоянный</span> — ходит регулярно.</li>
+      <li><span class="badge course">На курсе</span> — проходит курс процедур.</li>
+    </ul>
+    <p>Сменить статус можно двумя способами:</p>
+    <ol>
+      <li><b>Нажать на саму цветную метку</b> в списке — статус переключится на следующий: первичный → постоянный → на курсе → первичный.</li>
+      <li>Открыть карточку на редактирование (✎) и выбрать статус кнопками.</li>
+    </ol>
+    <p style="margin-bottom:0">Вверху экрана программа показывает счётчики: сколько всего пациентов и сколько в каждом статусе.</p>
+  </div>
+
+  <div class="card" id="find">
+    <h2><span class="num">5</span>Поиск, фильтры и сортировка</h2>
+    <p><b>Поиск</b> — строка с лупой 🔍. Ищет сразу по фамилии, имени, отчеству, процедуре и телефону. Начните печатать — список сузится на глазах.</p>
+    <p><b>Фильтры</b> — круглые кнопки рядом с поиском: «Все», «Первичный», «Постоянный», «На курсе». Показывают только пациентов с выбранным статусом.</p>
+    <p style="margin-bottom:0"><b>Сортировка</b> — строка «Сортировать:» над списком. Можно упорядочить по фамилии, по дате визита или по следующему визиту. Повторное нажатие меняет порядок на обратный (стрелка ↑/↓ подскажет).</p>
+  </div>
+
+  <div class="card" id="backup">
+    <h2><span class="num">6</span>Сохранение и резервные копии</h2>
+    <p><b>Сохранять ничего не нужно</b> — программа записывает каждое изменение сама. Закроете страницу, выключите компьютер — записи останутся на месте при следующем открытии.</p>
+    <p>Но раз в неделю делайте <b>резервную копию</b>:</p>
+    <ol>
+      <li>Нажмите кнопку <span class="btn-demo outline">💾 Резервная копия</span> вверху экрана.</li>
+      <li>В папке <b>«Загрузки»</b> появится файл Excel с именем вида <span class="kbd">пациенты_2026-07-11.xlsx</span> — в нём все ваши записи.</li>
+    </ol>
+    <p>Этот файл — ваша страховка на случай поломки или потери устройства. Его можно открыть в обычном Excel. Храните последнюю копию в надёжном месте: перешлите себе на почту, в «Избранное» в Telegram или сохраните на флешку.</p>
+    <div class="note">🔔 Программа <b>сама напомнит</b> жёлтой плашкой, когда копия давно не делалась или накопилось много изменений. Увидели напоминание — нажмите «Сделать копию», это две секунды.</div>
+    <p style="margin-bottom:0">Дата последней копии всегда видна в шапке программы.</p>
+  </div>
+
+  <div class="card" id="restore">
+    <h2><span class="num">7</span>Восстановление и перенос на другое устройство</h2>
+    <p>Кнопка <span class="btn-demo outline">Восстановить из копии</span> возвращает пациентов из ранее сохранённого файла Excel. Нужна она в двух случаях:</p>
+    <h3>Что-то случилось с записями</h3>
+    <ol>
+      <li>Нажмите «Восстановить из копии».</li>
+      <li>Выберите последний файл <span class="kbd">пациенты_….xlsx</span>.</li>
+      <li>Программа покажет, сколько записей в файле, и попросит подтвердить.</li>
+    </ol>
+    <h3>Новый телефон или компьютер</h3>
+    <ol>
+      <li>На старом устройстве сделайте резервную копию и перешлите файл на новое (почтой, по Telegram, на флешке).</li>
+      <li>На новом устройстве откройте uchet.kirenix.ru и введите ваш код доступа и имя.</li>
+      <li>Нажмите «Восстановить из копии» и выберите файл — все пациенты вернутся.</li>
+    </ol>
+    <div class="note">⚠ Восстановление <b>заменяет</b> текущий список целиком. Если в программе уже есть свежие записи, которых нет в файле, — сначала сделайте резервную копию.</div>
+  </div>
+
+  <div class="card" id="important">
+    <h2><span class="num">8</span>Важно знать</h2>
+    <ul>
+      <li><b>Все данные хранятся только на вашем устройстве</b> — в памяти браузера. Они никуда не отправляются и не попадают ни на какие серверы. Никто, кроме вас, ваших записей не видит.</li>
+      <li>Поэтому на каждом устройстве — <b>свой список</b>. Записи между телефоном и компьютером сами не синхронизируются; переносить их можно через файл Excel (раздел 7). Удобнее вести учёт на одном устройстве.</li>
+      <li><b>Не удаляйте данные браузера</b> («очистить историю и данные сайтов») без свежей резервной копии — вместе с ними сотрутся и записи. То же самое при удалении самого браузера.</li>
+      <li>Заходите в программу хотя бы раз в неделю. Если сайт долго не открывать, телефон может сам почистить его память — ещё одна причина держать свежую Excel-копию.</li>
+      <li>Для открытия страницы нужен интернет.</li>
+      <li><b>Синяя плашка «Kirenix:…»</b> вверху — сообщение от разработчика: новости и предупреждения. Прочитали — закройте крестиком.</li>
+      <li><b>Обновления бесплатны.</b> Когда выйдет новая версия, в шапке появится надпись «доступна новая версия — обновите страницу». Просто перезагрузите страницу — записи не пострадают.</li>
+    </ul>
+  </div>
+
+  <div class="card" id="faq">
+    <h2><span class="num">9</span>Частые вопросы</h2>
+
+    <p class="faq-q">Нужно ли платить каждый месяц?</p>
+    <p class="faq-a">Нет. Оплата разовая, подписки нет. Обновления бесплатны.</p>
+
+    <p class="faq-q">Записи пропадут, если закрыть страницу или пропадёт интернет?</p>
+    <p class="faq-a">Нет. Всё уже сохранено на устройстве. Интернет нужен только чтобы открыть страницу.</p>
+
+    <p class="faq-q">Можно пользоваться и на телефоне, и на компьютере?</p>
+    <p class="faq-a">Можно, код подойдёт на обоих. Но списки будут раздельные — синхронизации нет. Рекомендуем выбрать одно основное устройство.</p>
+
+    <p class="faq-q">Я ввела код, а программа просит его снова.</p>
+    <p class="faq-a">Скорее всего, вы открыли сайт в другом браузере (например, был Safari, а сейчас Chrome) или были удалены данные браузера. Введите код ещё раз — он не «сгорает» — и при необходимости восстановите записи из Excel-копии.</p>
+
+    <p class="faq-q">Что значит «Доступ приостановлен»?</p>
+    <p class="faq-a">Код этой копии отключён. Записи целы и остаются на устройстве — их можно выгрузить в Excel прямо с этого экрана. Чтобы возобновить работу, свяжитесь с тем, у кого вы получили код.</p>
+
+    <p class="faq-q">Могу я вести в программе что-то кроме пациентов?</p>
+    <p class="faq-a">Программа рассчитана на учёт пациентов и процедур, но поля «Процедура» и «Заметки» — свободные: пишите туда что угодно.</p>
+
+    <p class="faq-q" style="margin-bottom:6px">Остались вопросы или что-то не работает?</p>
+    <p class="faq-a" style="margin-bottom:0">Напишите тому, у кого вы приобрели программу и получили код доступа, — вам помогут.</p>
+  </div>
+
+</div>
+<div class="footer-note">Kirenix Учёт · <a href="https://uchet.kirenix.ru" style="color:#9CA3AF">uchet.kirenix.ru</a> · Все данные пациентов хранятся только на вашем устройстве.</div>
+</body>
+</html>
