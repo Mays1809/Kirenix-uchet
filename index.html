@@ -4,6 +4,15 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Kirenix Учёт — учёт пациентов</title>
+<meta name="description" content="Kirenix Учёт — программа учёта пациентов для мастеров: карточки с процедурами, противопоказаниями и датами визитов. Данные только у вас, без подписки.">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Kirenix Учёт — учёт пациентов для мастеров">
+<meta property="og:description" content="Карточки пациентов, процедуры, противопоказания и напоминания о визитах. Данные только у вас. Разовая оплата без подписки. Пробный доступ на 3 дня.">
+<meta property="og:url" content="https://uchet.kirenix.ru">
+<meta property="og:image" content="https://uchet.kirenix.ru/og.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
 <style>
   :root{
     --bg:#F6F7FB; --card:#fff; --accent:#3B5BDB; --accent-light:#EDF2FF;
@@ -128,6 +137,144 @@
     background:#1A1A2E;color:#fff;padding:12px 20px;border-radius:10px;font-size:14px;
     opacity:0;pointer-events:none;transition:opacity .2s,transform .2s;z-index:50;max-width:90vw;text-align:center}
   .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+  /* ============ ВСТРОЕННЫЙ ЛЕНДИНГ (изолирован под .lp) ============ */
+  html{scroll-behavior:smooth}
+  body.lp-mode{padding:0}
+  .lp{--accent-dark:#2C46B8;color:var(--text);line-height:1.6}
+  .lp a{color:var(--accent);text-decoration:none}
+  .lp .wrap{max-width:1040px;margin:0 auto;padding:0 20px}
+  .lp .narrow{max-width:760px;margin:0 auto}
+
+  .lp header{position:sticky;top:0;z-index:50;background:rgba(246,247,251,.9);backdrop-filter:blur(10px);border-bottom:1px solid var(--border)}
+  .lp .nav{display:flex;align-items:center;justify-content:space-between;height:60px}
+  .lp .logo{font-size:19px;font-weight:800;letter-spacing:-.01em}
+  .lp .logo span{color:var(--accent)}
+  .lp .nav-links{display:flex;gap:20px;align-items:center}
+  .lp .nav-links a{color:var(--muted);font-size:14px;font-weight:600}
+  .lp .nav-links a:hover{color:var(--text)}
+  @media(max-width:760px){.lp .nav-links .hide-m{display:none}}
+
+  .lp .btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;font-weight:700;font-size:15px;
+    border-radius:10px;padding:12px 20px;cursor:pointer;border:1.5px solid transparent;transition:.15s;white-space:nowrap;text-align:center;min-height:auto}
+  .lp .btn-primary{background:var(--accent);color:#fff}
+  .lp .btn-primary:hover{background:var(--accent-dark);filter:none}
+  .lp .btn-ghost{background:#fff;color:var(--accent);border-color:var(--accent);font-weight:700}
+  .lp .btn-ghost:hover{background:var(--accent-light)}
+  .lp .btn-sm{padding:9px 16px;font-size:14px;border-radius:9px;min-height:auto}
+  .lp .btn-lg{padding:15px 28px;font-size:16px}
+
+  .lp .hero{padding:56px 0 44px}
+  .lp .hero-grid{display:grid;grid-template-columns:1.1fr .9fr;gap:48px;align-items:center}
+  .lp .eyebrow{display:inline-block;background:var(--accent-light);color:var(--accent-dark);font-size:13px;font-weight:700;
+    padding:6px 12px;border-radius:100px;border:1px solid #D7E0FF;margin-bottom:18px}
+  .lp h1{font-size:42px;line-height:1.12;margin:0 0 16px;font-weight:800;letter-spacing:-.02em}
+  .lp .hero p.sub{font-size:17px;color:var(--muted);margin:0 0 26px;max-width:520px}
+  .lp .hero-cta{display:flex;gap:12px;flex-wrap:wrap}
+  .lp .hero-trust{margin-top:20px;font-size:13.5px;color:var(--muted);display:flex;gap:8px 16px;flex-wrap:wrap}
+  .lp .hero-trust span{display:inline-flex;align-items:center;gap:6px}
+  .lp .dot{color:var(--ok);font-weight:800}
+  @media(max-width:860px){
+    .lp .hero-grid{grid-template-columns:1fr;gap:32px}
+    .lp h1{font-size:31px}
+    .lp .hero{padding:32px 0 24px}
+    .lp .hero p.sub{font-size:16px}
+  }
+
+  .lp .phone{background:#fff;border:1px solid var(--border);border-radius:22px;box-shadow:0 20px 50px -18px rgba(43,70,184,.35);
+    padding:14px;max-width:340px;margin:0 auto;width:100%}
+  .lp .phone-top{display:flex;align-items:center;justify-content:space-between;padding:4px 8px 12px}
+  .lp .phone-top .pt-title{font-weight:800;font-size:15px}
+  .lp .phone-top .pt-title span{color:var(--accent)}
+  .lp .phone-top .pt-add{background:var(--accent);color:#fff;font-size:12px;font-weight:700;border-radius:8px;padding:5px 10px}
+  .lp .pcard{border:1px solid var(--border);border-radius:12px;padding:13px 14px;margin-top:10px}
+  .lp .pcard .pc-row{display:flex;align-items:center;justify-content:space-between;gap:8px}
+  .lp .pc-name{font-weight:700;font-size:15px}
+  .lp .pc-meta{color:var(--muted);font-size:12.5px;margin-top:3px}
+  .lp .badge{border-radius:8px;padding:3px 9px;font-size:11.5px;font-weight:700;border:1px solid;white-space:nowrap}
+  .lp .badge.first{background:#E3F2FD;color:#1565C0;border-color:#90CAF9}
+  .lp .badge.regular{background:#E8F5E9;color:#2E7D32;border-color:#A5D6A7}
+  .lp .badge.course{background:#FFF3E0;color:#E65100;border-color:#FFCC80}
+  .lp .pc-warn{background:#FFF8E1;border:1px solid #FFE0A3;color:#7A5D00;border-radius:8px;padding:7px 10px;font-size:12px;margin-top:9px}
+  .lp .pc-next{color:var(--accent-dark);font-size:12.5px;font-weight:600;margin-top:8px}
+
+  .lp section{padding:52px 0}
+  .lp .sec-tight{padding:40px 0}
+  .lp .kicker{color:var(--accent);font-weight:700;font-size:13px;letter-spacing:.06em;text-transform:uppercase;text-align:center}
+  .lp h2{font-size:30px;line-height:1.2;font-weight:800;letter-spacing:-.02em;text-align:center;margin:8px 0 12px}
+  .lp .sec-lead{text-align:center;color:var(--muted);font-size:16px;max-width:600px;margin:0 auto 8px}
+  @media(max-width:860px){.lp h2{font-size:24px}.lp section{padding:38px 0}}
+
+  .lp .prob-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px;margin-top:30px}
+  .lp .prob{background:#fff;border:1px solid var(--border);border-radius:12px;padding:18px 20px;font-size:15px}
+  .lp .prob b{display:block;margin-bottom:4px}
+  .lp .prob span{color:var(--muted);font-size:14px}
+  @media(max-width:720px){.lp .prob-grid{grid-template-columns:1fr}}
+
+  .lp .cards{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:34px}
+  .lp .feat{background:#fff;border:1px solid var(--border);border-radius:14px;padding:22px}
+  .lp .feat .ic{width:42px;height:42px;border-radius:11px;background:var(--accent-light);display:flex;align-items:center;justify-content:center;font-size:21px;margin-bottom:14px}
+  .lp .feat h3{margin:0 0 7px;font-size:17px;font-weight:700}
+  .lp .feat p{margin:0;color:var(--muted);font-size:14.5px}
+  @media(max-width:860px){.lp .cards{grid-template-columns:1fr}}
+
+  .lp .steps{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;margin-top:34px}
+  .lp .step{background:#fff;border:1px solid var(--border);border-radius:14px;padding:24px 22px;position:relative}
+  .lp .step .n{width:34px;height:34px;border-radius:9px;background:var(--accent);color:#fff;font-weight:800;
+    display:flex;align-items:center;justify-content:center;font-size:16px;margin-bottom:14px}
+  .lp .step h3{margin:0 0 6px;font-size:16px}
+  .lp .step p{margin:0;color:var(--muted);font-size:14.5px}
+  @media(max-width:860px){.lp .steps{grid-template-columns:1fr}}
+
+  .lp .band{background:linear-gradient(135deg,var(--accent) 0%,var(--accent-dark) 100%);color:#fff;border-radius:20px;padding:44px 40px;text-align:center}
+  .lp .band h2{color:#fff}
+  .lp .band p{color:#DCE4FF;font-size:16px;max-width:620px;margin:6px auto 0}
+  .lp .band .pills{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:22px}
+  .lp .band .pill{background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.25);border-radius:100px;padding:9px 16px;font-size:14px;font-weight:600}
+
+  .lp .cmp{width:100%;border-collapse:separate;border-spacing:0;margin-top:30px;background:#fff;border:1px solid var(--border);border-radius:14px;overflow:hidden;font-size:15px}
+  .lp .cmp th,.lp .cmp td{padding:15px 18px;text-align:left;border-bottom:1px solid var(--border);vertical-align:top}
+  .lp .cmp thead th{font-size:14px;background:#FBFBFD}
+  .lp .cmp thead th.us{background:var(--accent-light);color:var(--accent-dark);font-weight:800}
+  .lp .cmp td.us{background:#F7F9FF;font-weight:600}
+  .lp .cmp tr:last-child th,.lp .cmp tr:last-child td{border-bottom:none}
+  .lp .cmp td:first-child,.lp .cmp th:first-child{color:var(--muted);font-weight:600;width:34%}
+  .lp .yes{color:var(--ok);font-weight:800}
+  .lp .no{color:var(--muted)}
+  @media(max-width:720px){.lp .cmp{font-size:13.5px}.lp .cmp th,.lp .cmp td{padding:11px 12px}}
+
+  .lp .price-card{background:#fff;border:2px solid var(--accent);border-radius:20px;padding:36px 32px;max-width:560px;margin:34px auto 0;text-align:center;box-shadow:0 18px 44px -22px rgba(43,70,184,.4)}
+  .lp .price-num{font-size:44px;font-weight:800;letter-spacing:-.02em;line-height:1}
+  .lp .price-num small{font-size:18px;font-weight:700;color:var(--muted)}
+  .lp .price-sub{color:var(--muted);font-size:15px;margin:8px 0 0}
+  .lp .price-list{list-style:none;padding:0;margin:22px auto;max-width:380px;text-align:left}
+  .lp .price-list li{padding:7px 0 7px 30px;position:relative;font-size:15px}
+  .lp .price-list li:before{content:"✓";position:absolute;left:0;color:var(--ok);font-weight:800}
+  .lp .price-note{font-size:13px;color:var(--muted);margin-top:16px}
+
+  .lp .codecard{max-width:520px;margin:30px auto 0;background:#fff;border:1px solid var(--border);border-radius:18px;padding:32px 30px;box-shadow:0 12px 30px -18px rgba(43,70,184,.3);text-align:left}
+  .lp .codecard .label{display:block;font-weight:600;font-size:13.5px;color:var(--muted);margin:14px 0 6px}
+  .lp .codecard .input{width:100%;border:1.5px solid var(--border);border-radius:10px;padding:12px 14px;font-size:16px;font-family:inherit;background:#fff;color:var(--text)}
+  .lp .codecard .input:focus{outline:none;border-color:var(--accent)}
+  .lp .codecard .btn{width:100%;margin-top:18px}
+  .lp .codecard .cc-hint{font-size:12.5px;color:var(--muted);margin:6px 0 0}
+
+  .lp details{background:#fff;border:1px solid var(--border);border-radius:12px;padding:0;margin:12px 0;overflow:hidden}
+  .lp details summary{list-style:none;cursor:pointer;padding:18px 22px;font-weight:700;font-size:16px;display:flex;justify-content:space-between;align-items:center;gap:14px}
+  .lp details summary::-webkit-details-marker{display:none}
+  .lp details summary:after{content:"+";color:var(--accent);font-size:22px;font-weight:400;transition:.2s}
+  .lp details[open] summary:after{transform:rotate(45deg)}
+  .lp details .a{padding:0 22px 20px;color:var(--muted);font-size:15px}
+
+  .lp .final{text-align:center;background:#fff;border:1px solid var(--border);border-radius:20px;padding:48px 32px}
+  .lp .final h2{margin-bottom:10px}
+  .lp .final p{color:var(--muted);font-size:16px;max-width:520px;margin:0 auto 24px}
+
+  .lp footer{border-top:1px solid var(--border);padding:32px 0;margin-top:52px}
+  .lp .foot{display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap;font-size:14px;color:var(--muted)}
+  .lp .foot a{color:var(--muted);font-weight:600;margin-left:18px}
+  .lp .foot a:hover{color:var(--accent)}
+
 </style>
 </head>
 <body>
@@ -322,23 +469,242 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
       '</div>'+
       '<div style="height:18px"></div>'+
       '<button class="btn btn-primary" data-action="activate" style="width:100%;justify-content:center">Начать работу</button>'+
-      '<div class="activation-note">Все данные пациентов хранятся только на этом компьютере и никуда не отправляются.</div>'+
+      '<div class="activation-note">🔒 Все данные пациентов хранятся только на этом устройстве и никуда не отправляются.</div>'+
+      '<div class="activation-note" style="margin-top:6px">Без подписки · выгрузка в Excel · без регистрации</div>'+
     '</div></div>';
+  }
+
+  function landingHTML(){
+    return `<div class="lp">
+<header>
+  <div class="wrap nav">
+    <div class="logo"><span>Kirenix</span> Учёт</div>
+    <nav class="nav-links">
+      <a class="hide-m" href="#features">Возможности</a>
+      <a class="hide-m" href="#how">Как работает</a>
+      <a class="hide-m" href="#price">Цена</a>
+      <a class="btn btn-ghost btn-sm" href="#code">Войти по коду</a>
+      <a class="btn btn-primary btn-sm" href="https://t.me/aikiren">Попробовать</a>
+    </nav>
+  </div>
+</header>
+
+<section class="hero">
+  <div class="wrap hero-grid">
+    <div>
+      <span class="eyebrow">Программа учёта пациентов для мастеров</span>
+      <h1>Все пациенты, процедуры и даты визитов — в одном месте</h1>
+      <p class="sub">Карточки с противопоказаниями, статусами и напоминаниями о следующем визите. Открывается по ссылке на телефоне — устанавливать ничего не нужно. Данные хранятся только у вас.</p>
+      <div class="hero-cta">
+        <a class="btn btn-primary btn-lg" href="https://t.me/aikiren">Попробовать 3 дня бесплатно</a>
+        <a class="btn btn-ghost btn-lg" href="#code">У меня есть код</a>
+      </div>
+      <div class="hero-trust">
+        <span><b class="dot">•</b> Без подписки</span>
+        <span><b class="dot">•</b> Данные только на вашем устройстве</span>
+        <span><b class="dot">•</b> Выгрузка в Excel</span>
+      </div>
+    </div>
+    <div class="phone" aria-hidden="true">
+      <div class="phone-top">
+        <div class="pt-title"><span>Kirenix</span> Учёт</div>
+        <div class="pt-add">+ Пациент</div>
+      </div>
+      <div class="pcard">
+        <div class="pc-row">
+          <div>
+            <div class="pc-name">Анна К.</div>
+            <div class="pc-meta">34 года · чистка + пилинг</div>
+          </div>
+          <div class="badge course">На курсе</div>
+        </div>
+        <div class="pc-warn">⚠ Противопоказания: беременность</div>
+        <div class="pc-next">След. визит: 21 июля</div>
+      </div>
+      <div class="pcard">
+        <div class="pc-row">
+          <div>
+            <div class="pc-name">Марина В.</div>
+            <div class="pc-meta">29 лет · коррекция бровей</div>
+          </div>
+          <div class="badge regular">Постоянный</div>
+        </div>
+        <div class="pc-next">След. визит: 2 августа</div>
+      </div>
+      <div class="pcard">
+        <div class="pc-row">
+          <div>
+            <div class="pc-name">Ольга П.</div>
+            <div class="pc-meta">41 год · консультация</div>
+          </div>
+          <div class="badge first">Первичный</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="sec-tight" style="background:#fff;border-top:1px solid var(--border);border-bottom:1px solid var(--border)">
+  <div class="wrap narrow">
+    <p class="kicker">Знакомо?</p>
+    <h2>Тетради и заметки — это до первого потерянного клиента</h2>
+    <div class="prob-grid">
+      <div class="prob"><b>Записи разбросаны</b><span>Тетрадь, заметки в телефоне, стикеры — и вечно не там, где нужно.</span></div>
+      <div class="prob"><b>Не помните историю</b><span>Когда клиент был последний раз, что делали и на чём остановились.</span></div>
+      <div class="prob"><b>Страшно пропустить противопоказание</b><span>Важное держится в голове, а голова не резервируется.</span></div>
+      <div class="prob"><b>CRM хотят 500–1500 ₽ в месяц</b><span>Да ещё и уводят вашу базу клиентов в чужое облако.</span></div>
+    </div>
+  </div>
+</section>
+
+<section id="features">
+  <div class="wrap">
+    <p class="kicker">Возможности</p>
+    <h2>Всё, что нужно мастеру — и ничего лишнего</h2>
+    <p class="sec-lead">Не громоздкая CRM, а простой учёт, который открывается за секунду и работает прямо в телефоне.</p>
+    <div class="cards">
+      <div class="feat"><div class="ic">🗂️</div><h3>Карточка пациента целиком</h3><p>Процедуры, противопоказания, заметки, даты визитов и возраст — всё в одном месте.</p></div>
+      <div class="feat"><div class="ic">🏷️</div><h3>Статусы и напоминания</h3><p>Первичный, постоянный, на курсе. Сразу видно, кому пора на следующий визит.</p></div>
+      <div class="feat"><div class="ic">🔒</div><h3>Данные только у вас</h3><p>База хранится на вашем устройстве. Ничего не уходит в облако — ни у кого нет доступа.</p></div>
+      <div class="feat"><div class="ic">♾️</div><h3>Оплата один раз</h3><p>Никаких ежемесячных списаний. Заплатили однажды — пользуетесь всегда, обновления бесплатны.</p></div>
+      <div class="feat"><div class="ic">📲</div><h3>Без установки</h3><p>Открыли ссылку, добавили значок на экран — и работает как обычное приложение.</p></div>
+      <div class="feat"><div class="ic">📊</div><h3>Выгрузка в Excel</h3><p>Вся база выгружается в обычный файл одной кнопкой. Ваши записи всегда с вами.</p></div>
+    </div>
+  </div>
+</section>
+
+<section id="how" style="background:#fff;border-top:1px solid var(--border);border-bottom:1px solid var(--border)">
+  <div class="wrap">
+    <p class="kicker">Как это работает</p>
+    <h2>Начать можно за пару минут</h2>
+    <div class="steps">
+      <div class="step"><div class="n">1</div><h3>Открываете и вводите код</h3><p>Заходите на uchet.kirenix.ru, вводите код доступа и своё имя. Код вводится один раз.</p></div>
+      <div class="step"><div class="n">2</div><h3>Добавляете пациентов</h3><p>Карточка на каждого: процедуры, противопоказания, даты визитов и заметки.</p></div>
+      <div class="step"><div class="n">3</div><h3>Раз в неделю — копия</h3><p>Нажимаете «Резервная копия» — программа сама напомнит. Ваша база в безопасности.</p></div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <div class="band">
+      <h2>Данные пациентов — только ваши</h2>
+      <p>Kirenix Учёт не отправляет ничего на сервер. Вся база живёт на вашем телефоне или компьютере. У нас нет доступа к вашим записям — и ни у кого другого тоже. А раз в неделю вы делаете копию в Excel: страховка даже на случай потери телефона.</p>
+      <div class="pills">
+        <span class="pill">🔒 Ничего не уходит в облако</span>
+        <span class="pill">📵 Работает без регистрации</span>
+        <span class="pill">💾 Копия в Excel в один клик</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="sec-tight">
+  <div class="wrap narrow">
+    <p class="kicker">Сравнение</p>
+    <h2>Kirenix Учёт против обычной CRM</h2>
+    <table class="cmp">
+      <thead><tr><th></th><th class="us">Kirenix Учёт</th><th>Обычная CRM (аренда)</th></tr></thead>
+      <tbody>
+        <tr><td>Оплата</td><td class="us">Один раз, навсегда</td><td>500–1500 ₽ каждый месяц</td></tr>
+        <tr><td>Где данные пациентов</td><td class="us">Только на вашем устройстве</td><td>В чужом облаке</td></tr>
+        <tr><td>Регистрация и установка</td><td class="us"><span class="yes">Не нужны</span></td><td class="no">Обязательны</td></tr>
+        <tr><td>Обновления</td><td class="us"><span class="yes">Бесплатно</span></td><td class="no">Внутри подписки</td></tr>
+        <tr><td>Забрать свою базу</td><td class="us">Excel в один клик</td><td class="no">Как получится</td></tr>
+        <tr><td>Если перестанете платить</td><td class="us">База остаётся у вас</td><td class="no">Доступ пропадает</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<section id="price">
+  <div class="wrap">
+    <p class="kicker">Цена</p>
+    <h2>Одна оплата — и программа ваша навсегда</h2>
+    <div class="price-card">
+      <div class="price-num">3 000 ₽ <small>разово</small></div>
+      <p class="price-sub">Без подписки и скрытых списаний. Обновления бесплатны.</p>
+      <ul class="price-list">
+        <li>Пробный доступ на 3 дня — бесплатно</li>
+        <li>Записи с пробного периода сохранятся, если останетесь</li>
+        <li>Тот же код станет постоянным — ничего вводить заново</li>
+        <li>Официальный чек из «Мой налог» после оплаты</li>
+      </ul>
+      <a class="btn btn-primary btn-lg" href="https://t.me/aikiren" style="width:100%">Получить пробный доступ</a>
+      <p class="price-note">Работаю официально как самозанятый. Пробный период ни к чему не обязывает.</p>
+    </div>
+  </div>
+</section>
+
+<section id="code" style="background:#fff;border-top:1px solid var(--border);border-bottom:1px solid var(--border)">
+  <div class="wrap narrow">
+    <p class="kicker">Вход</p>
+    <h2>Уже купили? Войдите по коду</h2>
+    <p class="sec-lead">Введите код доступа, который вы получили, и своё имя. Код вводится один раз — дальше программа открывается сама.</p>
+    <div class="codecard">
+      <label class="label">Код доступа</label>
+      <input class="input" id="a_key" placeholder="KX-XXXXX-X" autocomplete="off">
+      <div class="cc-hint">Формат KX-XXXXX-X. Буквы латинские, О и 0 легко перепутать — лучше скопировать код целиком.</div>
+      <label class="label">Ваше имя</label>
+      <input class="input" id="a_owner" placeholder="Например: Мария">
+      <div class="cc-hint">Будет показано в шапке программы.</div>
+      <button class="btn btn-primary btn-lg" data-action="activate">Начать работу</button>
+    </div>
+  </div>
+</section>
+
+<section style="background:#fff;border-bottom:1px solid var(--border)">
+  <div class="wrap narrow">
+    <p class="kicker">Вопросы и ответы</p>
+    <h2>Коротко о главном</h2>
+    <div style="margin-top:28px">
+      <details open><summary>А данные не пропадут?</summary><div class="a">Программа сохраняет всё автоматически. Плюс раз в неделю вы делаете копию в Excel — программа сама напоминает. Это страховка даже на случай потери телефона.</div></details>
+      <details><summary>Это облако? Куда уходят данные пациентов?</summary><div class="a">Никуда. База хранится только на вашем устройстве, на сервер ничего не отправляется. Ни у нас, ни у кого-либо другого доступа к вашим записям нет.</div></details>
+      <details><summary>Можно на телефоне и на компьютере сразу?</summary><div class="a">Можно, код подойдёт на обоих. Но списки будут раздельные, синхронизации нет — удобнее выбрать одно основное устройство. Перенести записи можно через файл Excel.</div></details>
+      <details><summary>Почему не бесплатная CRM? Есть же YCLIENTS и подобные</summary><div class="a">CRM — это подписка 500–1500 ₽ каждый месяц, регистрация и ваши пациенты в чужом облаке. Здесь один раз оплатили — работает всегда, а база лежит у вас в телефоне.</div></details>
+      <details><summary>Подписки точно нет? Обновления платные?</summary><div class="a">Подписки нет, оплата одна. Обновления бесплатны: программа сама покажет, что вышла новая версия — достаточно обновить страницу.</div></details>
+      <details><summary>Дадите чек?</summary><div class="a">Да. Я работаю официально как самозанятый — сразу после оплаты пришлю чек из налогового приложения «Мой налог».</div></details>
+      <details><summary>А если сайт перестанет работать?</summary><div class="a">Ваша база всегда у вас: в любой момент выгружается в обычный файл Excel одной кнопкой. Вы ничего не потеряете.</div></details>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap narrow">
+    <div class="final">
+      <h2>Попробуйте пару дней вместо тетради</h2>
+      <p>Пробный доступ на 3 дня — бесплатно и ни к чему не обязывает. Записи, которые внесёте, сохранятся, если решите остаться.</p>
+      <a class="btn btn-primary btn-lg" href="https://t.me/aikiren">Попробовать 3 дня бесплатно</a>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap foot">
+    <div>© 2026 Kirenix Учёт · Данные хранятся на устройстве пользователя</div>
+    <div>
+      <a href="help.html">Инструкция</a>
+      <a href="https://t.me/aikiren">Написать в Telegram</a>
+    </div>
+  </div>
+</footer>
+</div>`;
   }
 
   function lockHTML(){
     return '<div class="container"><div class="lockcard">'+
       '<h2>Доступ приостановлен</h2>'+
       '<p>Код доступа этой копии отключён. Чтобы возобновить работу, свяжитесь с Kirenix.<br><br>'+
-      'Ваши записи целы и остаются на этом компьютере — их в любой момент можно сохранить в Excel.</p>'+
+      'Ваши записи целы и остаются на этом устройстве — их в любой момент можно сохранить в Excel.</p>'+
       '<button class="btn btn-outline" data-action="export"'+(patients.length?'':' disabled')+'>Сохранить пациентов в Excel</button>'+
     '</div></div>';
   }
 
   // ---------- отрисовка ----------
   function render(){
+    document.body.classList.remove('lp-mode');
     if(locked){ root.innerHTML = lockHTML(); return; }
-    if(!license){ root.innerHTML = activationHTML(); return; }
+    if(!license){ document.body.classList.add('lp-mode'); root.innerHTML = landingHTML(); window.scrollTo(0,0); return; }
     if(view==="form"){ root.innerHTML=formHTML(); return; }
 
     var s=stats();
@@ -396,7 +762,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
         '<div class="help">'+
           '<div class="help-title">📋 Как это работает</div>'+
           '<ol>'+
-            '<li><b>Программа сама всё сохраняет</b> на этом компьютере — нажимать «сохранить» не нужно. Просто добавляйте пациентов. Закроете и откроете снова — все записи будут на месте.</li>'+
+            '<li><b>Программа сама всё сохраняет</b> на этом устройстве — нажимать «сохранить» не нужно. Просто добавляйте пациентов. Закроете и откроете снова — все записи будут на месте.</li>'+
             '<li><b>Раз в неделю нажимайте «💾 Резервная копия»</b>. Программа сохранит файл Excel в папку «Загрузки» — это запасная копия на случай, если что-то случится с компьютером. Её можно открыть в обычном Excel.</li>'+
             '<li><b>«Восстановить из копии»</b> нужна редко — только чтобы вернуть пациентов из ранее сохранённого файла Excel.</li>'+
           '</ol>'+
@@ -411,7 +777,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
         (patients.length?'<div class="sortbar"><span class="lbl">Сортировать:</span>'+sorts+'</div>':"")+
         '<div id="list" class="list"></div>'+
       '</div>'+
-      '<div class="footer-note">Kirenix Учёт v'+APP_VERSION+' — приложение для учёта пациентов. Все данные хранятся только на этом компьютере и никуда не отправляются. Резервные копии в Excel — ваша страховка.</div>';
+      '<div class="footer-note">Kirenix Учёт v'+APP_VERSION+' — приложение для учёта пациентов. Все данные хранятся только на этом устройстве и никуда не отправляются. Резервные копии в Excel — ваша страховка.</div>';
 
     renderList();
 
