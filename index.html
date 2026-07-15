@@ -56,6 +56,9 @@
   .reminder-txt{font-size:13.5px;color:#7A5D00;line-height:1.5;flex:1;min-width:220px}
   .reminder-txt b{font-weight:700}
   .reminder-actions{display:flex;align-items:center;gap:6px}
+  .reminder.urgent{background:#FEF2F2;border-color:#FCA5A5}
+  .reminder.urgent .reminder-txt b{color:#B91C1C}
+  .reminder-sub{margin-top:6px;font-size:12.5px;color:var(--muted);line-height:1.5}
   .reminder-x{border:none;background:transparent;color:#B08900;font-size:20px;cursor:pointer;line-height:1;padding:2px 8px;border-radius:8px}
   .reminder-x:hover{background:#FFEFC2}
   .news{background:#EDF2FF;border:1px solid #C9D6FF;border-radius:12px;padding:12px 15px;margin-bottom:16px;display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
@@ -485,9 +488,14 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
   function daysSince(ts){ return ts ? (Date.now()-ts)/86400000 : Infinity; }
   function needBackup(){
     if(!patients.length || reminderHidden) return false;
-    if(!meta.lastBackup) return meta.changes>=5;
+    if(!meta.lastBackup) return (meta.changes||0)>=3;
     if((meta.changes||0)<=0) return false;
-    return daysSince(meta.lastBackup)>=7 || meta.changes>=15;
+    return daysSince(meta.lastBackup)>=5 || meta.changes>=10;
+  }
+  function backupUrgent(){
+    if(!patients.length) return false;
+    if(!meta.lastBackup) return (meta.changes||0)>=8;
+    return daysSince(meta.lastBackup)>=14 || meta.changes>=25;
   }
   function backupInfo(){
     return meta.lastBackup ? "последняя копия: "+formatTs(meta.lastBackup) : "резервной копии ещё не было";
@@ -839,12 +847,15 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
         '<button class="news-x" data-action="dismiss-news" title="Скрыть">×</button>'+
       '</div>') : "";
 
+    var _bkU = backupUrgent();
     var reminderHTML = needBackup() ? (
-      '<div class="reminder">'+
-        '<div class="reminder-txt">🔔 <b>Пора сделать резервную копию.</b> '+
-          (meta.lastBackup ? 'С последней копии — '+meta.changes+' изменени'+(meta.changes===1?"е":meta.changes<5?"я":"й")+'.'
+      '<div class="reminder'+(_bkU?' urgent':'')+'">'+
+        '<div class="reminder-txt">'+(_bkU?'⚠️':'🔔')+' <b>'+(_bkU?'Давно не было копии — данные под угрозой.':'Пора сделать резервную копию.')+'</b> '+
+          (meta.lastBackup ? 'С последней копии — '+meta.changes+' изменени'+(meta.changes===1?"е":meta.changes<5?"я":"й")+', прошло '+Math.floor(daysSince(meta.lastBackup))+' дн.'
                            : 'Копии ещё не было ('+patients.length+' пациент'+plural(patients.length)+').')+
-          ' Сохраните файл Excel на всякий случай.</div>'+
+          ' Данные хранятся только на этом устройстве: очистите браузер, смените или потеряете телефон — без копии они пропадут. Нажмите «Сделать копию», это 2 секунды.'+
+          '<div class="reminder-sub">📷 Фото хранятся отдельно от Excel — делайте и их копию тоже. Перенос на новый телефон: копия Excel → «Восстановить из копии» (раздел 7 инструкции).</div>'+
+        '</div>'+
         '<div class="reminder-actions">'+
           '<button class="btn btn-primary btn-sm" data-action="export">💾 Сделать копию</button>'+
           '<button class="reminder-x" data-action="dismiss-reminder" title="Скрыть до следующего запуска">×</button>'+
