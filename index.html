@@ -354,7 +354,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
   var META_KEY  = "patients_meta_v1";
   var LIC_KEY   = "kirenix_license_v1";
   var SETTINGS_KEY = "kirenix_settings_v1";
-  var APP_VERSION = "1.2";
+  var APP_VERSION = "1.3";
 
   var patients = [];
   var meta = { lastBackup:null, changes:0 };
@@ -871,6 +871,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
           '<div class="actions">'+
             '<button class="btn btn-outline" data-action="import" title="Вернуть пациентов из ранее сохранённого файла Excel">Восстановить из копии</button>'+
             '<button class="btn btn-outline" data-action="export"'+(patients.length?"":" disabled")+' title="Сохранить резервную копию всех пациентов в Excel">💾 Резервная копия</button>'+
+            '<button class="btn btn-outline" data-action="photo-export"'+(patients.length?"":" disabled")+' title="Сохранить все фотографии всех пациентов в один файл — резервная копия фото">📷 Копия фото</button>'+
             '<button class="btn btn-outline" data-action="finance" title="Финансы и доход">₽ Финансы</button>'+
             '<button class="btn btn-outline" data-action="settings" title="Настройки и PIN-код">⚙</button>'+
             '<button class="btn btn-primary" data-action="new">+ Пациент</button>'+
@@ -883,6 +884,8 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
             '<li><b>Программа сама всё сохраняет</b> на этом устройстве — нажимать «сохранить» не нужно. Просто добавляйте пациентов. Закроете и откроете снова — все записи будут на месте.</li>'+
             '<li><b>Раз в неделю нажимайте «💾 Резервная копия»</b>. Программа сохранит файл Excel в папку «Загрузки» — это запасная копия на случай, если что-то случится с компьютером. Её можно открыть в обычном Excel.</li>'+
             '<li><b>«Восстановить из копии»</b> нужна редко — только чтобы вернуть пациентов из ранее сохранённого файла Excel.</li>'+
+            '<li><b>Фото в Excel не попадают</b> — для них есть своя кнопка «📷 Копия фото» вверху.</li>'+
+            '<li><b>Подробная инструкция всегда под рукой:</b> <a href="help.html" target="_blank" style="color:var(--accent);font-weight:700">откройте её по этой ссылке</a> — там всё по шагам: фото до/после, визиты, финансы, PIN-код.</li>'+
           '</ol>'+
         '</div>'+
         reminderHTML+
@@ -896,7 +899,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
         (patients.length?'<div class="sortbar"><span class="lbl">Сортировать:</span>'+sorts+'</div>':"")+
         '<div id="list" class="list"></div>'+
       '</div>'+
-      '<div class="footer-note">Kirenix Учёт v'+APP_VERSION+' — приложение для учёта пациентов. Все данные хранятся только на этом устройстве и никуда не отправляются. Резервные копии в Excel — ваша страховка.</div>';
+      '<div class="footer-note">Kirenix Учёт v'+APP_VERSION+' — приложение для учёта пациентов. Все данные хранятся только на этом устройстве и никуда не отправляются. Резервные копии в Excel — ваша страховка. · <a href="help.html" target="_blank" style="color:inherit;font-weight:700">Инструкция</a></div>';
 
     renderList();
 
@@ -1007,6 +1010,26 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
     };
     reader.readAsText(file);
   }
+  // Фото, прикреплённые в форме визита/пациента: сжать и сохранить в хранилище фото
+  function savePhotosFromInputs(patientId, date, pairs){
+    var files=[];
+    pairs.forEach(function(pr){
+      var el=document.getElementById(pr[0]);
+      if(el && el.files && el.files.length){ for(var i=0;i<el.files.length;i++) files.push({f:el.files[i], kind:pr[1]}); }
+    });
+    if(!files.length) return 0;
+    var done=0, okN=0, total=files.length;
+    showToast("Обрабатываю фото ("+total+")…");
+    files.forEach(function(it){
+      compressImage(it.f, function(dataURL){
+        photoAdd({id:genVid()+genVid(), patientId:patientId, kind:it.kind, date:date||today(), dataURL:dataURL})
+          .then(function(){ okN++; done++; if(done===total) showToast("Сохранено фото: "+okN+" ✓ — смотрите «📷 фото до/после» в карточке"); })
+          .catch(function(){ done++; if(done===total) showToast("Сохранено фото: "+okN+" из "+total); });
+      }, function(){ done++; if(done===total) showToast("Сохранено фото: "+okN+" из "+total); });
+    });
+    return total;
+  }
+
   function stat(lbl,num,clr){
     return '<div class="stat"><div class="num" style="color:'+clr+'">'+num+'</div><div class="lbl">'+esc(lbl)+'</div></div>';
   }
@@ -1132,6 +1155,8 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
           field("f_v_amount","Стоимость, ₽","",{type:"number",min:0})+
           field("f_v_proc","Процедура","",{full:true,placeholder:"Например: чистка, пилинг, мезотерапия"})+
           field("f_v_paid","Оплата","оплачено",{select:["оплачено","не оплачено","предоплата"]})+
+          '<div><label class="label">Фото «до» (необязательно)</label><input class="input" type="file" accept="image/*" multiple id="f_v_ph_before"><div class="hint">Из галереи или с камеры, можно несколько</div></div>'+
+          '<div><label class="label">Фото «после» (необязательно)</label><input class="input" type="file" accept="image/*" multiple id="f_v_ph_after"><div class="hint">Снимки появятся в «📷 фото до/после»</div></div>'+
         '</div><div class="hint">Запишем первый приём. Дальше добавляйте визиты кнопкой «+ визит» в карточке.</div></div></div>'))+
         '<div class="full">'+
           '<label class="label">Статус пациента</label>'+
@@ -1178,9 +1203,10 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
       var fvDate=v("f_v_date"), fvAmount=v("f_v_amount"), fvProc=v("f_v_proc"), fvPaid=v("f_v_paid")||"оплачено";
       data.visits = (fvDate||fvAmount||fvProc) ? [{id:genVid(), date:fvDate, proc:fvProc, amount:fvAmount, paid:fvPaid}] : [];
       recalc(data); patients.push(data);
+      var phN=savePhotosFromInputs(data.id, fvDate||today(), [["f_v_ph_before","до"],["f_v_ph_after","после"]]);
     }
     persist(); bumpChange(); editId=null; view="list"; render();
-    showToast("Пациент сохранён ✓ (автоматически)");
+    if(!phN) showToast("Пациент сохранён ✓ (автоматически)");
   }
 
   function saveVisit(){
@@ -1191,8 +1217,9 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
     if(!Array.isArray(p.visits)) p.visits=[];
     if(visitEdit){ p.visits=p.visits.map(function(x){ return x.id===visitEdit?Object.assign({},x,rec):x; }); }
     else { rec.id=genVid(); p.visits.push(rec); }
+    var phN=savePhotosFromInputs(visitPatient, date, [["f_vs_ph_before","до"],["f_vs_ph_after","после"]]);
     recalc(p); persist(); bumpChange(); view="list"; visitEdit=null; render();
-    showToast("Визит сохранён ✓");
+    if(!phN) showToast("Визит сохранён ✓");
   }
   function visitHTML(){
     var p=patients.filter(function(x){return x.id===visitPatient;})[0]; if(!p){ view="list"; return ""; }
@@ -1204,6 +1231,8 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
         field("f_vs_amount","Стоимость, ₽",ve.amount,{type:"number",min:0})+
         field("f_vs_proc","Процедура",ve.proc,{full:true,placeholder:"Например: чистка, пилинг, мезотерапия"})+
         field("f_vs_paid","Оплата",ve.paid||"оплачено",{select:["оплачено","не оплачено","предоплата"]})+
+        '<div><label class="label">Фото «до» (необязательно)</label><input class="input" type="file" accept="image/*" multiple id="f_vs_ph_before"><div class="hint">Из галереи или с камеры, можно несколько — сожмутся сами</div></div>'+
+        '<div><label class="label">Фото «после» (необязательно)</label><input class="input" type="file" accept="image/*" multiple id="f_vs_ph_after"><div class="hint">Все снимки появятся в «📷 фото до/после»</div></div>'+
       '</div>'+
       '<div class="form-actions">'+
         '<button class="btn btn-primary" data-action="save-visit">'+(visitEdit?"Сохранить визит":"Добавить визит")+'</button>'+
