@@ -809,6 +809,12 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
         (has?'<button class="btn btn-outline" data-action="pin-remove">Снять PIN</button>':'')+
         '<button class="btn btn-ghost" data-action="settings-close">Назад</button>'+
       '</div>'+
+      '<hr style="border:none;border-top:1px solid var(--border);margin:14px 0">'+
+      '<div class="form-grid"><div class="full">'+
+        '<label class="label">Профиль: '+esc(license&&license.owner?license.owner:"")+'</label>'+
+        '<div class="hint">Выход сбросит код доступа и вернёт к экрану входа. Записи пациентов останутся на этом устройстве — при входе тем же кодом они будут на месте.</div>'+
+      '</div></div>'+
+      '<div class="form-actions"><button class="btn btn-outline" data-action="logout" style="color:var(--danger);border-color:var(--danger)">Выйти из профиля</button></div>'+
     '</div></div>';
   }
 
@@ -1411,6 +1417,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
     else if(a==="pin-unlock"){ var _pv=(document.getElementById("pin_in")||{}).value||""; if(hashPin(_pv)===settings.pinHash){ pinUnlocked=true; render(); } else { showToast("Неверный PIN"); } }
     else if(a==="pin-save"){ var _np=String(((document.getElementById("pin_new")||{}).value)||"").trim(); if(!/^[0-9]{4,8}$/.test(_np)){ showToast("PIN — от 4 до 8 цифр"); return; } settings.pinHash=hashPin(_np); saveSettings(); pinUnlocked=true; view="list"; render(); showToast("PIN установлен ✓"); }
     else if(a==="pin-remove"){ settings.pinHash=null; saveSettings(); showToast("PIN снят"); render(); }
+    else if(a==="logout"){ if(confirm("Выйти из профиля?\n\nКод доступа сбросится, откроется экран входа. Записи пациентов останутся на этом устройстве — при входе тем же кодом они будут на месте.")){ try{ localStorage.removeItem(LIC_KEY); }catch(e){} license=null; pinUnlocked=false; view="list"; render(); } }
     else if(a==="spec-save"){ var _sp=(document.getElementById("set_spec")||{}).value||""; settings.specialty=(_sp==="не выбрано"?"":_sp); saveSettings(); render(); showToast("Специальность сохранена"); }
     else if(a==="export"){ exportExcel(); }
     else if(a==="import"){ fileInput.value=""; fileInput.click(); }
