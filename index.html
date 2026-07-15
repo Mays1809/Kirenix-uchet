@@ -13,6 +13,7 @@
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
 <meta name="twitter:card" content="summary_large_image">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='20' fill='%233B5BDB'/><text x='50' y='72' font-size='60' text-anchor='middle' fill='white' font-family='Arial'>K</text></svg>">
 <style>
   :root{
     --bg:#F6F7FB; --card:#fff; --accent:#3B5BDB; --accent-light:#EDF2FF;
@@ -311,6 +312,9 @@
   .photometa{display:flex;align-items:center;gap:6px;padding:6px 8px;font-size:12px;color:var(--muted)}
   .photometa .ptag{background:var(--accent-light);color:var(--accent);border-radius:6px;padding:1px 7px;font-weight:700}
   .photometa .del{margin-left:auto}
+  .cmpwrap{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px}
+  .cmpcol .cmplbl{font-size:12px;font-weight:700;color:var(--muted);margin-bottom:6px;letter-spacing:.03em}
+  .cmpcol img{width:100%;border-radius:12px;border:1px solid var(--border);display:block;background:#F1F3F8}
 </style>
 </head>
 <body>
@@ -350,7 +354,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
   var META_KEY  = "patients_meta_v1";
   var LIC_KEY   = "kirenix_license_v1";
   var SETTINGS_KEY = "kirenix_settings_v1";
-  var APP_VERSION = "1.1";
+  var APP_VERSION = "1.2";
 
   var patients = [];
   var meta = { lastBackup:null, changes:0 };
@@ -944,14 +948,26 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
         '</div>'+
         '<div class="hint">Фото сжимаются автоматически. Они не попадают в Excel-копию — для их резервной копии используйте «Сохранить все фото».</div>'+
       '</div>'+
+      '<div id="photocmp"></div>'+
       '<div id="photogrid" class="photogrid"><div class="empty">Загрузка фото…</div></div>'+
     '</div>';
   }
   function loadPhotoGrid(){
     var grid=document.getElementById("photogrid"); if(!grid) return;
+    var cmp=document.getElementById("photocmp"); if(cmp) cmp.innerHTML="";
     photoList(photoPatient).then(function(items){
       if(!items.length){ grid.innerHTML='<div class="empty">Фото пока нет. Добавьте первое — «до» и «после» удобно сравнивать.</div>'; return; }
       items.sort(function(a,b){ return String(a.date||"")<String(b.date||"")?-1:1; });
+      if(cmp){
+        var lastBefore=null, lastAfter=null;
+        items.forEach(function(it){ if(it.kind==="до") lastBefore=it; if(it.kind==="после") lastAfter=it; });
+        if(lastBefore && lastAfter){
+          cmp.innerHTML='<div class="cmpwrap">'+
+            '<div class="cmpcol"><div class="cmplbl">ДО · '+formatDate(lastBefore.date)+'</div><img src="'+(lastBefore.dataURL||"")+'" alt="до"></div>'+
+            '<div class="cmpcol"><div class="cmplbl">ПОСЛЕ · '+formatDate(lastAfter.date)+'</div><img src="'+(lastAfter.dataURL||"")+'" alt="после"></div>'+
+          '</div>';
+        }
+      }
       grid.innerHTML=items.map(function(it){
         return '<div class="photocard"><img src="'+(it.dataURL||"")+'" alt=""><div class="photometa"><span class="ptag">'+esc(it.kind||"")+'</span> '+formatDate(it.date)+'<button class="icon-btn del" data-action="del-photo" data-id="'+it.id+'" title="Удалить фото">✕</button></div></div>';
       }).join("");
