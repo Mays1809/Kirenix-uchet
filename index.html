@@ -442,6 +442,8 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
   function loadSettings(){ try{ var s=localStorage.getItem(SETTINGS_KEY); if(s) settings=Object.assign({pinHash:null},JSON.parse(s)); }catch(e){} }
   function saveSettings(){ try{ localStorage.setItem(SETTINGS_KEY, JSON.stringify(settings)); }catch(e){} }
   function hashPin(s){ s=String(s); var h=5381; for(var i=0;i<s.length;i++){ h=((h<<5)+h+s.charCodeAt(i))>>>0; } return "h"+h.toString(36); }
+  // код блокировки: скрытый вид ключа для manifest.json (наружу ключ не виден)
+  function blockCode(k){ return "b"+hashPin("kirenix-block:"+normKey(k)).slice(1); }
 
   // Проверка manifest.json на хостинге: блокировки, новости, версия.
   // Если интернета нет или файл открыт локально — просто молча пропускаем.
@@ -451,7 +453,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
         .then(function(r){ return r.ok ? r.json() : null; })
         .then(function(m){
           if(!m) return;
-          if(m.blocked && license && m.blocked.indexOf(license.key)>-1){ locked=true; render(); return; }
+          if(m.blocked && license && (m.blocked.indexOf(license.key)>-1 || m.blocked.indexOf(blockCode(license.key))>-1)){ locked=true; render(); return; }
           if(m.message) newsMsg=String(m.message);
           if(m.latest && String(m.latest)!==APP_VERSION) updateAvailable=true;
           if(newsMsg || updateAvailable) render();
