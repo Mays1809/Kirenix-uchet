@@ -388,6 +388,8 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
 
   // ---------- вспомогательные ----------
   function genId(){ return Date.now().toString(36) + Math.random().toString(36).slice(2,7); }
+  // ID из внешних файлов (Excel, копия фото) чистим: только буквы/цифры — защита от подделанных файлов
+  function safeId(s){ return String(s==null?"":s).replace(/[^A-Za-z0-9_-]/g,"").slice(0,40); }
   function genVid(){ return 'v'+Date.now().toString(36)+Math.random().toString(36).slice(2,6); }
   function today(){ return new Date().toISOString().slice(0,10); }
   function esc(s){ return String(s==null?"":s).replace(/[&<>"']/g,function(c){
@@ -463,7 +465,14 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
   }
 
   // ---------- хранение (автосохранение) ----------
-  function persist(){ try{ localStorage.setItem(STORE_KEY, JSON.stringify(patients)); }catch(e){} }
+  var storageFail=false;
+  function persist(){
+    try{ localStorage.setItem(STORE_KEY, JSON.stringify(patients)); if(storageFail){ storageFail=false; } }
+    catch(e){
+      storageFail=true;
+      try{ showToast("⚠️ НЕ УДАЛОСЬ СОХРАНИТЬ на устройстве! Срочно нажмите «Резервная копия»."); }catch(_){}
+    }
+  }
   function loadLocal(){ try{ var s=localStorage.getItem(STORE_KEY); if(s) patients=JSON.parse(s)||[]; }catch(e){} migrateVisits(); }
   function visitsOf(p){ return Array.isArray(p.visits)?p.visits:[]; }
   function recalc(p){
@@ -870,6 +879,13 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
         '</div>'+
       '</div>') : "";
 
+    var storageHTML = storageFail ? (
+      '<div class="reminder urgent">'+
+        '<div class="reminder-txt">⚠️ <b>Записи не сохраняются на этом устройстве.</b> Скорее всего, закончилось место в памяти браузера. '+
+        'Всё, что вы добавите сейчас, может пропасть при закрытии страницы. <b>Сразу нажмите «Сделать копию»</b>, а затем освободите место (удалите старые фото) или перенесите базу на другое устройство.</div>'+
+        '<div class="reminder-actions"><button class="btn btn-primary btn-sm" data-action="export">💾 Сделать копию</button></div>'+
+      '</div>') : "";
+
     var chips = ["Все"].concat(STATUS).map(function(x){
       return '<button class="chip'+(statusFilter===x?" active":"")+'" data-action="filter" data-status="'+esc(x)+'">'+esc(x)+'</button>';
     }).join("");
@@ -908,6 +924,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
             '<li><b>Подробная инструкция всегда под рукой:</b> <a href="help.html" target="_blank" style="color:var(--accent);font-weight:700">откройте её по этой ссылке</a> — там всё по шагам: фото до/после, визиты, финансы, PIN-код.</li>'+
           '</ol>'+
         '</div>'+
+        storageHTML+
         reminderHTML+
         statsHTML+
         financeHTML+
@@ -992,7 +1009,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
         }
       }
       grid.innerHTML=items.map(function(it){
-        return '<div class="photocard"><img src="'+(it.dataURL||"")+'" alt=""><div class="photometa"><span class="ptag">'+esc(it.kind||"")+'</span> '+formatDate(it.date)+'<button class="icon-btn del" data-action="del-photo" data-id="'+it.id+'" title="Удалить фото">✕</button></div></div>';
+        return '<div class="photocard"><img src="'+(it.dataURL||"")+'" alt=""><div class="photometa"><span class="ptag">'+esc(it.kind||"")+'</span> '+formatDate(it.date)+'<button class="icon-btn del" data-action="del-photo" data-id="'+esc(it.id)+'" title="Удалить фото">✕</button></div></div>';
       }).join("");
     }).catch(function(e){ grid.innerHTML='<div class="note">Фото на этом устройстве недоступны: '+esc(String(e&&e.message||e))+'</div>'; });
   }
@@ -1024,7 +1041,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
         var done=0, n=0;
         arr.forEach(function(it){
           if(!it || !it.dataURL){ done++; if(done===arr.length){ showToast("Восстановлено фото: "+n); loadPhotoGrid(); } return; }
-          photoAdd({id:it.id||(genVid()+genVid()), patientId:it.patientId, kind:it.kind||"", date:it.date||"", dataURL:it.dataURL}).then(function(){ n++; done++; if(done===arr.length){ showToast("Восстановлено фото: "+n); loadPhotoGrid(); } }).catch(function(){ done++; if(done===arr.length){ showToast("Восстановлено фото: "+n); loadPhotoGrid(); } });
+          photoAdd({id:safeId(it.id)||(genVid()+genVid()), patientId:safeId(it.patientId), kind:String(it.kind||"").slice(0,20), date:String(it.date||"").slice(0,10), dataURL:(String(it.dataURL||"").indexOf("data:image/")===0?it.dataURL:"")}).then(function(){ n++; done++; if(done===arr.length){ showToast("Восстановлено фото: "+n); loadPhotoGrid(); } }).catch(function(){ done++; if(done===arr.length){ showToast("Восстановлено фото: "+n); loadPhotoGrid(); } });
         });
       }catch(err){ showToast("Не удалось прочитать файл фото"); }
     };
@@ -1092,8 +1109,8 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
       var course = (parseInt(p.courseTotal,10)>0) ? '<span>Курс: '+(parseInt(p.courseDone,10)||0)+' из '+parseInt(p.courseTotal,10)+'</span>' : "";
       var vs=visitsOf(p); var total=patientPaidTotal(p);
       var unpaidN=vs.filter(function(v){ return v.paid==="не оплачено" && (parseFloat(String(v.amount).replace(",","."))||0)>0; }).length;
-      var visLine = '<div class="pvisits"><b>Визитов: '+vs.length+'</b>'+(total>0?' · принёс '+fmtMoney(total)+' ₽':'')+(unpaidN?' · <span class="unpaidtag">долгов: '+unpaidN+'</span>':'')+' <button class="linkbtn" data-action="add-visit" data-id="'+p.id+'">+ визит</button> <button class="linkbtn" data-action="photos" data-id="'+p.id+'">📷 фото до/после</button></div>';
-      var histRows = vs.slice().reverse().map(function(v){ var a=parseFloat(String(v.amount).replace(",","."))||0; var up=(v.paid==="не оплачено"); return '<div class="vrow"><span class="vd">'+formatDate(v.date)+'</span><span class="vp">'+esc(v.proc||"—")+'</span><span class="va'+(up?" unpaid":"")+'">'+(a>0?fmtMoney(a)+" ₽":"")+(v.paid?" · "+esc(v.paid):"")+'</span><button class="icon-btn edit" data-action="edit-visit" data-id="'+p.id+'" data-vid="'+v.id+'" title="Изменить визит">✎</button><button class="icon-btn del" data-action="del-visit" data-id="'+p.id+'" data-vid="'+v.id+'" title="Удалить визит">✕</button></div>'; }).join("");
+      var visLine = '<div class="pvisits"><b>Визитов: '+vs.length+'</b>'+(total>0?' · принёс '+fmtMoney(total)+' ₽':'')+(unpaidN?' · <span class="unpaidtag">долгов: '+unpaidN+'</span>':'')+' <button class="linkbtn" data-action="add-visit" data-id="'+esc(p.id)+'">+ визит</button> <button class="linkbtn" data-action="photos" data-id="'+esc(p.id)+'">📷 фото до/после</button></div>';
+      var histRows = vs.slice().reverse().map(function(v){ var a=parseFloat(String(v.amount).replace(",","."))||0; var up=(v.paid==="не оплачено"); return '<div class="vrow"><span class="vd">'+formatDate(v.date)+'</span><span class="vp">'+esc(v.proc||"—")+'</span><span class="va'+(up?" unpaid":"")+'">'+(a>0?fmtMoney(a)+" ₽":"")+(v.paid?" · "+esc(v.paid):"")+'</span><button class="icon-btn edit" data-action="edit-visit" data-id="'+esc(p.id)+'" data-vid="'+esc(v.id)+'" title="Изменить визит">✎</button><button class="icon-btn del" data-action="del-visit" data-id="'+esc(p.id)+'" data-vid="'+esc(v.id)+'" title="Удалить визит">✕</button></div>'; }).join("");
       var hist = vs.length ? '<details class="vhist"><summary>История визитов</summary><div class="vlist">'+histRows+'</div></details>' : "";
       var pheno = (p.phototype && p.phototype!=="—") ? '<span>Фототип: '+esc(p.phototype)+'</span>' : "";
       var consent = p.consentDate ? '<span class="pconsent">✔ согласие '+formatDate(p.consentDate)+'</span>' : "";
@@ -1115,10 +1132,10 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
             hist+
           '</div>'+
           '<div class="pactions">'+
-            '<button class="badge '+bc+'" data-action="status" data-id="'+p.id+'" title="Нажмите, чтобы сменить статус">'+esc(p.status)+'</button>'+
-            '<button class="icon-btn" data-action="photos" data-id="'+p.id+'" title="Фото до/после">📷</button>'+
-            '<button class="icon-btn edit" data-action="edit" data-id="'+p.id+'" title="Изменить">✎</button>'+
-            '<button class="icon-btn del" data-action="delete" data-id="'+p.id+'" title="Удалить">✕</button>'+
+            '<button class="badge '+bc+'" data-action="status" data-id="'+esc(p.id)+'" title="Нажмите, чтобы сменить статус">'+esc(p.status)+'</button>'+
+            '<button class="icon-btn" data-action="photos" data-id="'+esc(p.id)+'" title="Фото до/после">📷</button>'+
+            '<button class="icon-btn edit" data-action="edit" data-id="'+esc(p.id)+'" title="Изменить">✎</button>'+
+            '<button class="icon-btn del" data-action="delete" data-id="'+esc(p.id)+'" title="Удалить">✕</button>'+
           '</div>'+
         '</div>'+
       '</div>';
@@ -1339,11 +1356,11 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
         var visMap={};
         if(wb.SheetNames.indexOf("Визиты")>-1){
           var vraw=XLSX.utils.sheet_to_json(wb.Sheets["Визиты"],{defval:"",raw:false});
-          vraw.forEach(function(r){ var pid=String(r["ID пациента"]||"").trim(); if(!pid) return; (visMap[pid]||(visMap[pid]=[])).push({id:genVid(), date:parseDateCell(r["Дата"]), proc:String(r["Процедура"]||"").trim(), amount:String(r["Сумма"]||"").trim(), paid:String(r["Оплата"]||"оплачено").trim()}); });
+          vraw.forEach(function(r){ var pid=safeId(r["ID пациента"]); if(!pid) return; (visMap[pid]||(visMap[pid]=[])).push({id:genVid(), date:parseDateCell(r["Дата"]), proc:String(r["Процедура"]||"").trim(), amount:String(r["Сумма"]||"").trim(), paid:String(r["Оплата"]||"оплачено").trim()}); });
         }
         var imported=praw.map(function(r){
           var st=String(r["Статус"]||"").trim();
-          var pid=String(r["ID"]||"").trim()||genId();
+          var pid=safeId(r["ID"])||genId();
           var p={
             id:pid,
             lastName:String(r["Фамилия"]||"").trim(),
