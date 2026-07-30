@@ -973,6 +973,11 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
   function photoDel(pid){ return photoDB().then(function(db){ return new Promise(function(res,rej){ var tx=db.transaction("photos","readwrite"); tx.objectStore("photos")["delete"](pid); tx.oncomplete=function(){res();}; tx.onerror=function(){rej();}; }); }); }
   function photoList(patientId){ return photoDB().then(function(db){ return new Promise(function(res,rej){ var tx=db.transaction("photos","readonly"); var req=tx.objectStore("photos").index("patientId").getAll(patientId); req.onsuccess=function(){ res(req.result||[]); }; req.onerror=function(){ rej(); }; }); }); }
   function photoAll(){ return photoDB().then(function(db){ return new Promise(function(res,rej){ var tx=db.transaction("photos","readonly"); var req=tx.objectStore("photos").getAll(); req.onsuccess=function(){ res(req.result||[]); }; req.onerror=function(){ rej(); }; }); }); }
+  // строгая проверка картинки: только настоящий base64-снимок, иначе отбрасываем
+  function safePhotoData(s){
+    s=String(s==null?"":s);
+    return /^data:image\/(png|jpe?g|gif|webp);base64,[A-Za-z0-9+/=]+$/.test(s) ? s : "";
+  }
   function photoDelByPatient(pid){ try{ photoList(pid).then(function(items){ items.forEach(function(it){ photoDel(it.id); }); }).catch(function(){}); }catch(e){} }
   function compressImage(file, ok, fail){
     try{
@@ -1025,13 +1030,13 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
         items.forEach(function(it){ if(it.kind==="до") lastBefore=it; if(it.kind==="после") lastAfter=it; });
         if(lastBefore && lastAfter){
           cmp.innerHTML='<div class="cmpwrap">'+
-            '<div class="cmpcol"><div class="cmplbl">ДО · '+formatDate(lastBefore.date)+'</div><img src="'+(lastBefore.dataURL||"")+'" alt="до"></div>'+
-            '<div class="cmpcol"><div class="cmplbl">ПОСЛЕ · '+formatDate(lastAfter.date)+'</div><img src="'+(lastAfter.dataURL||"")+'" alt="после"></div>'+
+            '<div class="cmpcol"><div class="cmplbl">ДО · '+formatDate(lastBefore.date)+'</div><img src="'+esc(safePhotoData(lastBefore.dataURL))+'" alt="до"></div>'+
+            '<div class="cmpcol"><div class="cmplbl">ПОСЛЕ · '+formatDate(lastAfter.date)+'</div><img src="'+esc(safePhotoData(lastAfter.dataURL))+'" alt="после"></div>'+
           '</div>';
         }
       }
       grid.innerHTML=items.map(function(it){
-        return '<div class="photocard"><img src="'+(it.dataURL||"")+'" alt=""><div class="photometa"><span class="ptag">'+esc(it.kind||"")+'</span> '+formatDate(it.date)+'<button class="icon-btn del" data-action="del-photo" data-id="'+esc(it.id)+'" title="Удалить фото">✕</button></div></div>';
+        return '<div class="photocard"><img src="'+esc(safePhotoData(it.dataURL))+'" alt=""><div class="photometa"><span class="ptag">'+esc(it.kind||"")+'</span> '+formatDate(it.date)+'<button class="icon-btn del" data-action="del-photo" data-id="'+esc(it.id)+'" title="Удалить фото">✕</button></div></div>';
       }).join("");
     }).catch(function(e){ grid.innerHTML='<div class="note">Фото на этом устройстве недоступны: '+esc(String(e&&e.message||e))+'</div>'; });
   }
@@ -1063,7 +1068,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
         var done=0, n=0;
         arr.forEach(function(it){
           if(!it || !it.dataURL){ done++; if(done===arr.length){ showToast("Восстановлено фото: "+n); loadPhotoGrid(); } return; }
-          photoAdd({id:safeId(it.id)||(genVid()+genVid()), patientId:safeId(it.patientId), kind:String(it.kind||"").slice(0,20), date:String(it.date||"").slice(0,10), dataURL:(String(it.dataURL||"").indexOf("data:image/")===0?it.dataURL:"")}).then(function(){ n++; done++; if(done===arr.length){ showToast("Восстановлено фото: "+n); loadPhotoGrid(); } }).catch(function(){ done++; if(done===arr.length){ showToast("Восстановлено фото: "+n); loadPhotoGrid(); } });
+          photoAdd({id:safeId(it.id)||(genVid()+genVid()), patientId:safeId(it.patientId), kind:String(it.kind||"").slice(0,20), date:String(it.date||"").slice(0,10), dataURL:safePhotoData(it.dataURL)}).then(function(){ n++; done++; if(done===arr.length){ showToast("Восстановлено фото: "+n); loadPhotoGrid(); } }).catch(function(){ done++; if(done===arr.length){ showToast("Восстановлено фото: "+n); loadPhotoGrid(); } });
         });
       }catch(err){ showToast("Не удалось прочитать файл фото"); }
     };
