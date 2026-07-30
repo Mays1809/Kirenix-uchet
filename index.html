@@ -466,6 +466,19 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
 
   // ---------- хранение (автосохранение) ----------
   var storageFail=false;
+  // iPhone в обычном Safari очищает данные сайта, если не заходить 7 дней.
+  // У значка на экране «Домой» такого ограничения нет — подсказываем добавить.
+  function needIosHint(){
+    try{
+      if(settings.iosHintHidden) return false;
+      var ua=String(navigator.userAgent||"");
+      var isIOS=/iPad|iPhone|iPod/.test(ua) || (/Macintosh/.test(ua) && typeof document!=="undefined" && "ontouchend" in document);
+      if(!isIOS) return false;
+      var standalone = (navigator.standalone===true) ||
+        (window.matchMedia && window.matchMedia("(display-mode: standalone)").matches);
+      return !standalone;
+    }catch(e){ return false; }
+  }
   function persist(){
     try{ localStorage.setItem(STORE_KEY, JSON.stringify(patients)); if(storageFail){ storageFail=false; } }
     catch(e){
@@ -879,6 +892,14 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
         '</div>'+
       '</div>') : "";
 
+    var iosHTML = needIosHint() ? (
+      '<div class="reminder">'+
+        '<div class="reminder-txt">📲 <b>Добавьте значок на экран телефона — это защищает ваши записи.</b> '+
+        'Если открывать программу только через браузер и не заходить неделю, iPhone может очистить её память вместе с записями. '+
+        'У значка на экране «Домой» такого ограничения нет.<div class="reminder-sub">Как добавить: кнопка «Поделиться» (квадрат со стрелкой ↑) → «На экран „Домой“» → «Добавить». Один раз — и дальше открываете как обычное приложение.</div></div>'+
+        '<div class="reminder-actions"><button class="reminder-x" data-action="dismiss-ios" title="Скрыть">×</button></div>'+
+      '</div>') : "";
+
     var storageHTML = storageFail ? (
       '<div class="reminder urgent">'+
         '<div class="reminder-txt">⚠️ <b>Записи не сохраняются на этом устройстве.</b> Скорее всего, закончилось место в памяти браузера. '+
@@ -924,6 +945,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
             '<li><b>Подробная инструкция всегда под рукой:</b> <a href="help.html" target="_blank" style="color:var(--accent);font-weight:700">откройте её по этой ссылке</a> — там всё по шагам: фото до/после, визиты, финансы, PIN-код.</li>'+
           '</ol>'+
         '</div>'+
+        iosHTML+
         storageHTML+
         reminderHTML+
         statsHTML+
@@ -1446,6 +1468,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
     else if(a==="save-form"){ saveForm(); }
     else if(a==="cancel-form"){ editId=null; view="list"; render(); }
     else if(a==="dismiss-reminder"){ reminderHidden=true; render(); }
+    else if(a==="dismiss-ios"){ settings.iosHintHidden=true; saveSettings(); render(); }
     else if(a==="dismiss-news"){ newsHidden=true; render(); }
     else if(a==="set-status"){
       formStatus=t.getAttribute("data-status");
