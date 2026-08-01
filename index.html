@@ -811,6 +811,8 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
       '<input class="input" id="pin_in" type="password" inputmode="numeric" autocomplete="off" placeholder="PIN" style="text-align:center;letter-spacing:4px;font-size:20px">'+
       '<div style="height:14px"></div>'+
       '<button class="btn btn-primary" data-action="pin-unlock" style="width:100%;justify-content:center">Войти</button>'+
+      '<div style="height:10px"></div>'+
+      '<button class="btn btn-ghost" data-action="pin-forgot" style="width:100%;justify-content:center">Не помню PIN</button>'+
       '<div class="activation-note">Карты пациентов защищены PIN-кодом на этом устройстве.</div>'+
     '</div></div>';
   }
@@ -850,7 +852,22 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
     document.body.classList.remove('lp-mode');
     if(locked){ root.innerHTML = lockHTML(); return; }
     if(!license){ document.body.classList.add('lp-mode'); root.innerHTML = landingHTML(); window.scrollTo(0,0); return; }
-    if(settings.pinHash && !pinUnlocked){ root.innerHTML = pinHTML(); return; }
+    if(settings.pinHash && !pinUnlocked){
+      root.innerHTML = pinHTML();
+      try{
+        var _pi=document.getElementById("pin_in");
+        if(_pi){
+          _pi.addEventListener("keydown",function(e){
+            if(e.key==="Enter"||e.keyCode===13){
+              if(hashPin(_pi.value||"")===settings.pinHash){ pinUnlocked=true; render(); }
+              else { showToast("Неверный PIN"); }
+            }
+          });
+          _pi.focus();
+        }
+      }catch(e){}
+      return;
+    }
     if(view==="settings"){ root.innerHTML = settingsHTML(); return; }
     if(view==="visit"){ root.innerHTML = visitHTML(); return; }
     if(view==="photos"){ root.innerHTML = photosHTML(); loadPhotoGrid(); return; }
@@ -1001,7 +1018,8 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
     }catch(err){ fail(err); }
   }
   function photosHTML(){
-    var p=patients.filter(function(x){return x.id===photoPatient;})[0]; if(!p){ view="list"; return ""; }
+    var p=patients.filter(function(x){return x.id===photoPatient;})[0];
+    if(!p){ view="list"; return '<div class="container"><div class="card"><h2 class="form-title">Пациент не найден</h2><p class="form-sub">Возможно, запись была удалена.</p><div class="form-actions"><button class="btn btn-primary" data-action="photos-back">← К пациентам</button></div></div></div>'; }
     return '<div class="container">'+
       '<div class="header"><div><h1 class="title">📷 Фото — '+esc(p.lastName)+' '+esc(p.firstName)+'</h1>'+
         '<p class="lead">Фотографии хранятся только на этом устройстве. Для копии — кнопка «Сохранить все фото».</p></div>'+
@@ -1289,7 +1307,8 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
     if(!phN) showToast("Визит сохранён ✓");
   }
   function visitHTML(){
-    var p=patients.filter(function(x){return x.id===visitPatient;})[0]; if(!p){ view="list"; return ""; }
+    var p=patients.filter(function(x){return x.id===visitPatient;})[0];
+    if(!p){ view="list"; return '<div class="container"><div class="card"><h2 class="form-title">Пациент не найден</h2><p class="form-sub">Возможно, запись была удалена.</p><div class="form-actions"><button class="btn btn-primary" data-action="cancel-visit">← К пациентам</button></div></div></div>'; }
     var ve = visitEdit ? visitsOf(p).filter(function(x){return x.id===visitEdit;})[0] : null; ve=ve||{};
     return '<div class="container"><div class="card">'+
       '<h2 class="form-title">'+(visitEdit?"Изменить визит":"Новый визит")+' — '+esc(p.lastName)+' '+esc(p.firstName)+'</h2>'+
@@ -1466,6 +1485,14 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
     else if(a==="pin-unlock"){ var _pv=(document.getElementById("pin_in")||{}).value||""; if(hashPin(_pv)===settings.pinHash){ pinUnlocked=true; render(); } else { showToast("Неверный PIN"); } }
     else if(a==="pin-save"){ var _np=String(((document.getElementById("pin_new")||{}).value)||"").trim(); if(!/^[0-9]{4,8}$/.test(_np)){ showToast("PIN — от 4 до 8 цифр"); return; } settings.pinHash=hashPin(_np); saveSettings(); pinUnlocked=true; view="list"; render(); showToast("PIN установлен ✓"); }
     else if(a==="pin-remove"){ settings.pinHash=null; saveSettings(); showToast("PIN снят"); render(); }
+    else if(a==="pin-forgot"){
+      if(!confirm("Забытый PIN восстановить нельзя — его не знает никто, включая разработчика.\n\nЕдинственный выход: очистить программу на этом устройстве и восстановить пациентов из копии Excel.\n\nЕсли свежей копии Excel НЕТ — записи будут потеряны безвозвратно. Продолжить?")) return;
+      if(!confirm("Последнее подтверждение.\n\nСейчас будут удалены все записи, фото и настройки на этом устройстве. Восстановить их можно будет только из файла Excel («Восстановить из копии») и файла фото.\n\nСтереть?")) return;
+      try{ localStorage.removeItem(STORE_KEY); localStorage.removeItem(META_KEY); localStorage.removeItem(SETTINGS_KEY); localStorage.removeItem(LIC_KEY); }catch(e){}
+      try{ if(typeof indexedDB!=="undefined") indexedDB.deleteDatabase("kirenix_photos"); }catch(e){}
+      patients=[]; meta={lastBackup:null,changes:0}; settings={pinHash:null}; license=null; pinUnlocked=false; locked=false; view="list";
+      render(); showToast("Программа очищена. Введите код и восстановите записи из копии Excel.");
+    }
     else if(a==="logout"){ if(confirm("Выйти из профиля?\n\nКод доступа сбросится, откроется экран входа. Записи пациентов останутся на этом устройстве — при входе тем же кодом они будут на месте.")){ try{ localStorage.removeItem(LIC_KEY); }catch(e){} license=null; pinUnlocked=false; locked=false; view="list"; render(); } }
     else if(a==="spec-save"){ var _sp=(document.getElementById("set_spec")||{}).value||""; settings.specialty=(_sp==="не выбрано"?"":_sp); saveSettings(); render(); showToast("Специальность сохранена"); }
     else if(a==="export"){ exportExcel(); }
