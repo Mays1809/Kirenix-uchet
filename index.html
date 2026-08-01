@@ -7,7 +7,7 @@
 <meta name="description" content="Kirenix Учёт — программа учёта пациентов для мастеров: карточки с процедурами, противопоказаниями и датами визитов. Данные только у вас, без подписки.">
 <meta property="og:type" content="website">
 <meta property="og:title" content="Kirenix Учёт — учёт пациентов для мастеров">
-<meta property="og:description" content="Карточки пациентов, процедуры, противопоказания и напоминания о визитах. Данные только у вас. Разовая оплата без подписки. Пробный доступ на 3 дня.">
+<meta property="og:description" content="Карточки пациентов, процедуры, противопоказания и напоминания о визитах. Данные только у вас. Разовая оплата без подписки. Демо без регистрации, гарантия возврата 14 дней.">
 <meta property="og:url" content="https://uchet.kirenix.ru">
 <meta property="og:image" content="https://uchet.kirenix.ru/og.png">
 <meta property="og:image:width" content="1200">
@@ -56,6 +56,8 @@
   .reminder-txt{font-size:13.5px;color:#7A5D00;line-height:1.5;flex:1;min-width:220px}
   .reminder-txt b{font-weight:700}
   .reminder-actions{display:flex;align-items:center;gap:6px}
+  .reminder.demo{background:var(--accent-light);border-color:#D7E0FF}
+  .reminder.demo .reminder-txt{color:#2C3A78}
   .reminder.urgent{background:#FEF2F2;border-color:#FCA5A5}
   .reminder.urgent .reminder-txt b{color:#B91C1C}
   .reminder-sub{margin-top:6px;font-size:12.5px;color:var(--muted);line-height:1.5}
@@ -440,9 +442,9 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
     return !!m && keyChecksum(m[1])===m[2];
   }
   function loadLicense(){ try{ var s=localStorage.getItem(LIC_KEY); if(s) license=JSON.parse(s); }catch(e){} }
-  function saveLicense(){ try{ localStorage.setItem(LIC_KEY, JSON.stringify(license)); }catch(e){} }
+  function saveLicense(){ if(demoMode) return; try{ localStorage.setItem(LIC_KEY, JSON.stringify(license)); }catch(e){} }
   function loadSettings(){ try{ var s=localStorage.getItem(SETTINGS_KEY); if(s) settings=Object.assign({pinHash:null},JSON.parse(s)); }catch(e){} }
-  function saveSettings(){ try{ localStorage.setItem(SETTINGS_KEY, JSON.stringify(settings)); }catch(e){} }
+  function saveSettings(){ if(demoMode) return; try{ localStorage.setItem(SETTINGS_KEY, JSON.stringify(settings)); }catch(e){} }
   function hashPin(s){ s=String(s); var h=5381; for(var i=0;i<s.length;i++){ h=((h<<5)+h+s.charCodeAt(i))>>>0; } return "h"+h.toString(36); }
   // код блокировки: скрытый вид ключа для manifest.json (наружу ключ не виден)
   function blockCode(k){ return "b"+hashPin("kirenix-block:"+normKey(k)).slice(1); }
@@ -465,6 +467,44 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
   }
 
   // ---------- хранение (автосохранение) ----------
+  var demoMode=false;
+  // ---------- демо-режим: показать программу без кода, ничего не сохраняя ----------
+  function demoPatients(){
+    var d=new Date(), ym=d.getFullYear()+"-"+("0"+(d.getMonth()+1)).slice(-2);
+    return [
+      {id:"d1",lastName:"Иванова",firstName:"Анна",middleName:"Сергеевна",phone:"+7 900 123-45-67",
+       birthDate:"1992-04-18",nextVisit:ym+"-28",status:"На курсе",
+       contra:"беременность",anamnesis:"аллергия на лидокаин",courseDone:"2",courseTotal:"5",
+       care:"крем с SPF 50 две недели, не загорать",phototype:"III",diagnosis:"",prescription:"",consentDate:ym+"-04",
+       notes:"Кожа чувствительная, покраснение держится дольше обычного.",
+       visits:[{id:"dv1",date:ym+"-04",proc:"чистка лица",amount:"2500",paid:"оплачено"},
+               {id:"dv2",date:ym+"-18",proc:"пилинг",amount:"3000",paid:"оплачено"}]},
+      {id:"d2",lastName:"Петрова",firstName:"Марина",middleName:"",phone:"+7 900 222-33-44",
+       birthDate:"1996-11-02",nextVisit:"",status:"Постоянный",
+       contra:"",anamnesis:"",courseDone:"",courseTotal:"",care:"",phototype:"II",diagnosis:"",prescription:"",consentDate:"",
+       notes:"",visits:[{id:"dv3",date:ym+"-20",proc:"коррекция бровей",amount:"1500",paid:"не оплачено"}]},
+      {id:"d3",lastName:"Соколова",firstName:"Ольга",middleName:"",phone:"",
+       birthDate:"1985-06-30",nextVisit:"",status:"Первичный",
+       contra:"",anamnesis:"гипертония, принимает лекарства",courseDone:"",courseTotal:"",care:"",
+       phototype:"IV",diagnosis:"L70.0 акне",prescription:"азелаиновая кислота на ночь",consentDate:"",
+       notes:"Пришла по рекомендации Анны.",
+       visits:[{id:"dv4",date:ym+"-22",proc:"консультация",amount:"1000",paid:"оплачено"}]}
+    ];
+  }
+  function startDemo(){
+    demoMode=true; locked=false; pinUnlocked=true;
+    license={key:"DEMO",owner:"Демо"};
+    patients=demoPatients(); meta={lastBackup:Date.now(),changes:0};
+    statusFilter="Все"; search=""; view="list"; reminderHidden=true;
+    render(); window.scrollTo(0,0);
+    showToast("Демо-режим: это примеры. Ваши записи так не сохраняются.");
+  }
+  function exitDemo(){
+    demoMode=false; license=null; patients=[]; meta={lastBackup:null,changes:0};
+    loadLocal(); loadMeta(); loadLicense();
+    view="list"; render(); window.scrollTo(0,0);
+  }
+
   var storageFail=false;
   // iPhone в обычном Safari очищает данные сайта, если не заходить 7 дней.
   // У значка на экране «Домой» такого ограничения нет — подсказываем добавить.
@@ -480,6 +520,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
     }catch(e){ return false; }
   }
   function persist(){
+    if(demoMode) return;
     try{ localStorage.setItem(STORE_KEY, JSON.stringify(patients)); if(storageFail){ storageFail=false; } }
     catch(e){
       storageFail=true;
@@ -503,7 +544,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
       recalc(p);
     });
   }
-  function saveMeta(){ try{ localStorage.setItem(META_KEY, JSON.stringify(meta)); }catch(e){} }
+  function saveMeta(){ if(demoMode) return; try{ localStorage.setItem(META_KEY, JSON.stringify(meta)); }catch(e){} }
   function loadMeta(){ try{ var s=localStorage.getItem(META_KEY); if(s){ var m=JSON.parse(s)||{};
     meta.lastBackup=m.lastBackup||null; meta.changes=m.changes||0; } }catch(e){} }
   function bumpChange(){ meta.changes=(meta.changes||0)+1; saveMeta(); }
@@ -584,7 +625,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
       <a class="hide-m" href="#how">Как работает</a>
       <a class="hide-m" href="#price">Цена</a>
       <a class="btn btn-ghost btn-sm" href="#code">Войти по коду</a>
-      <a class="btn btn-primary btn-sm" href="https://t.me/aikiren">Попробовать</a>
+      <button class="btn btn-primary btn-sm" data-action="demo">Посмотреть демо</button>
     </nav>
   </div>
 </header>
@@ -596,13 +637,13 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
       <h1>Все пациенты, процедуры и даты визитов — в одном месте</h1>
       <p class="sub">Карточки с противопоказаниями, статусами и напоминаниями о следующем визите. Открывается по ссылке на телефоне — устанавливать ничего не нужно. Данные хранятся только у вас.</p>
       <div class="hero-cta">
-        <a class="btn btn-primary btn-lg" href="https://t.me/aikiren">Попробовать 3 дня бесплатно</a>
+        <button class="btn btn-primary btn-lg" data-action="demo">Посмотреть демо</button>
         <a class="btn btn-ghost btn-lg" href="#code">У меня есть код</a>
       </div>
       <div class="hero-trust">
         <span><b class="dot">•</b> Без подписки</span>
         <span><b class="dot">•</b> Данные только на вашем устройстве</span>
-        <span><b class="dot">•</b> Выгрузка в Excel</span>
+        <span><b class="dot">•</b> Гарантия возврата 14 дней</span>
       </div>
     </div>
     <div class="phone" aria-hidden="true">
@@ -725,13 +766,13 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
       <div class="price-num">3 000 ₽ <small>разово</small></div>
       <p class="price-sub">Без подписки и скрытых списаний. Обновления бесплатны.</p>
       <ul class="price-list">
-        <li>Пробный доступ на 3 дня — бесплатно</li>
-        <li>Записи с пробного периода сохранятся, если останетесь</li>
+        <li>14 дней на возврат — если не подойдёт, верну деньги</li>
+        <li>Демо на сайте — посмотреть можно прямо сейчас, без кода</li>
         <li>Тот же код станет постоянным — ничего вводить заново</li>
         <li>Официальный чек из «Мой налог» после оплаты</li>
       </ul>
-      <a class="btn btn-primary btn-lg" href="https://t.me/aikiren" style="width:100%">Получить пробный доступ</a>
-      <p class="price-note">Работаю официально как самозанятый. Пробный период ни к чему не обязывает.</p>
+      <a class="btn btn-primary btn-lg" href="https://t.me/aikiren" style="width:100%">Написать и получить доступ</a>
+      <p class="price-note">Работаю официально как самозанятый, после оплаты пришлю чек. Не подойдёт — верну деньги в течение 14 дней.</p>
     </div>
   </div>
 </section>
@@ -773,8 +814,8 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
   <div class="wrap narrow">
     <div class="final">
       <h2>Попробуйте пару дней вместо тетради</h2>
-      <p>Пробный доступ на 3 дня — бесплатно и ни к чему не обязывает. Записи, которые внесёте, сохранятся, если решите остаться.</p>
-      <a class="btn btn-primary btn-lg" href="https://t.me/aikiren">Попробовать 3 дня бесплатно</a>
+      <p>Откройте демо и попробуйте всё прямо сейчас — код не нужен. А если после покупки не подойдёт, верну деньги в течение 14 дней.</p>
+      <button class="btn btn-primary btn-lg" data-action="demo">Посмотреть демо</button>
     </div>
   </div>
 </section>
@@ -912,6 +953,16 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
         '</div>'+
       '</div>') : "";
 
+    var demoHTML = demoMode ? (
+      '<div class="reminder demo">'+
+        '<div class="reminder-txt">👀 <b>Это демо — пациенты вымышленные, ваши записи так не сохранятся.</b> '+
+        'Пощупайте всё: откройте карточку, добавьте визит, загляните в «Финансы». В настоящей программе всё это остаётся у вас на устройстве.</div>'+
+        '<div class="reminder-actions">'+
+          '<a class="btn btn-primary btn-sm" href="https://t.me/aikiren">Хочу себе</a>'+
+          '<button class="reminder-x" data-action="demo-exit" title="Выйти из демо">×</button>'+
+        '</div>'+
+      '</div>') : "";
+
     var iosHTML = needIosHint() ? (
       '<div class="reminder">'+
         '<div class="reminder-txt">📲 <b>Добавьте значок на экран телефона — это защищает ваши записи.</b> '+
@@ -965,6 +1016,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
             '<li><b>Подробная инструкция всегда под рукой:</b> <a href="help.html" target="_blank" style="color:var(--accent);font-weight:700">откройте её по этой ссылке</a> — там всё по шагам: фото до/после, визиты, финансы, PIN-код.</li>'+
           '</ol>'+
         '</div>'+
+        demoHTML+
         iosHTML+
         storageHTML+
         reminderHTML+
@@ -989,7 +1041,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
   // ---------- фото до/после (IndexedDB, только на устройстве) ----------
   var PDB=null;
   function photoDB(){ return new Promise(function(res,rej){ try{ if(typeof indexedDB==="undefined"){ rej(new Error("Фото не поддерживаются в этом браузере")); return; } if(PDB){ res(PDB); return; } var r=indexedDB.open("kirenix_photos",1); r.onupgradeneeded=function(e){ var db=e.target.result; if(!db.objectStoreNames.contains("photos")){ var os=db.createObjectStore("photos",{keyPath:"id"}); os.createIndex("patientId","patientId",{unique:false}); } }; r.onsuccess=function(e){ PDB=e.target.result; res(PDB); }; r.onerror=function(){ rej(new Error("Не удалось открыть хранилище фото")); }; }catch(err){ rej(err); } }); }
-  function photoAdd(rec){ return photoDB().then(function(db){ return new Promise(function(res,rej){ var tx=db.transaction("photos","readwrite"); tx.objectStore("photos").put(rec); tx.oncomplete=function(){res();}; tx.onerror=function(){rej(new Error("Ошибка записи фото"));}; }); }); }
+  function photoAdd(rec){ if(demoMode){ showToast("В демо фото не сохраняются"); return Promise.resolve(); } return photoDB().then(function(db){ return new Promise(function(res,rej){ var tx=db.transaction("photos","readwrite"); tx.objectStore("photos").put(rec); tx.oncomplete=function(){res();}; tx.onerror=function(){rej(new Error("Ошибка записи фото"));}; }); }); }
   function photoDel(pid){ return photoDB().then(function(db){ return new Promise(function(res,rej){ var tx=db.transaction("photos","readwrite"); tx.objectStore("photos")["delete"](pid); tx.oncomplete=function(){res();}; tx.onerror=function(){rej();}; }); }); }
   function photoList(patientId){ return photoDB().then(function(db){ return new Promise(function(res,rej){ var tx=db.transaction("photos","readonly"); var req=tx.objectStore("photos").index("patientId").getAll(patientId); req.onsuccess=function(){ res(req.result||[]); }; req.onerror=function(){ rej(); }; }); }); }
   function photoAll(){ return photoDB().then(function(db){ return new Promise(function(res,rej){ var tx=db.transaction("photos","readonly"); var req=tx.objectStore("photos").getAll(); req.onsuccess=function(){ res(req.result||[]); }; req.onerror=function(){ rej(); }; }); }); }
@@ -1467,6 +1519,8 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
       showToast("Добро пожаловать, "+owner+"!");
     }
     else if(a==="new"){ editId=null; view="form"; render(); }
+    else if(a==="demo"){ startDemo(); }
+    else if(a==="demo-exit"){ exitDemo(); }
     else if(a==="finance"){ view="finance"; render(); }
     else if(a==="fin-period"){ financePeriod=t.getAttribute("data-period"); render(); }
     else if(a==="add-visit"){ visitPatient=id; visitEdit=null; view="visit"; render(); }
