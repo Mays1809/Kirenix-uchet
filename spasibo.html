@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Спасибо за покупку — Kirenix Учёт</title>
+<meta name="robots" content="noindex">
+<style>
+  :root{ --bg:#F6F7FB; --card:#fff; --accent:#3B5BDB; --accent-dark:#2C46B8; --accent-light:#EDF2FF;
+         --text:#1A1A2E; --muted:#6B7280; --border:#E5E7EB; --ok:#2E7D32; }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0}
+  body{background:var(--bg);color:var(--text);
+    font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;
+    padding:26px 18px 60px;-webkit-font-smoothing:antialiased;line-height:1.6}
+  .container{max-width:680px;margin:0 auto}
+  .title{font-size:26px;font-weight:800;margin:0 0 6px;text-align:center}
+  .title span{color:var(--accent)}
+  .lead{color:var(--muted);font-size:15px;margin:0 0 22px;text-align:center}
+  .card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:24px;margin-bottom:16px}
+  .ok-badge{width:64px;height:64px;border-radius:50%;background:#E8F5E9;border:2px solid #A5D6A7;
+    display:flex;align-items:center;justify-content:center;margin:0 auto 16px;font-size:30px}
+  h2{font-size:18px;margin:0 0 12px}
+  ol{margin:0;padding-left:22px} li{margin-bottom:12px;font-size:15.5px}
+  p{font-size:15.5px;margin:0 0 10px}
+  a{color:var(--accent)}
+  .btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;font-weight:700;font-size:16px;
+    border-radius:10px;padding:14px 22px;border:1.5px solid transparent;text-decoration:none;width:100%}
+  .btn-primary{background:var(--accent);color:#fff}
+  .btn-ghost{background:#fff;color:var(--accent);border-color:var(--accent)}
+  .note{background:#FFF8E1;border:1px solid #FFE0A3;border-radius:10px;padding:12px 15px;font-size:14px;color:#7A5D00;margin-top:14px}
+  .good{background:#E8F5E9;border:1px solid #A5D6A7;border-radius:10px;padding:12px 15px;font-size:14px;color:#1B5E20}
+  .footer-note{text-align:center;font-size:12.5px;color:#9CA3AF;margin-top:22px}
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="ok-badge">✓</div>
+  <h1 class="title">Спасибо за покупку!</h1>
+  <p class="lead"><span style="color:var(--accent);font-weight:700">Kirenix</span> Учёт — оплата получена</p>
+
+  <div class="card" id="autocard" style="display:none">
+    <h2>Ваш код доступа</h2>
+    <div id="codeout"><p style="color:var(--muted)">Проверяю оплату…</p></div>
+  </div>
+
+  <div class="card" id="waitcard">
+    <h2>Что дальше</h2>
+    <ol>
+      <li><b>Код доступа придёт в Telegram в течение 15 минут</b> (обычно быстрее). Если вы оплатили ночью — утром.</li>
+      <li>Вместе с кодом придёт <b>чек</b> из приложения «Мой налог» — я работаю официально как самозанятый.</li>
+      <li>Откроете <a href="https://uchet.kirenix.ru">uchet.kirenix.ru</a> → «Войти по коду» → введёте код и своё имя. Один раз.</li>
+    </ol>
+    <div class="good">Код не пришёл в течение часа? Напишите мне — <a href="https://t.me/aikiren">@aikiren</a>, решу сразу.</div>
+  </div>
+
+  <div class="card">
+    <h2>Пока ждёте — сделайте одну вещь</h2>
+    <p><b>Добавьте значок программы на экран телефона.</b> Это не про удобство: если открывать программу только через браузер и не заходить неделю, телефон может очистить её память вместе с записями. У значка на экране «Домой» такого ограничения нет.</p>
+    <p style="margin-bottom:0">Как это сделать — в инструкции, раздел 2.</p>
+    <div class="note">И главное правило на будущее: раз в неделю нажимайте «Резервная копия». Программа сама напомнит.</div>
+  </div>
+
+  <div class="card">
+    <a class="btn btn-primary" href="https://t.me/aikiren">Написать мне в Telegram</a>
+    <div style="height:10px"></div>
+    <a class="btn btn-ghost" href="help.html">Открыть инструкцию</a>
+  </div>
+
+  <p class="footer-note">Что-то не получается — напишите, помогу разобраться.<br>
+  <a href="oferta.html" style="color:#9CA3AF">Оферта и политика</a> · Самозанятый Шевелев К. В., ИНН 166026856302</p>
+</div>
+
+<script>
+// ═══════════════════════════════════════════════════════════
+//  АВТОВЫДАЧА КОДА. Вставьте сюда адрес функции из Supabase,
+//  например: https://xxxx.supabase.co/functions/v1/kirenix
+//  Пока строка пустая — блок скрыт, страница работает как обычно.
+// ═══════════════════════════════════════════════════════════
+var FN_URL = "https://fbtbefprcnpnqbyxgebo.supabase.co/functions/v1/kirenix";
+
+(function(){
+  if(!FN_URL) return;
+  var ORDER_KEY="kirenix_order_v1";
+  var card=document.getElementById("autocard"), out=document.getElementById("codeout");
+
+  function esc(s){ return String(s==null?"":s).replace(/[&<>"']/g,function(c){
+    return {"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[c]; }); }
+
+  // номер заказа: из адреса страницы, иначе из памяти браузера
+  var order="";
+  try{
+    var m=String(location.search||"").match(/[?&]o=([a-f0-9]{16,32})/);
+    if(m) order=m[1]; else order=String(localStorage.getItem(ORDER_KEY)||"");
+    order=order.replace(/[^a-f0-9]/g,"").slice(0,32);
+  }catch(e){}
+  if(order.length<16) return;   // заказа нет — показываем обычную страницу
+
+  card.style.display="";
+
+  var tries=0;
+  function ask(){
+    tries++;
+    fetch(FN_URL.replace(/\/+$/,"")+"/code",{method:"POST",headers:{"content-type":"application/json"},
+      body:JSON.stringify({order:order})})
+      .then(function(r){ return r.json(); })
+      .then(function(d){
+        if(d && d.found && d.token){
+          try{ localStorage.removeItem(ORDER_KEY); }catch(e){}
+          var w=document.getElementById("waitcard");
+          if(w) w.innerHTML='<h2>Что дальше</h2>'+
+            '<ol><li>Откройте <a href="https://uchet.kirenix.ru">uchet.kirenix.ru</a> → «Войти по коду» → вставьте код и своё имя. Один раз.</li>'+
+            '<li>Добавьте значок программы на экран телефона — как, написано ниже. Это важно.</li>'+
+            '<li>Чек из «Мой налог» пришлю в Telegram в течение дня.</li></ol>'+
+            '<div class="good">Что-то не получается? Напишите мне — <a href="https://t.me/aikiren">@aikiren</a>, помогу сразу.</div>';
+          out.innerHTML='<p>Скопируйте его целиком — он вводится один раз:</p>'+
+            '<div style="font-family:ui-monospace,Menlo,Consolas,monospace;font-size:13px;background:#F1F3F8;'+
+            'border:1px solid var(--border);border-radius:10px;padding:12px;word-break:break-all;margin:8px 0 12px" id="tok">'+esc(d.token)+'</div>'+
+            '<button class="btn btn-primary" id="copybtn" style="border:none;cursor:pointer;font-family:inherit;width:100%">Скопировать код</button>'+
+            '<div style="height:10px"></div>'+
+            '<a class="btn btn-ghost" href="https://uchet.kirenix.ru" style="width:100%">Открыть программу и войти</a>'+
+            '<div class="good" style="margin-top:14px">Чек из «Мой налог» пришлю в Telegram — обычно в течение дня. Работаю официально как самозанятый.</div>';
+          var b=document.getElementById("copybtn");
+          if(b) b.addEventListener("click",function(){
+            var t=(document.getElementById("tok")||{}).textContent||"";
+            if(navigator.clipboard) navigator.clipboard.writeText(t).then(function(){ b.textContent="Скопировано ✓"; },function(){ prompt("Скопируйте код:",t); });
+            else prompt("Скопируйте код:",t);
+          });
+          return;
+        }
+        if(tries<10){ setTimeout(ask, 2000); return; }   // банк иногда отвечает не сразу
+        out.innerHTML='<div class="note">Оплата пока не подтвердилась. Иногда банк думает пару минут — обновите страницу через минуту.<br><br>'+
+          'Если код так и не появился, напишите мне <a href="https://t.me/aikiren">@aikiren</a> и покажите чек об оплате — выдам вручную сразу.</div>';
+      })
+      .catch(function(){
+        if(tries<10){ setTimeout(ask, 2000); return; }
+        out.innerHTML='<div class="note">Не получается связаться с сервером. Напишите мне <a href="https://t.me/aikiren">@aikiren</a> — выдам код вручную.</div>';
+      });
+  }
+  ask();
+})();
+</script>
+</body>
+</html>

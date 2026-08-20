@@ -7,7 +7,7 @@
 <meta name="description" content="Kirenix Учёт — программа учёта пациентов для мастеров: карточки с процедурами, противопоказаниями и датами визитов. Данные только у вас, без подписки.">
 <meta property="og:type" content="website">
 <meta property="og:title" content="Kirenix Учёт — учёт пациентов для мастеров">
-<meta property="og:description" content="Карточки пациентов, процедуры, противопоказания и напоминания о визитах. Данные только у вас. Разовая оплата без подписки. Демо без регистрации, гарантия возврата 14 дней.">
+<meta property="og:description" content="Карточки пациентов, процедуры, противопоказания и напоминания о визитах. Данные только у вас. Разовая оплата без подписки. Демо без регистрации — посмотрите программу до покупки.">
 <meta property="og:url" content="https://uchet.kirenix.ru">
 <meta property="og:image" content="https://uchet.kirenix.ru/og.png">
 <meta property="og:image:width" content="1200">
@@ -359,12 +359,13 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
   var META_KEY  = "patients_meta_v1";
   var LIC_KEY   = "kirenix_license_v1";
   var SETTINGS_KEY = "kirenix_settings_v1";
-  var APP_VERSION = "1.3";
+  var APP_VERSION = "1.4";
 
   var patients = [];
   var meta = { lastBackup:null, changes:0 };
   var license = null;          // {key, owner} — активация копии
   var locked = false;          // ключ отключён через manifest.json
+  var deviceBlocked = false;   // код занят на других устройствах
   var newsMsg = "";            // сообщение от Kirenix (из manifest.json)
   var newsHidden = false;
   var updateAvailable = false;
@@ -431,6 +432,32 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
   }
 
   // ---------- лицензия (привязка копии) ----------
+  // Старый формат KX-XXXXX-X проверяется контрольной суммой — его можно подобрать,
+  // поэтому новые продажи идут подписанным ключом KX2.<данные>.<подпись> (ECDSA P-256).
+  // Подделать его без приватного ключа нельзя, а приватный ключ не покидает мой компьютер.
+  var LIC_PUB = {"kty":"EC","crv":"P-256","x":"UfevVxngtH5-2GCl_4IVe4_knQKqgJLOBJV1Mb6Sigg","y":"iThy0CogT0gyz6jhi4BD0dZN65BRK9AQECM1vczlk3k"};
+  var legacyOK = true;   // manifest.json может выключить старые ключи: "legacy": false
+
+  // ═══════════════════════════════════════════════════════════════
+  //  ПРИВЯЗКА КОДА К УСТРОЙСТВУ. Вставьте адрес функции из Supabase,
+  //  например: https://xxxx.supabase.co/functions/v1/pay
+  //  Пока строка пустая — код работает на любом числе устройств.
+  // ═══════════════════════════════════════════════════════════════
+  var ACT_URL = "https://fbtbefprcnpnqbyxgebo.supabase.co/functions/v1/kirenix";
+
+  var DEV_KEY="kirenix_device_v1";
+  // номер этой установки: случайный, ни к чему на устройстве не привязан и никого не опознаёт
+  function deviceId(){
+    try{
+      var d=localStorage.getItem(DEV_KEY);
+      if(d && /^[a-f0-9]{32}$/.test(d)) return d;
+      var r=randBytes(16), s="";
+      for(var i=0;i<16;i++) s+=("0"+r[i].toString(16)).slice(-2);
+      localStorage.setItem(DEV_KEY, s);
+      return s;
+    }catch(e){ return ""; }
+  }
+
   function keyChecksum(body){
     var s=0; for(var i=0;i<body.length;i++) s+=body.charCodeAt(i)*(i+3);
     return (s%36).toString(36).toUpperCase();
@@ -440,6 +467,66 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
     k=normKey(k);
     var m=k.match(/^KX-([A-Z0-9]{5})-([A-Z0-9])$/);
     return !!m && keyChecksum(m[1])===m[2];
+  }
+  function isSignedKey(k){ return /^KX2\.[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+$/.test(String(k||"").trim()); }
+  function ub64u(s){
+    s=String(s||"").replace(/-/g,"+").replace(/_/g,"/"); while(s.length%4) s+="=";
+    var bin=atob(s), a=new Uint8Array(bin.length);
+    for(var i=0;i<bin.length;i++) a[i]=bin.charCodeAt(i);
+    return a;
+  }
+  // проверка подписи: возвращает данные лицензии или null
+  function verifySigned(token){
+    try{
+      token=String(token||"").trim();
+      if(!isSignedKey(token) || !cryptoOK()) return Promise.resolve(null);
+      var p=token.split("."), body=p[1], sig=ub64u(p[2]);
+      return crypto.subtle.importKey("jwk", LIC_PUB, {name:"ECDSA", namedCurve:"P-256"}, false, ["verify"])
+        .then(function(k){
+          return crypto.subtle.verify({name:"ECDSA", hash:"SHA-256"}, k, sig, new TextEncoder().encode(body));
+        })
+        .then(function(okSig){
+          if(!okSig) return null;
+          var d=JSON.parse(new TextDecoder().decode(ub64u(body)));
+          return (d && d.id) ? d : null;
+        })
+        .catch(function(){ return null; });
+    }catch(e){ return Promise.resolve(null); }
+  }
+  // разрешение на устройство: та же подпись, но внутри ещё и номер установки
+  function verifyAct(token){
+    return verifySigned(token).then(function(d){ return (d && d.dev) ? d : null; });
+  }
+  // спрашиваем у сервера разрешение занять слот под это устройство
+  function askActivation(licToken){
+    var url=String(ACT_URL||"").replace(/\/+$/,"")+"/activate";
+    return fetch(url,{method:"POST",headers:{"content-type":"application/json"},
+      body:JSON.stringify({lic:licToken, dev:deviceId()})})
+      .then(function(r){ return r.json(); })
+      .catch(function(){ return {ok:false, reason:"net"}; });
+  }
+  // при каждом запуске: подпись кода на месте и это то самое устройство
+  function ensureActivation(){
+    if(demoMode || !license || !license.id) return;
+    verifySigned(license.key).then(function(d){
+      if(!d || d.id!==license.id){
+        license=null; try{ localStorage.removeItem(LIC_KEY); }catch(e){}
+        view="list"; render(); return;
+      }
+      if(!ACT_URL || d.o===1) return;                    // привязка выключена или лицензия без неё
+      if(license.act){
+        verifyAct(license.act).then(function(act){
+          if(!act || act.id!==license.id || act.dev!==deviceId()){ deviceBlocked=true; render(); }
+        });
+        return;
+      }
+      // код введён до того, как появилась привязка — тихо занимаем место
+      askActivation(license.key).then(function(r){
+        if(r && r.ok && r.act){ license.act=r.act; license.dev=deviceId(); saveLicense(); }
+        else if(r && r.reason==="limit"){ deviceBlocked=true; render(); }
+        // нет связи — оставляем как есть, попробуем при следующем открытии
+      });
+    });
   }
   function loadLicense(){ try{ var s=localStorage.getItem(LIC_KEY); if(s) license=JSON.parse(s); }catch(e){} }
   function saveLicense(){ if(demoMode) return; try{ localStorage.setItem(LIC_KEY, JSON.stringify(license)); }catch(e){} }
@@ -458,6 +545,11 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
         .then(function(m){
           if(!m) return;
           if(m.blocked && license && (m.blocked.indexOf(license.key)>-1 || m.blocked.indexOf(blockCode(license.key))>-1)){ locked=true; render(); return; }
+          if(m.revoked && license && license.id && m.revoked.indexOf(license.id)>-1){ locked=true; render(); return; }
+          if(m.legacy===false){
+            legacyOK=false;
+            if(license && !license.id){ locked=true; render(); return; }   // старый ключ больше не действует
+          }
           if(m.message) newsMsg=String(m.message);
           if(m.latest && String(m.latest)!==APP_VERSION) updateAvailable=true;
           if(newsMsg || updateAvailable) render();
@@ -467,6 +559,67 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
   }
 
   // ---------- хранение (автосохранение) ----------
+  // ═══════════════════════════════════════════════════════════════
+  //  ОПЛАТА НА САЙТЕ. Вставьте сюда ссылку из Продамуса или ЮKassa.
+  //  Пока пусто — кнопки «Купить» ведут в Telegram, как раньше.
+  //  Пример: var PAY_URL = "https://kirenix.payform.ru/";
+  // ═══════════════════════════════════════════════════════════════
+  var PAY_URL = "";
+  var TG_URL  = "https://t.me/aikiren";
+
+  // ═══════════════════════════════════════════════════════════════
+  //  ОПЛАТА ЧЕРЕЗ ЮKASSA. Адрес функции из Supabase — тот же, что в ACT_URL.
+  //  Пока пусто — кнопки «Купить» ведут в Telegram, как раньше.
+  // ═══════════════════════════════════════════════════════════════
+  var PAY_FN = "https://fbtbefprcnpnqbyxgebo.supabase.co/functions/v1/kirenix";
+
+  // Метка канала для замера рекламы: ссылка вида uchet.kirenix.ru/?c=chat1
+  // Метка уходит в платёжную ссылку — в статистике видно, откуда пришли деньги.
+  // На сайте она нигде не сохраняется и никуда не отправляется.
+  function adTag(){
+    try{
+      var m=String(location.search||"").match(/[?&]c=([A-Za-z0-9_-]{1,20})/);
+      return m ? m[1] : "";
+    }catch(e){ return ""; }
+  }
+  function setupBuyButtons(){
+    try{
+      var tag=adTag();
+      var btns=document.querySelectorAll(".buy-btn"), i;
+      if(PAY_FN){
+        // оплата через ЮKassa: сначала спрашиваем контакт, потом уводим на страницу оплаты
+        for(i=0;i<btns.length;i++){ btns[i].setAttribute("href","#price"); btns[i].setAttribute("data-action","buy-open"); }
+        return;
+      }
+      var url=PAY_URL || TG_URL;
+      if(PAY_URL && tag) url += (PAY_URL.indexOf("?")>-1 ? "&" : "?") + "c=" + encodeURIComponent(tag);
+      for(i=0;i<btns.length;i++) btns[i].setAttribute("href", url);
+    }catch(e){}
+  }
+  // Покупка: сразу создаём платёж и уводим на страницу оплаты ЮKassa.
+  // Никаких полей — ни почты, ни телефона: чем меньше чужих данных проходит
+  // через нас, тем спокойнее и покупателю, и мне.
+  var ORDER_KEY="kirenix_order_v1";
+  function buyGo(btn){
+    try{ if(btn){ btn.setAttribute("data-busy","1"); btn.textContent="Открываю оплату…"; } }catch(e){}
+    fetch(String(PAY_FN).replace(/\/+$/,"")+"/create",{method:"POST",headers:{"content-type":"application/json"},
+      body:JSON.stringify({src:adTag()})})
+      .then(function(r){ return r.json(); })
+      .then(function(d){
+        if(d && d.ok && d.url){
+          try{ localStorage.setItem(ORDER_KEY, String(d.order||"")); }catch(e){}
+          location.href=d.url; return;
+        }
+        buyFail(btn);
+      })
+      .catch(function(){ buyFail(btn); });
+  }
+  function buyFail(btn){
+    try{ if(btn){ btn.removeAttribute("data-busy"); btn.textContent="Купить за 4900 ₽"; } }catch(e){}
+    showToast("Не получилось открыть оплату. Напишите мне в Telegram — приму оплату и выдам код вручную.");
+    try{ setTimeout(function(){ window.open(TG_URL,"_blank"); }, 1200); }catch(e){}
+  }
+
   var demoMode=false;
   // ---------- демо-режим: показать программу без кода, ничего не сохраняя ----------
   function demoPatients(){
@@ -521,6 +674,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
   }
   function persist(){
     if(demoMode) return;
+    if(encActive()){ persistEncrypted(); return; }
     try{ localStorage.setItem(STORE_KEY, JSON.stringify(patients)); if(storageFail){ storageFail=false; } }
     catch(e){
       storageFail=true;
@@ -601,8 +755,8 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
       '<p>Программа для учёта пациентов и косметологических процедур.</p>'+
       '<div style="text-align:left">'+
         '<label class="label">Код доступа</label>'+
-        '<input class="input" id="a_key" placeholder="KX-XXXXX-X" autocomplete="off">'+
-        '<div class="hint">Код вы получили вместе с приложением. Вводится один раз.</div>'+
+        '<input class="input" id="a_key" placeholder="Код из сообщения" autocomplete="off" spellcheck="false">'+
+        '<div class="hint">Код вы получили вместе с приложением — скопируйте его целиком. Вводится один раз.</div>'+
         '<div style="height:14px"></div>'+
         '<label class="label">Ваше имя</label>'+
         '<input class="input" id="a_owner" placeholder="Например: Мария">'+
@@ -612,6 +766,19 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
       '<button class="btn btn-primary" data-action="activate" style="width:100%;justify-content:center">Начать работу</button>'+
       '<div class="activation-note">🔒 Все данные пациентов хранятся только на этом устройстве и никуда не отправляются.</div>'+
       '<div class="activation-note" style="margin-top:6px">Без подписки · выгрузка в Excel · без регистрации</div>'+
+    '</div></div>';
+  }
+
+  // код открыт на другом устройстве
+  function devBlockHTML(){
+    return '<div class="container"><div class="lockcard">'+
+      '<h2>Код открыт на другом устройстве</h2>'+
+      '<p>Один код доступа рассчитан на ваши устройства — например, телефон и компьютер. Похоже, свободных мест не осталось.</p>'+
+      '<p>Если вы сменили телефон или почистили браузер — напишите мне, освобожу место за минуту. Это обычное дело.</p>'+
+      '<a class="btn btn-primary" href="https://t.me/aikiren" style="width:100%;justify-content:center">Написать в Telegram</a>'+
+      '<div style="height:10px"></div>'+
+      '<button class="btn btn-outline" data-action="logout" style="width:100%;justify-content:center">Ввести другой код</button>'+
+      '<div class="activation-note">Ваши записи на этом устройстве целы и никуда не делись.</div>'+
     '</div></div>';
   }
 
@@ -625,7 +792,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
       <a class="hide-m" href="#how">Как работает</a>
       <a class="hide-m" href="#price">Цена</a>
       <a class="btn btn-ghost btn-sm" href="#code">Войти по коду</a>
-      <button class="btn btn-primary btn-sm" data-action="demo">Посмотреть демо</button>
+      <a class="btn btn-primary btn-sm buy-btn" href="https://t.me/aikiren">Купить</a>
     </nav>
   </div>
 </header>
@@ -637,13 +804,14 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
       <h1>Все пациенты, процедуры и даты визитов — в одном месте</h1>
       <p class="sub">Карточки с противопоказаниями, статусами и напоминаниями о следующем визите. Открывается по ссылке на телефоне — устанавливать ничего не нужно. Данные хранятся только у вас.</p>
       <div class="hero-cta">
-        <button class="btn btn-primary btn-lg" data-action="demo">Посмотреть демо</button>
-        <a class="btn btn-ghost btn-lg" href="#code">У меня есть код</a>
+        <a class="btn btn-primary btn-lg buy-btn" href="https://t.me/aikiren">Купить за 4900 ₽</a>
+        <button class="btn btn-ghost btn-lg" data-action="demo">Сначала посмотреть демо</button>
       </div>
+      <div class="hero-trust" style="margin-top:12px"><span class="muted" style="font-size:13.5px">Оплата на сайте · доступ в течение 15 минут · демо без регистрации · <a href="#code" style="color:var(--muted);text-decoration:underline">у меня есть код</a></span></div>
       <div class="hero-trust">
         <span><b class="dot">•</b> Без подписки</span>
         <span><b class="dot">•</b> Данные только на вашем устройстве</span>
-        <span><b class="dot">•</b> Гарантия возврата 14 дней</span>
+        <span><b class="dot">•</b> Демо перед покупкой</span>
       </div>
     </div>
     <div class="phone" aria-hidden="true">
@@ -693,7 +861,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
       <div class="prob"><b>Записи разбросаны</b><span>Тетрадь, заметки в телефоне, стикеры — и вечно не там, где нужно.</span></div>
       <div class="prob"><b>Не помните историю</b><span>Когда клиент был последний раз, что делали и на чём остановились.</span></div>
       <div class="prob"><b>Страшно пропустить противопоказание</b><span>Важное держится в голове, а голова не резервируется.</span></div>
-      <div class="prob"><b>CRM хотят 500–1500 ₽ в месяц</b><span>Да ещё и уводят вашу базу клиентов в чужое облако.</span></div>
+      <div class="prob"><b>CRM — это подписка навсегда</b><span>Платишь каждый месяц, пока пользуешься. И база клиентов в чужом облаке.</span></div>
     </div>
   </div>
 </section>
@@ -707,6 +875,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
       <div class="feat"><div class="ic">🗂️</div><h3>Карточка пациента целиком</h3><p>Процедуры, противопоказания, заметки, даты визитов и возраст — всё в одном месте.</p></div>
       <div class="feat"><div class="ic">🏷️</div><h3>Статусы и напоминания</h3><p>Первичный, постоянный, на курсе. Сразу видно, кому пора на следующий визит.</p></div>
       <div class="feat"><div class="ic">🔒</div><h3>Данные только у вас</h3><p>База хранится на вашем устройстве. Ничего не уходит в облако — ни у кого нет доступа.</p></div>
+      <div class="feat"><div class="ic">🔐</div><h3>Шифрование записей и фото</h3><p>Можно закрыть базу паролем: карты, суммы и снимки превращаются в набор символов. Потеряли телефон — прочитать их не сможет никто.</p></div>
       <div class="feat"><div class="ic">♾️</div><h3>Оплата один раз</h3><p>Никаких ежемесячных списаний. Заплатили однажды — пользуетесь всегда, обновления бесплатны.</p></div>
       <div class="feat"><div class="ic">📲</div><h3>Без установки</h3><p>Открыли ссылку, добавили значок на экран — и работает как обычное приложение.</p></div>
       <div class="feat"><div class="ic">📊</div><h3>Выгрузка в Excel</h3><p>Вся база выгружается в обычный файл одной кнопкой. Ваши записи всегда с вами.</p></div>
@@ -747,7 +916,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
     <table class="cmp">
       <thead><tr><th></th><th class="us">Kirenix Учёт</th><th>Обычная CRM (аренда)</th></tr></thead>
       <tbody>
-        <tr><td>Оплата</td><td class="us">Один раз, навсегда</td><td>500–1500 ₽ каждый месяц</td></tr>
+        <tr><td>Оплата</td><td class="us">Один раз, навсегда</td><td>от 412 ₽ в месяц, и так всегда</td></tr>
         <tr><td>Где данные пациентов</td><td class="us">Только на вашем устройстве</td><td>В чужом облаке</td></tr>
         <tr><td>Регистрация и установка</td><td class="us"><span class="yes">Не нужны</span></td><td class="no">Обязательны</td></tr>
         <tr><td>Обновления</td><td class="us"><span class="yes">Бесплатно</span></td><td class="no">Внутри подписки</td></tr>
@@ -763,16 +932,18 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
     <p class="kicker">Цена</p>
     <h2>Одна оплата — и программа ваша навсегда</h2>
     <div class="price-card">
-      <div class="price-num">3 000 ₽ <small>разово</small></div>
+      <div class="price-num">4 900 ₽ <small>разово</small></div>
       <p class="price-sub">Без подписки и скрытых списаний. Обновления бесплатны.</p>
       <ul class="price-list">
-        <li>14 дней на возврат — если не подойдёт, верну деньги</li>
-        <li>Демо на сайте — посмотреть можно прямо сейчас, без кода</li>
-        <li>Тот же код станет постоянным — ничего вводить заново</li>
+        <li>Демо на сайте — посмотрите всю программу до оплаты, без кода</li>
+        <li>Код бессрочный — оплатили один раз и пользуетесь всегда</li>
+        <li>Работает на двух ваших устройствах — телефон и компьютер</li>
         <li>Официальный чек из «Мой налог» после оплаты</li>
       </ul>
-      <a class="btn btn-primary btn-lg" href="https://t.me/aikiren" style="width:100%">Написать и получить доступ</a>
-      <p class="price-note">Работаю официально как самозанятый, после оплаты пришлю чек. Не подойдёт — верну деньги в течение 14 дней.</p>
+      <a class="btn btn-primary btn-lg buy-btn" href="https://t.me/aikiren" style="width:100%">Купить за 4900 ₽</a>
+      <div style="height:10px"></div>
+      <a class="btn btn-ghost btn-lg" href="https://t.me/aikiren" style="width:100%">Задать вопрос в Telegram</a>
+      <p class="price-note">Работаю официально как самозанятый, после оплаты пришлю чек.<br>Перед покупкой откройте демо — оно повторяет всю программу. <b>Возврата по общему правилу нет</b>, условия в <a href="oferta.html" target="_blank" style="color:inherit;text-decoration:underline">оферте</a>.</p>
     </div>
   </div>
 </section>
@@ -784,7 +955,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
     <p class="sec-lead">Введите код доступа, который вы получили, и своё имя. Код вводится один раз — дальше программа открывается сама.</p>
     <div class="codecard">
       <label class="label">Код доступа</label>
-      <input class="input" id="a_key" placeholder="KX-XXXXX-X" autocomplete="off">
+      <input class="input" id="a_key" placeholder="Код из сообщения" autocomplete="off" spellcheck="false">
       <div class="cc-hint">Формат KX-XXXXX-X. Буквы латинские, О и 0 легко перепутать — лучше скопировать код целиком.</div>
       <label class="label">Ваше имя</label>
       <input class="input" id="a_owner" placeholder="Например: Мария">
@@ -801,9 +972,12 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
     <div style="margin-top:28px">
       <details open><summary>А данные не пропадут?</summary><div class="a">Программа сохраняет всё автоматически. Плюс раз в неделю вы делаете копию в Excel — программа сама напоминает. Это страховка даже на случай потери телефона.</div></details>
       <details><summary>Это облако? Куда уходят данные пациентов?</summary><div class="a">Никуда. База хранится только на вашем устройстве, на сервер ничего не отправляется. Ни у нас, ни у кого-либо другого доступа к вашим записям нет.</div></details>
-      <details><summary>Можно на телефоне и на компьютере сразу?</summary><div class="a">Можно, код подойдёт на обоих. Но списки будут раздельные, синхронизации нет — удобнее выбрать одно основное устройство. Перенести записи можно через файл Excel.</div></details>
-      <details><summary>Почему не бесплатная CRM? Есть же YCLIENTS и подобные</summary><div class="a">CRM — это подписка 500–1500 ₽ каждый месяц, регистрация и ваши пациенты в чужом облаке. Здесь один раз оплатили — работает всегда, а база лежит у вас в телефоне.</div></details>
+      <details><summary>А если телефон украдут или потеряю?</summary><div class="a">Для этого в настройках есть шифрование: вы задаёте пароль, и записи, суммы и фото на устройстве превращаются в набор символов. Без пароля их не прочитать — ни через браузер, ни подключив телефон к компьютеру. Программа один раз покажет код восстановления на случай, если пароль забудется: запишите его на бумаге. Если и пароль, и код потеряны, записи вернуть невозможно — в этом и смысл настоящего шифрования.</div></details>
+      <details><summary>Можно на телефоне и на компьютере сразу?</summary><div class="a">Да, код рассчитан на два ваших устройства. Но списки будут раздельные, синхронизации нет — удобнее выбрать одно основное устройство. Перенести записи можно через файл Excel.</div></details>
+      <details><summary>Почему не бесплатная CRM? Есть же YCLIENTS и подобные</summary><div class="a">CRM — это подписка: самый дешёвый тариф от 412 ₽ в месяц, и платить надо постоянно. Плюс регистрация и ваши пациенты в чужом облаке. Здесь 4900 ₽ один раз — это меньше года подписки, и дальше вы не платите никогда, а база лежит у вас в телефоне.</div></details>
       <details><summary>Подписки точно нет? Обновления платные?</summary><div class="a">Подписки нет, оплата одна. Обновления бесплатны: программа сама покажет, что вышла новая версия — достаточно обновить страницу.</div></details>
+      <details><summary>А если куплю и не подойдёт? Деньги вернёте?</summary><div class="a">По общему правилу возврата нет — поэтому демо и открыто для всех без кода и регистрации. Это та же программа с готовыми примерами: откройте карточку пациента, добавьте визит, загляните в «Финансы». Всё видно за минуту, и решение вы принимаете уже посмотрев. Если что-то непонятно — спросите меня в Telegram до оплаты, отвечу.<br><br>Но я живой человек: если вы явно ошиблись с покупкой, напишите — разберёмся по-человечески. Обещать это заранее не буду, а вот бросать вас с проблемой точно не стану.</div></details>
+      <details><summary>А если программа у меня не заработает?</summary><div class="a">Если код так и не пришёл или программа не запускается по моей вине и я не смог помочь — верну деньги полностью. Это прописано в оферте.</div></details>
       <details><summary>Дадите чек?</summary><div class="a">Да. Я работаю официально как самозанятый — сразу после оплаты пришлю чек из налогового приложения «Мой налог».</div></details>
       <details><summary>А если сайт перестанет работать?</summary><div class="a">Ваша база всегда у вас: в любой момент выгружается в обычный файл Excel одной кнопкой. Вы ничего не потеряете.</div></details>
     </div>
@@ -813,9 +987,11 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
 <section>
   <div class="wrap narrow">
     <div class="final">
-      <h2>Попробуйте пару дней вместо тетради</h2>
-      <p>Откройте демо и попробуйте всё прямо сейчас — код не нужен. А если после покупки не подойдёт, верну деньги в течение 14 дней.</p>
-      <button class="btn btn-primary btn-lg" data-action="demo">Посмотреть демо</button>
+      <h2>Хватит вести пациентов в тетради</h2>
+      <p>Демо открывается прямо сейчас, без кода и регистрации — это та же программа с готовыми примерами. Посмотрите её, а потом решайте.</p>
+      <a class="btn btn-primary btn-lg buy-btn" href="https://t.me/aikiren">Купить за 4900 ₽</a>
+      <div style="height:10px"></div>
+      <button class="btn btn-ghost btn-lg" data-action="demo">Посмотреть демо</button>
     </div>
   </div>
 </section>
@@ -845,6 +1021,48 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
     '</div></div>';
   }
 
+  function unlockHTML(){
+    return '<div class="container"><div class="lockcard">'+
+      '<h2>🔐 Записи зашифрованы</h2>'+
+      '<p>Введите пароль, чтобы открыть карты пациентов. Без него расшифровать записи невозможно — их не видим ни мы, ни кто-либо ещё.</p>'+
+      '<input class="input" id="enc_pass" type="password" autocomplete="current-password" placeholder="Пароль" style="text-align:center;font-size:18px">'+
+      '<div style="height:14px"></div>'+
+      '<button class="btn btn-primary" data-action="enc-unlock" style="width:100%;justify-content:center">Открыть</button>'+
+      '<div style="height:10px"></div>'+
+      '<button class="btn btn-ghost" data-action="enc-recovery" style="width:100%;justify-content:center">Не помню пароль</button>'+
+      '<div class="activation-note">Данные хранятся в зашифрованном виде на этом устройстве.</div>'+
+    '</div></div>';
+  }
+  function focusUnlock(){
+    try{
+      var el=document.getElementById("enc_pass"); if(!el) return;
+      el.addEventListener("keydown", function(e){ if(e.key==="Enter"||e.keyCode===13) doUnlock("pwd"); });
+      el.focus();
+    }catch(e){}
+  }
+  function doUnlock(which){
+    var el=document.getElementById(which==="rec"?"enc_rec":"enc_pass");
+    var val=el?el.value:"";
+    if(!val){ showToast(which==="rec"?"Введите код восстановления":"Введите пароль"); return; }
+    showToast("Расшифровываю…");
+    unlockWith(val, which).then(function(){
+      view="list"; render(); showToast("Готово ✓");
+    }).catch(function(){
+      showToast(which==="rec"?"Код восстановления не подошёл":"Неверный пароль");
+    });
+  }
+  function recoveryHTML(){
+    return '<div class="container"><div class="lockcard">'+
+      '<h2>Код восстановления</h2>'+
+      '<p>Введите код, который вы записали при включении шифрования. Он открывает записи вместо пароля.</p>'+
+      '<input class="input" id="enc_rec" placeholder="XXXXXX-XXXXXX-XXXXXX-XXXXXX" autocomplete="off" style="text-align:center;font-family:ui-monospace,Menlo,monospace">'+
+      '<div style="height:14px"></div>'+
+      '<button class="btn btn-primary" data-action="enc-rec-go" style="width:100%;justify-content:center">Открыть записи</button>'+
+      '<div style="height:10px"></div>'+
+      '<button class="btn btn-ghost" data-action="enc-back" style="width:100%;justify-content:center">← Назад к паролю</button>'+
+      '<div class="activation-note">Кода нет? Тогда записи открыть нельзя — это плата за настоящее шифрование. Восстановить их можно только из копии Excel.</div>'+
+    '</div></div>';
+  }
   function pinHTML(){
     return '<div class="container"><div class="lockcard">'+
       '<h2>🔒 Вход в программу</h2>'+
@@ -885,14 +1103,58 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
         '<div class="hint">Выход сбросит код доступа и вернёт к экрану входа. Записи пациентов останутся на этом устройстве — при входе тем же кодом они будут на месте.</div>'+
       '</div></div>'+
       '<div class="form-actions"><button class="btn btn-outline" data-action="logout" style="color:var(--danger);border-color:var(--danger)">Выйти из профиля</button></div>'+
+      '<hr style="border:none;border-top:1px solid var(--border);margin:14px 0">'+
+      (encActive()
+        ? '<div class="good" style="background:#E8F5E9;border:1px solid #A5D6A7;color:#1B5E20;border-radius:10px;padding:12px 15px;font-size:14px">'+
+            '🔐 <b>Записи и фото зашифрованы.</b> Без вашего пароля их невозможно прочитать — даже с этого устройства. Автокопии внутри программы шифруются так же.<br><span style="font-size:13px">Выгрузки в Excel и файл фото остаются открытыми — это обычные файлы, храните их бережно.</span></div>'
+        : (cryptoOK()
+          ? '<div class="form-grid"><div class="full">'+
+              '<label class="label">Шифрование записей и фото</label>'+
+              '<div class="hint">Сейчас записи и снимки лежат на устройстве в открытом виде: тот, кто получит разблокированный телефон, сможет их посмотреть. После шифрования без пароля они превращаются в набор символов — вместе с фото и автокопиями.</div>'+
+              '<div style="height:10px"></div>'+
+              '<label class="label">Придумайте пароль (от 8 символов)</label>'+
+              '<input class="input" id="enc_new" type="password" autocomplete="new-password" placeholder="Пароль">'+
+              '<label class="label" style="margin-top:8px">Повторите пароль</label>'+
+              '<input class="input" id="enc_new2" type="password" autocomplete="new-password" placeholder="Ещё раз">'+
+            '</div></div>'+
+            '<div class="form-actions"><button class="btn btn-primary" data-action="enc-enable">Зашифровать записи и фото</button></div>'+
+            '<div class="note">⚠ Забудете пароль — записи откроет только код восстановления, который программа покажет один раз. Запишите его на бумаге. Без пароля и кода данные вернуть невозможно: в этом и смысл шифрования.</div>'
+          : '<div class="note">Этот браузер не поддерживает шифрование. Откройте программу в свежем Safari или Chrome.</div>')
+      )+
+      '<hr style="border:none;border-top:1px solid var(--border);margin:14px 0">'+
+      '<div class="form-grid"><div class="full">'+
+        '<label class="label">Автоматические копии на этом устройстве</label>'+
+        '<div class="hint">Раз в день программа сохраняет снимок ваших записей. Если что-то удалилось по ошибке — можно вернуть. Хранятся последние 7 снимков, никуда не отправляются.</div>'+
+        '<div style="margin-top:10px"><b>'+(settings.autoSnap===true?'Включены':'Выключены')+'</b></div>'+
+      '</div></div>'+
+      '<div class="form-actions">'+
+        '<button class="btn '+(settings.autoSnap===true?'btn-outline':'btn-primary')+'" data-action="snap-toggle">'+(settings.autoSnap===true?'Выключить':'Включить')+'</button>'+
+        '<button class="btn btn-outline" data-action="snap-now">Сделать копию сейчас</button>'+
+      '</div>'+
+      '<div id="snaplist" class="hint">Загружаю список копий…</div>'+
+      '<div class="note" style="margin-top:10px">⚠ Снимки лежат на этом же устройстве. Потеряете телефон — пропадут вместе с ним. Поэтому «💾 Резервная копия» в Excel по-прежнему обязательна.</div>'+
     '</div></div>';
+  }
+  function renderSnapList(){
+    var box=document.getElementById("snaplist"); if(!box) return;
+    snapAll().then(function(list){
+      if(!list.length){ box.innerHTML='<div class="hint">Копий пока нет.</div>'; return; }
+      box.innerHTML='<div style="margin-top:12px"><b style="font-size:13.5px">Сохранённые копии:</b></div>'+
+        list.map(function(s){
+          return '<div class="vrow"><span class="vd">'+formatTs(s.ts)+'</span>'+
+            '<span class="vp">'+s.count+' пациент'+plural(s.count)+' · '+esc(s.reason||"")+'</span>'+
+            '<button class="btn btn-outline btn-sm" data-action="snap-restore" data-id="'+esc(s.id)+'">Вернуть</button></div>';
+        }).join("");
+    }).catch(function(){ box.innerHTML='<div class="hint">Копии на этом устройстве недоступны.</div>'; });
   }
 
   // ---------- отрисовка ----------
   function render(){
     document.body.classList.remove('lp-mode');
     if(locked){ root.innerHTML = lockHTML(); return; }
-    if(!license){ document.body.classList.add('lp-mode'); root.innerHTML = landingHTML(); window.scrollTo(0,0); return; }
+    if(deviceBlocked){ root.innerHTML = devBlockHTML(); return; }
+    if(!license){ document.body.classList.add('lp-mode'); root.innerHTML = landingHTML(); setupBuyButtons(); window.scrollTo(0,0); return; }
+    if(encActive() && !DEK){ root.innerHTML = unlockHTML(); focusUnlock(); return; }
     if(settings.pinHash && !pinUnlocked){
       root.innerHTML = pinHTML();
       try{
@@ -909,7 +1171,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
       }catch(e){}
       return;
     }
-    if(view==="settings"){ root.innerHTML = settingsHTML(); return; }
+    if(view==="settings"){ root.innerHTML = settingsHTML(); renderSnapList(); return; }
     if(view==="visit"){ root.innerHTML = visitHTML(); return; }
     if(view==="photos"){ root.innerHTML = photosHTML(); loadPhotoGrid(); return; }
     if(view==="finance"){ root.innerHTML = financeViewHTML(); return; }
@@ -950,6 +1212,20 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
         '<div class="reminder-actions">'+
           '<button class="btn btn-primary btn-sm" data-action="export">💾 Сделать копию</button>'+
           '<button class="reminder-x" data-action="dismiss-reminder" title="Скрыть до следующего запуска">×</button>'+
+        '</div>'+
+      '</div>') : "";
+
+    // спрашиваем согласие на автокопии один раз, когда записи уже есть
+    var askSnap = (!demoMode && patients.length>=2 && settings.autoSnap===undefined);
+    var snapAskHTML = askSnap ? (
+      '<div class="reminder">'+
+        '<div class="reminder-txt">🛟 <b>Делать автоматические копии ваших записей?</b> '+
+        'Раз в день программа будет сохранять снимок базы прямо на этом устройстве — если запись случайно удалится или что-то собьётся, её можно вернуть одной кнопкой. '+
+        'Снимки никуда не отправляются и остаются только у вас.'+
+        '<div class="reminder-sub">Это не заменяет «Резервную копию» в Excel: снимки лежат на этом же телефоне, поэтому при его потере они пропадут вместе с ним.</div></div>'+
+        '<div class="reminder-actions">'+
+          '<button class="btn btn-primary btn-sm" data-action="snap-yes">Да, делать копии</button>'+
+          '<button class="btn btn-outline btn-sm" data-action="snap-no">Не нужно</button>'+
         '</div>'+
       '</div>') : "";
 
@@ -1017,6 +1293,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
             '<li><b>Подробная инструкция всегда под рукой:</b> <a href="help.html" target="_blank" style="color:var(--accent);font-weight:700">откройте её по этой ссылке</a> — там всё по шагам: фото до/после, визиты, финансы, PIN-код.</li>'+
           '</ol>'+
         '</div>'+
+        snapAskHTML+
         demoHTML+
         iosHTML+
         storageHTML+
@@ -1041,17 +1318,227 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
 
   // ---------- фото до/после (IndexedDB, только на устройстве) ----------
   var PDB=null;
+  // ═══════════════ ШИФРОВАНИЕ ЗАПИСЕЙ ═══════════════
+  // Ключ данных (DEK) случайный; он обёрнут паролем мастера и кодом восстановления.
+  // Смена пароля не требует перешифровки. Ключ живёт только в памяти вкладки.
+  var ENC_CFG_KEY="kirenix_enc_v1", DATA_ENC_KEY="patients_enc_v1";
+  var DEK=null, encCfg=null;
+  function cryptoOK(){ try{ return !!(window.crypto && window.crypto.subtle && window.crypto.getRandomValues); }catch(e){ return false; } }
+  function b64(buf){ var b=new Uint8Array(buf), s=""; for(var i=0;i<b.length;i++) s+=String.fromCharCode(b[i]); return btoa(s); }
+  function unb64(str){ var s=atob(String(str)), b=new Uint8Array(s.length); for(var i=0;i<s.length;i++) b[i]=s.charCodeAt(i); return b; }
+  function randBytes(n){ var b=new Uint8Array(n); crypto.getRandomValues(b); return b; }
+  function deriveKey(pass, salt){
+    return crypto.subtle.importKey("raw", new TextEncoder().encode(String(pass)), {name:"PBKDF2"}, false, ["deriveKey"])
+      .then(function(km){ return crypto.subtle.deriveKey(
+        {name:"PBKDF2", salt:salt, iterations:300000, hash:"SHA-256"},
+        km, {name:"AES-GCM", length:256}, false, ["encrypt","decrypt"]); });
+  }
+  function aesEnc(key, text){
+    var iv=randBytes(12);
+    return crypto.subtle.encrypt({name:"AES-GCM", iv:iv}, key, new TextEncoder().encode(String(text)))
+      .then(function(ct){ return {iv:b64(iv), ct:b64(ct)}; });
+  }
+  function aesDec(key, obj){
+    return crypto.subtle.decrypt({name:"AES-GCM", iv:unb64(obj.iv)}, key, unb64(obj.ct))
+      .then(function(pt){ return new TextDecoder().decode(pt); });
+  }
+  function makeRecoveryCode(){
+    var A="ABCDEFGHJKLMNPQRSTUVWXYZ23456789", r=randBytes(24), s="";
+    for(var i=0;i<24;i++){ s+=A[r[i]%A.length]; if(i%6===5 && i<23) s+="-"; }
+    return s;
+  }
+  function normRec(c){ return String(c||"").toUpperCase().replace(/[^A-Z0-9]/g,""); }
+  function loadEncCfg(){ try{ var s=localStorage.getItem(ENC_CFG_KEY); encCfg = s?JSON.parse(s):null; }catch(e){ encCfg=null; } }
+  function encActive(){ return !!(encCfg && encCfg.v); }
+
+  // включение шифрования: снимок → шифруем → проверяем → убираем открытый текст
+  function enableEncryption(pass){
+    if(!cryptoOK()) return Promise.reject(new Error("Браузер не поддерживает шифрование"));
+    var dekRaw=randBytes(32), rec=makeRecoveryCode(), sP=randBytes(16), sR=randBytes(16);
+    var dekB64=b64(dekRaw);
+    return makeSnapshot("перед шифрованием").then(function(){
+      return Promise.all([deriveKey(pass,sP), deriveKey(normRec(rec),sR)]);
+    }).then(function(keys){
+      return Promise.all([aesEnc(keys[0],dekB64), aesEnc(keys[1],dekB64)]);
+    }).then(function(w){
+      return crypto.subtle.importKey("raw", dekRaw, {name:"AES-GCM"}, false, ["encrypt","decrypt"]).then(function(dek){
+        DEK=dek;
+        encCfg={v:1, pwd:{salt:b64(sP), iv:w[0].iv, ct:w[0].ct}, rec:{salt:b64(sR), iv:w[1].iv, ct:w[1].ct}};
+        return aesEnc(DEK, JSON.stringify(patients));
+      });
+    }).then(function(blob){
+      // проверяем, что расшифровывается, и только потом удаляем открытые данные
+      return aesDec(DEK, blob).then(function(txt){
+        var back=JSON.parse(txt);
+        if(!Array.isArray(back) || back.length!==patients.length) throw new Error("проверка не прошла");
+        localStorage.setItem(DATA_ENC_KEY, JSON.stringify(blob));
+        localStorage.setItem(ENC_CFG_KEY, JSON.stringify(encCfg));
+        localStorage.removeItem(STORE_KEY);
+        // фото и старые автокопии шифруем следом; не успеет — догоним при следующем открытии
+        return migrateEncAssets().catch(function(){ return 0; }).then(function(){ return rec; });
+      });
+    });
+  }
+  function unlockWith(secret, which){
+    if(!encActive()) return Promise.reject(new Error("шифрование не включено"));
+    var c=encCfg[which]; if(!c) return Promise.reject(new Error("нет данных"));
+    var pass = (which==="rec") ? normRec(secret) : secret;
+    return deriveKey(pass, unb64(c.salt))
+      .then(function(k){ return aesDec(k, {iv:c.iv, ct:c.ct}); })
+      .then(function(dekB64){ return crypto.subtle.importKey("raw", unb64(dekB64), {name:"AES-GCM"}, false, ["encrypt","decrypt"]); })
+      .then(function(dek){
+        DEK=dek;
+        var raw=localStorage.getItem(DATA_ENC_KEY);
+        if(!raw){ patients=[]; return true; }
+        return aesDec(DEK, JSON.parse(raw)).then(function(txt){
+          patients=JSON.parse(txt)||[]; migrateVisits(); return true;
+        });
+      })
+      .then(function(v){ try{ setTimeout(migrateEncAssets, 1200); }catch(e){} return v; });
+  }
+  function persistEncrypted(){
+    if(!DEK) return;
+    aesEnc(DEK, JSON.stringify(patients)).then(function(blob){
+      try{ localStorage.setItem(DATA_ENC_KEY, JSON.stringify(blob)); storageFail=false; }
+      catch(e){ storageFail=true; showToast("⚠️ НЕ УДАЛОСЬ СОХРАНИТЬ на устройстве! Срочно нажмите «Резервная копия»."); }
+    }).catch(function(){ storageFail=true; });
+  }
+
+  // ---------- автокопии: снимки базы на этом устройстве ----------
+  // Спасают от «случайно удалила» и сбоя программы. От потери телефона НЕ спасают —
+  // для этого нужна копия в Excel, о чём честно написано в интерфейсе.
+  var SDB=null, SNAP_KEEP=7;
+  function snapDB(){ return new Promise(function(res,rej){ try{
+      if(typeof indexedDB==="undefined"){ rej(new Error("нет хранилища")); return; }
+      if(SDB){ res(SDB); return; }
+      var r=indexedDB.open("kirenix_snapshots",1);
+      r.onupgradeneeded=function(e){ var db=e.target.result;
+        if(!db.objectStoreNames.contains("snaps")) db.createObjectStore("snaps",{keyPath:"id"}); };
+      r.onsuccess=function(e){ SDB=e.target.result; res(SDB); };
+      r.onerror=function(){ rej(new Error("не открылось")); };
+    }catch(err){ rej(err); } }); }
+  function snapAll(){ return snapDB().then(function(db){ return new Promise(function(res,rej){
+      var req=db.transaction("snaps","readonly").objectStore("snaps").getAll();
+      req.onsuccess=function(){ res((req.result||[]).sort(function(a,b){ return b.ts-a.ts; })); };
+      req.onerror=function(){ rej(); }; }); }); }
+  function snapPut(rec){ return snapDB().then(function(db){ return new Promise(function(res,rej){
+      var tx=db.transaction("snaps","readwrite"); tx.objectStore("snaps").put(rec);
+      tx.oncomplete=function(){res();}; tx.onerror=function(){rej();}; }); }); }
+  function snapDel(id){ return snapDB().then(function(db){ return new Promise(function(res){
+      var tx=db.transaction("snaps","readwrite"); tx.objectStore("snaps")["delete"](id);
+      tx.oncomplete=function(){res();}; tx.onerror=function(){res();}; }); }); }
+  // копия шифруется тем же ключом: снаружи видны только дата и число записей
+  function snapRead(s){
+    if(s && s.enc){
+      if(!DEK) return Promise.reject(new Error("нет ключа"));
+      return aesDec(DEK, s.enc).then(function(t){ var o=JSON.parse(t); return {data:o.d, metaData:o.m}; });
+    }
+    return Promise.resolve({data:s&&s.data, metaData:s&&s.metaData});
+  }
+  function snapPack(rec, dataStr, metaStr){
+    if(encActive() && DEK){
+      return aesEnc(DEK, JSON.stringify({d:dataStr, m:metaStr})).then(function(e){ rec.enc=e; return rec; });
+    }
+    rec.data=dataStr; rec.metaData=metaStr; return Promise.resolve(rec);
+  }
+  // старые копии, снятые до шифрования, перешифровываем — иначе записи так и лежат открыто
+  function migrateSnapsEnc(){
+    if(!encActive() || !DEK || demoMode) return Promise.resolve(0);
+    return snapAll().then(function(list){
+      var todo=(list||[]).filter(function(s){ return s && !s.enc && s.data; });
+      if(!todo.length) return 0;
+      return todo.reduce(function(p,s){
+        return p.then(function(){
+          return snapPack({id:s.id, ts:s.ts, reason:s.reason, count:s.count}, s.data, s.metaData).then(snapPut);
+        });
+      }, Promise.resolve()).then(function(){ return todo.length; });
+    }).catch(function(){ return 0; });
+  }
+  function migrateEncAssets(){
+    return migratePhotosEnc().then(migrateSnapsEnc).catch(function(){ return 0; });
+  }
+  function makeSnapshot(reason){
+    if(demoMode || !patients.length) return Promise.resolve(false);
+    var rec={ id:"s"+Date.now(), ts:Date.now(), reason:reason||"авто", count:patients.length };
+    return snapPack(rec, JSON.stringify(patients), JSON.stringify(meta)).then(snapPut).then(function(){
+      settings.lastSnap=rec.ts; saveSettings();
+      return snapAll().then(function(list){
+        var extra=list.slice(SNAP_KEEP);
+        return Promise.all(extra.map(function(s){ return snapDel(s.id); })).then(function(){ return true; });
+      });
+    }).catch(function(){ return false; });
+  }
+  function maybeAutoSnapshot(){
+    try{
+      if(demoMode || settings.autoSnap!==true || !patients.length) return;
+      var last=settings.lastSnap||0;
+      if(Date.now()-last < 20*3600*1000) return;   // не чаще раза в сутки
+      makeSnapshot("авто");
+    }catch(e){}
+  }
+  function restoreSnapshot(id){
+    snapAll().then(function(list){
+      var s=null; list.forEach(function(x){ if(x.id===id) s=x; });
+      if(!s){ showToast("Копия не найдена"); return; }
+      if(!confirm("Вернуть записи на "+formatTs(s.ts)+"?\n\nСейчас в программе: "+patients.length+
+                  " пациент(ов). В копии: "+s.count+".\n\nТекущие записи будут заменены. Перед заменой сделаю ещё одну копию — откатиться можно будет назад.")) return;
+      makeSnapshot("перед возвратом").then(function(){
+        return snapRead(s).then(function(o){
+          var restored=JSON.parse(o.data)||[];
+          patients=restored; migrateVisits(); persist(); bumpChange();
+          view="list"; render(); showToast("Записи возвращены: "+patients.length);
+        });
+      }).catch(function(){ showToast("Не удалось прочитать копию"); });
+    }).catch(function(){ showToast("Копии недоступны на этом устройстве"); });
+  }
+
   function photoDB(){ return new Promise(function(res,rej){ try{ if(typeof indexedDB==="undefined"){ rej(new Error("Фото не поддерживаются в этом браузере")); return; } if(PDB){ res(PDB); return; } var r=indexedDB.open("kirenix_photos",1); r.onupgradeneeded=function(e){ var db=e.target.result; if(!db.objectStoreNames.contains("photos")){ var os=db.createObjectStore("photos",{keyPath:"id"}); os.createIndex("patientId","patientId",{unique:false}); } }; r.onsuccess=function(e){ PDB=e.target.result; res(PDB); }; r.onerror=function(){ rej(new Error("Не удалось открыть хранилище фото")); }; }catch(err){ rej(err); } }); }
-  function photoAdd(rec){ if(demoMode){ showToast("В демо фото не сохраняются"); return Promise.resolve(); } return photoDB().then(function(db){ return new Promise(function(res,rej){ var tx=db.transaction("photos","readwrite"); tx.objectStore("photos").put(rec); tx.oncomplete=function(){res();}; tx.onerror=function(){rej(new Error("Ошибка записи фото"));}; }); }); }
+  function photoPut(rec){ return photoDB().then(function(db){ return new Promise(function(res,rej){ var tx=db.transaction("photos","readwrite"); tx.objectStore("photos").put(rec); tx.oncomplete=function(){res();}; tx.onerror=function(){rej(new Error("Ошибка записи фото"));}; }); }); }
+  function photoAdd(rec){ if(demoMode){ showToast("В демо фото не сохраняются"); return Promise.resolve(); } return encPhotoRec(rec).then(photoPut); }
   function photoDel(pid){ return photoDB().then(function(db){ return new Promise(function(res,rej){ var tx=db.transaction("photos","readwrite"); tx.objectStore("photos")["delete"](pid); tx.oncomplete=function(){res();}; tx.onerror=function(){rej();}; }); }); }
-  function photoList(patientId){ return photoDB().then(function(db){ return new Promise(function(res,rej){ var tx=db.transaction("photos","readonly"); var req=tx.objectStore("photos").index("patientId").getAll(patientId); req.onsuccess=function(){ res(req.result||[]); }; req.onerror=function(){ rej(); }; }); }); }
-  function photoAll(){ return photoDB().then(function(db){ return new Promise(function(res,rej){ var tx=db.transaction("photos","readonly"); var req=tx.objectStore("photos").getAll(); req.onsuccess=function(){ res(req.result||[]); }; req.onerror=function(){ rej(); }; }); }); }
+  function photoListRaw(patientId){ return photoDB().then(function(db){ return new Promise(function(res,rej){ var tx=db.transaction("photos","readonly"); var req=tx.objectStore("photos").index("patientId").getAll(patientId); req.onsuccess=function(){ res(req.result||[]); }; req.onerror=function(){ rej(); }; }); }); }
+  function photoAllRaw(){ return photoDB().then(function(db){ return new Promise(function(res,rej){ var tx=db.transaction("photos","readonly"); var req=tx.objectStore("photos").getAll(); req.onsuccess=function(){ res(req.result||[]); }; req.onerror=function(){ rej(); }; }); }); }
+  function photoList(patientId){ return photoListRaw(patientId).then(decPhotoList); }
+  function photoAll(){ return photoAllRaw().then(decPhotoList); }
+
+  // ---------- фото: тот же ключ, что и у записей ----------
+  // Снимок шифруется целиком; в хранилище остаются только id, пациент, метка и дата.
+  function encPhotoRec(rec){
+    if(!encActive() || !DEK) return Promise.resolve(rec);
+    var d=safePhotoData(rec&&rec.dataURL);
+    if(!d) return Promise.resolve(rec);
+    return aesEnc(DEK, d).then(function(e){
+      return {id:rec.id, patientId:rec.patientId, kind:rec.kind, date:rec.date, enc:e};
+    });
+  }
+  function decPhotoRec(rec){
+    if(!rec || !rec.enc) return Promise.resolve(rec);
+    if(!DEK) return Promise.resolve(null);
+    return aesDec(DEK, rec.enc).then(function(t){
+      return {id:rec.id, patientId:rec.patientId, kind:rec.kind, date:rec.date, dataURL:t};
+    }).catch(function(){ return null; });
+  }
+  function decPhotoList(items){
+    if(!items || !items.length) return Promise.resolve([]);
+    return Promise.all(items.map(decPhotoRec)).then(function(a){ return a.filter(function(x){ return !!x; }); });
+  }
+  // догоняем фото, снятые до включения шифрования (по одному, чтобы не грузить память)
+  function migratePhotosEnc(){
+    if(!encActive() || !DEK || demoMode) return Promise.resolve(0);
+    return photoAllRaw().then(function(items){
+      var todo=(items||[]).filter(function(it){ return it && !it.enc && it.dataURL; });
+      if(!todo.length) return 0;
+      return todo.reduce(function(p,it){
+        return p.then(function(){ return encPhotoRec(it).then(photoPut); });
+      }, Promise.resolve()).then(function(){ return todo.length; });
+    }).catch(function(){ return 0; });
+  }
   // строгая проверка картинки: только настоящий base64-снимок, иначе отбрасываем
   function safePhotoData(s){
     s=String(s==null?"":s);
     return /^data:image\/(png|jpe?g|gif|webp);base64,[A-Za-z0-9+/=]+$/.test(s) ? s : "";
   }
-  function photoDelByPatient(pid){ try{ photoList(pid).then(function(items){ items.forEach(function(it){ photoDel(it.id); }); }).catch(function(){}); }catch(e){} }
+  function photoDelByPatient(pid){ try{ photoListRaw(pid).then(function(items){ items.forEach(function(it){ photoDel(it.id); }); }).catch(function(){}); }catch(e){} }
   function compressImage(file, ok, fail){
     try{
       var reader=new FileReader();
@@ -1124,6 +1611,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
     }, function(){ showToast("Не удалось обработать это фото"); });
   }
   function photoExport(){
+    if(encActive() && !confirm("Файл с фото сохранится БЕЗ шифрования — его откроет любой, к кому он попадёт.\n\nХраните его так же бережно, как саму карту пациента. Продолжить?")) return;
     photoAll().then(function(items){
       if(!items.length){ showToast("Нет фото для сохранения"); return; }
       var data={ app:"kirenix-photos", version:1, exported:new Date().toISOString(),
@@ -1512,14 +2000,65 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
     var a=t.getAttribute("data-action");
     var id=t.getAttribute("data-id");
     if(a==="activate"){
-      var k=normKey((document.getElementById("a_key")||{}).value);
+      var raw=String(((document.getElementById("a_key")||{}).value)||"").trim();
       var owner=String(((document.getElementById("a_owner")||{}).value)||"").trim();
-      if(!isValidKey(k)){ showToast("Код не подходит. Формат: KX-XXXXX-X, проверьте опечатки."); return; }
       if(!owner){ showToast("Укажите ваше имя"); return; }
-      license={key:k,owner:owner}; saveLicense(); view="list"; render(); checkManifest();
-      showToast("Добро пожаловать, "+owner+"!");
+      var go=function(lic){ license=lic; saveLicense(); view="list"; render(); checkManifest(); showToast("Добро пожаловать, "+owner+"!"); };
+      if(isSignedKey(raw)){
+        if(!cryptoOK()){ showToast("Этот браузер слишком старый для проверки кода. Откройте программу в свежем Safari или Chrome."); return; }
+        showToast("Проверяю код…");
+        verifySigned(raw).then(function(d){
+          if(!d){ showToast("Код не подходит: подпись неверна. Скопируйте код из сообщения целиком."); return; }
+          var lic={key:raw, owner:owner, id:d.id, tariff:d.t||"full", issued:d.d||""};
+          // d.o === 1 — особая лицензия без привязки к устройству (выдаётся вручную в исключениях)
+          if(!ACT_URL || d.o===1){ go(lic); return; }
+          askActivation(raw).then(function(r){
+            if(r && r.ok && r.act){ lic.act=r.act; lic.dev=deviceId(); go(lic); return; }
+            var reason=r&&r.reason;
+            if(reason==="limit"){
+              showToast("Этот код уже занят на "+(r.limit||2)+" устройствах. Если это ваши старые телефон или компьютер — напишите мне, освобожу.");
+            } else if(reason==="revoked"){
+              showToast("Этот код отключён. Напишите мне в Telegram, разберёмся.");
+            } else if(reason==="net"){
+              showToast("Не получилось подтвердить код: нет связи с сервером. Проверьте интернет — он нужен только сейчас, один раз.");
+            } else {
+              showToast("Не получилось подтвердить код. Попробуйте ещё раз или напишите мне в Telegram.");
+            }
+          });
+        });
+        return;
+      }
+      var k=normKey(raw);
+      if(!isValidKey(k)){ showToast("Код не подходит. Проверьте опечатки — код лучше скопировать целиком."); return; }
+      if(!legacyOK){ showToast("Этот код устарел. Напишите мне в Telegram — пришлю новый."); return; }
+      go({key:k, owner:owner});
     }
+    else if(a==="buy-open"){ e.preventDefault(); if(!t.getAttribute("data-busy")) buyGo(t); }
     else if(a==="new"){ editId=null; view="form"; render(); }
+    else if(a==="enc-unlock"){ doUnlock("pwd"); }
+    else if(a==="enc-recovery"){ root.innerHTML = recoveryHTML(); }
+    else if(a==="enc-rec-go"){ doUnlock("rec"); }
+    else if(a==="enc-back"){ root.innerHTML = unlockHTML(); focusUnlock(); }
+    else if(a==="enc-enable"){
+      var p1=(document.getElementById("enc_new")||{}).value||"";
+      var p2=(document.getElementById("enc_new2")||{}).value||"";
+      if(p1.length<8){ showToast("Пароль слишком короткий — минимум 8 символов"); return; }
+      if(p1!==p2){ showToast("Пароли не совпадают"); return; }
+      if(!confirm("Зашифровать записи?\n\nПосле этого при каждом открытии программа будет спрашивать пароль.\n\nВАЖНО: забыли пароль и потеряли код восстановления — записи вернуть невозможно. Код я покажу сразу после шифрования, запишите его на бумаге.")) return;
+      showToast("Шифрую записи…");
+      enableEncryption(p1).then(function(rec){
+        view="list"; render();
+        alert("ГОТОВО. Записи и фото зашифрованы.\n\nВАШ КОД ВОССТАНОВЛЕНИЯ:\n\n"+rec+"\n\nЗапишите его на бумаге и уберите в надёжное место. Он открывает записи, если забудете пароль. Больше он показан не будет.");
+        showToast("Записи зашифрованы ✓");
+      }).catch(function(e){
+        showToast("Не удалось зашифровать: "+((e&&e.message)||"ошибка")+". Записи остались как были.");
+      });
+    }
+    else if(a==="snap-yes"){ settings.autoSnap=true; saveSettings(); makeSnapshot("первая"); render(); showToast("Автокопии включены ✓"); }
+    else if(a==="snap-no"){ settings.autoSnap=false; saveSettings(); render(); showToast("Хорошо, копии делать не буду"); }
+    else if(a==="snap-now"){ makeSnapshot("вручную").then(function(ok){ showToast(ok?"Копия сделана ✓":"Не удалось сделать копию"); render(); }); }
+    else if(a==="snap-restore"){ restoreSnapshot(id); }
+    else if(a==="snap-toggle"){ settings.autoSnap=!settings.autoSnap; saveSettings(); if(settings.autoSnap) makeSnapshot("включение"); render(); }
     else if(a==="demo"){ startDemo(); }
     else if(a==="demo-exit"){ exitDemo(); }
     else if(a==="finance"){ view="finance"; render(); }
@@ -1548,7 +2087,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
       patients=[]; meta={lastBackup:null,changes:0}; settings={pinHash:null}; license=null; pinUnlocked=false; locked=false; view="list";
       render(); showToast("Программа очищена. Введите код и восстановите записи из копии Excel.");
     }
-    else if(a==="logout"){ if(confirm("Выйти из профиля?\n\nКод доступа сбросится, откроется экран входа. Записи пациентов останутся на этом устройстве — при входе тем же кодом они будут на месте.")){ try{ localStorage.removeItem(LIC_KEY); }catch(e){} license=null; pinUnlocked=false; locked=false; view="list"; render(); } }
+    else if(a==="logout"){ if(confirm("Выйти из профиля?\n\nКод доступа сбросится, откроется экран входа. Записи пациентов останутся на этом устройстве — при входе тем же кодом они будут на месте.")){ try{ localStorage.removeItem(LIC_KEY); }catch(e){} license=null; pinUnlocked=false; locked=false; deviceBlocked=false; view="list"; render(); } }
     else if(a==="spec-save"){ var _sp=(document.getElementById("set_spec")||{}).value||""; settings.specialty=(_sp==="не выбрано"?"":_sp); saveSettings(); render(); showToast("Специальность сохранена"); }
     else if(a==="export"){ exportExcel(); }
     else if(a==="import"){ fileInput.value=""; fileInput.click(); }
@@ -1594,11 +2133,14 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
     }
   }catch(e){}
 
-  loadLocal();
+  loadEncCfg();
+  if(!encActive()) loadLocal();
   loadMeta();
   loadLicense();
   loadSettings();
   if(license) checkManifest();
+  ensureActivation();
+  try{ setTimeout(maybeAutoSnapshot, 1500); }catch(e){}
   render();
 })();
 
