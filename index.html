@@ -516,14 +516,14 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
       if(!ACT_URL || d.o===1) return;                    // привязка выключена или лицензия без неё
       if(license.act){
         verifyAct(license.act).then(function(act){
-          if(!act || act.id!==license.id || act.dev!==deviceId()){ deviceBlocked=true; render(); }
+          if(!act || act.id!==license.id || act.dev!==deviceId()){ deviceBlocked=true; render(); loadDevInfo(); }
         });
         return;
       }
       // код введён до того, как появилась привязка — тихо занимаем место
       askActivation(license.key).then(function(r){
         if(r && r.ok && r.act){ license.act=r.act; license.dev=deviceId(); saveLicense(); }
-        else if(r && r.reason==="limit"){ deviceBlocked=true; render(); }
+        else if(r && r.reason==="limit"){ deviceBlocked=true; render(); loadDevInfo(); }
         // нет связи — оставляем как есть, попробуем при следующем открытии
       });
     });
@@ -770,16 +770,78 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
   }
 
   // код открыт на другом устройстве
+  var devInfo = null;        // что ответил сервер про занятые места
+  function devDate(s){
+    if(!s) return "—";
+    var d=new Date(s);
+    if(isNaN(d.getTime())) return "—";
+    return ("0"+d.getDate()).slice(-2)+"."+("0"+(d.getMonth()+1)).slice(-2)+"."+d.getFullYear();
+  }
   function devBlockHTML(){
-    return '<div class="container"><div class="lockcard">'+
+    var h = '<div class="container"><div class="lockcard">'+
       '<h2>Код открыт на другом устройстве</h2>'+
-      '<p>Один код доступа рассчитан на ваши устройства — например, телефон и компьютер. Похоже, свободных мест не осталось.</p>'+
-      '<p>Если вы сменили телефон или почистили браузер — напишите мне, освобожу место за минуту. Это обычное дело.</p>'+
-      '<a class="btn btn-primary" href="https://t.me/aikiren" style="width:100%;justify-content:center">Написать в Telegram</a>'+
+      '<p>Один код доступа рассчитан на ваши устройства — например, телефон и компьютер. Похоже, свободных мест не осталось.</p>';
+
+    if(devInfo && devInfo.ok){
+      var list = devInfo.devices || [];
+      if(list.length){
+        h += '<div class="activation-note" style="text-align:left;margin:12px 0 4px"><b>Сейчас код открыт здесь:</b></div>';
+        for(var i=0;i<list.length;i++){
+          h += '<div style="display:flex;justify-content:space-between;gap:10px;font-size:13.5px;'+
+               'background:#F7F8FC;border-radius:8px;padding:8px 11px;margin-bottom:6px">'+
+               '<span>Устройство '+(i+1)+(list[i]["это_моё"]?' (это)':'')+'</span>'+
+               '<span style="color:#6B7280">заходили '+devDate(list[i]["последний_вход"])+'</span></div>';
+        }
+      }
+      if(devInfo["можно_освободить"]){
+        h += '<p style="margin-top:12px">Сменили телефон или почистили браузер? Освободите место сами — программа отключит то устройство, которым дольше всего не пользовались.</p>'+
+             '<button class="btn btn-primary" data-action="self-reset" style="width:100%;justify-content:center">Это моё новое устройство</button>'+
+             '<div class="activation-note">Так можно раз в два месяца. Записи ни на одном устройстве не пропадут.</div>'+
+             '<div style="height:10px"></div>';
+      } else if(devInfo["ждать_дней"] > 0){
+        h += '<p style="margin-top:12px">Место уже освобождали недавно, поэтому кнопка снова заработает через '+
+             devInfo["ждать_дней"]+' дн. Если устройство сменилось не по вашей вине — напишите мне, помогу сразу.</p>';
+      }
+      h += '<div class="activation-note" style="margin-bottom:10px">Ваш номер лицензии: <b>'+esc(devInfo.license||"")+'</b> — назовите его мне, и я быстро вас найду.</div>';
+    } else {
+      h += '<p>Если вы сменили телефон или почистили браузер — напишите мне, освобожу место за минуту. Это обычное дело.</p>';
+    }
+
+    h += '<a class="btn btn-outline" href="https://t.me/aikiren" style="width:100%;justify-content:center">Написать в Telegram</a>'+
       '<div style="height:10px"></div>'+
-      '<button class="btn btn-outline" data-action="logout" style="width:100%;justify-content:center">Ввести другой код</button>'+
+      '<button class="btn btn-ghost" data-action="logout" style="width:100%;justify-content:center">Ввести другой код</button>'+
       '<div class="activation-note">Ваши записи на этом устройстве целы и никуда не делись.</div>'+
     '</div></div>';
+    return h;
+  }
+  // спрашиваем сервер, какие места заняты, чтобы показать это владельцу кода
+  function loadDevInfo(){
+    if(!ACT_URL || !license || !license.key) return;
+    fetch(String(ACT_URL).replace(/\/+$/,"")+"/devinfo",{method:"POST",
+      headers:{"content-type":"application/json"},
+      body:JSON.stringify({lic:license.key, dev:deviceId()})})
+      .then(function(r){ return r.json(); })
+      .then(function(d){ if(d && d.ok){ devInfo=d; render(); } })
+      .catch(function(){});
+  }
+  function doSelfReset(btn){
+    try{ if(btn){ btn.setAttribute("disabled","1"); btn.textContent="Освобождаю…"; } }catch(e){}
+    fetch(String(ACT_URL).replace(/\/+$/,"")+"/selfreset",{method:"POST",
+      headers:{"content-type":"application/json"},
+      body:JSON.stringify({lic:license.key, dev:deviceId()})})
+      .then(function(r){ return r.json(); })
+      .then(function(d){
+        if(d && d.ok && d.act){
+          license.act=d.act; license.dev=deviceId(); saveLicense();
+          deviceBlocked=false; devInfo=null; render();
+          showToast("Место освобождено ✓ Добро пожаловать");
+          return;
+        }
+        if(d && d.reason==="cooldown"){ showToast("Можно будет через "+(d["ждать_дней"]||0)+" дн. Напишите мне, помогу сразу."); }
+        else { showToast("Не получилось. Напишите мне в Telegram, освобожу вручную."); }
+        loadDevInfo();
+      })
+      .catch(function(){ showToast("Нет связи с сервером. Попробуйте позже."); });
   }
 
   function landingHTML(){
@@ -2091,6 +2153,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
       patients=[]; meta={lastBackup:null,changes:0}; settings={pinHash:null}; license=null; pinUnlocked=false; locked=false; view="list";
       render(); showToast("Программа очищена. Введите код и восстановите записи из копии Excel.");
     }
+    else if(a==="self-reset"){ doSelfReset(t); }
     else if(a==="logout"){ if(confirm("Выйти из профиля?\n\nКод доступа сбросится, откроется экран входа. Записи пациентов останутся на этом устройстве — при входе тем же кодом они будут на месте.")){ try{ localStorage.removeItem(LIC_KEY); }catch(e){} license=null; pinUnlocked=false; locked=false; deviceBlocked=false; view="list"; render(); } }
     else if(a==="spec-save"){ var _sp=(document.getElementById("set_spec")||{}).value||""; settings.specialty=(_sp==="не выбрано"?"":_sp); saveSettings(); render(); showToast("Специальность сохранена"); }
     else if(a==="export"){ exportExcel(); }
