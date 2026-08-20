@@ -42,6 +42,10 @@
   .btn[disabled]{opacity:.45;cursor:default}
   .btn-ghost{background:transparent;color:var(--muted);border:none;font-weight:500;min-height:auto;padding:8px 10px}
   .btn-sm{padding:8px 14px;min-height:38px;font-size:13.5px}
+  /* Настройки: тут и PIN, и шифрование, и код доступа — кнопку видно сразу */
+  .btn-set{background:var(--accent-light);color:#2C3A78;border:1.5px solid #C7D4FF}
+  .btn-set:hover{background:#E2EAFF}
+  .btn-set .gear{display:inline-block;margin-right:6px;font-size:15px;line-height:1}
 
   .help{background:var(--accent-light);border:1px solid #D7E0FF;border-radius:12px;
     padding:14px 16px;font-size:13.5px;color:#2C3A78;line-height:1.55;margin-bottom:16px}
@@ -1447,7 +1451,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
             '<a class="btn btn-outline" href="help.html" target="_blank" title="Инструкция: как всё работает" style="text-decoration:none">📘 Инструкция</a>'+
             '<a class="btn btn-outline" href="'+TG_URL+'" target="_blank" rel="noopener" title="Написать разработчику — помогу разобраться" style="text-decoration:none">💬 Помощь</a>'+
             '<button class="btn btn-outline" data-action="finance" title="Финансы и доход">₽ Финансы</button>'+
-            '<button class="btn btn-outline" data-action="settings" title="Настройки и PIN-код">⚙</button>'+
+            '<button class="btn btn-set" data-action="settings" title="PIN-код, шифрование, ваш код доступа и устройства"><span class="gear">⚙</span>Настройки</button>'+
             '<button class="btn btn-primary" data-action="new">+ Пациент</button>'+
           '</div>'+
         '</div>'+
