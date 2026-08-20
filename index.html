@@ -587,7 +587,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
       var tag=adTag();
       var btns=document.querySelectorAll(".buy-btn"), i;
       if(PAY_FN){
-        // оплата через ЮKassa: сначала спрашиваем контакт, потом уводим на страницу оплаты
+        // оплата через ЮKassa: создаём платёж и сразу уводим на страницу оплаты (без полей и контактов)
         for(i=0;i<btns.length;i++){ btns[i].setAttribute("href","#price"); btns[i].setAttribute("data-action","buy-open"); }
         return;
       }
@@ -938,12 +938,12 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
         <li>Демо на сайте — посмотрите всю программу до оплаты, без кода</li>
         <li>Код бессрочный — оплатили один раз и пользуетесь всегда</li>
         <li>Работает на двух ваших устройствах — телефон и компьютер</li>
-        <li>Официальный чек из «Мой налог» после оплаты</li>
+        <li>Официальный чек из «Мой налог» — по запросу</li>
       </ul>
       <a class="btn btn-primary btn-lg buy-btn" href="https://t.me/aikiren" style="width:100%">Купить за 4900 ₽</a>
       <div style="height:10px"></div>
       <a class="btn btn-ghost btn-lg" href="https://t.me/aikiren" style="width:100%">Задать вопрос в Telegram</a>
-      <p class="price-note">Работаю официально как самозанятый, после оплаты пришлю чек.<br>Перед покупкой откройте демо — оно повторяет всю программу. <b>Возврата по общему правилу нет</b>, условия в <a href="oferta.html" target="_blank" style="color:inherit;text-decoration:underline">оферте</a>.</p>
+      <p class="price-note">Работаю официально как самозанятый. Нужен чек — напишите в Telegram, пришлю.<br>Перед покупкой откройте демо — оно повторяет всю программу. <b>Возврата по общему правилу нет</b>, условия в <a href="oferta.html" target="_blank" style="color:inherit;text-decoration:underline">оферте</a>.</p>
     </div>
   </div>
 </section>
@@ -955,8 +955,8 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
     <p class="sec-lead">Введите код доступа, который вы получили, и своё имя. Код вводится один раз — дальше программа открывается сама.</p>
     <div class="codecard">
       <label class="label">Код доступа</label>
-      <input class="input" id="a_key" placeholder="Код из сообщения" autocomplete="off" spellcheck="false">
-      <div class="cc-hint">Формат KX-XXXXX-X. Буквы латинские, О и 0 легко перепутать — лучше скопировать код целиком.</div>
+      <input class="input" id="a_key" placeholder="Вставьте код доступа" autocomplete="off" spellcheck="false">
+      <div class="cc-hint">Код начинается с KX и довольно длинный — не печатайте его вручную, скопируйте и вставьте целиком.</div>
       <label class="label">Ваше имя</label>
       <input class="input" id="a_owner" placeholder="Например: Мария">
       <div class="cc-hint">Будет показано в шапке программы.</div>
@@ -977,8 +977,8 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
       <details><summary>Почему не бесплатная CRM? Есть же YCLIENTS и подобные</summary><div class="a">CRM — это подписка: самый дешёвый тариф от 412 ₽ в месяц, и платить надо постоянно. Плюс регистрация и ваши пациенты в чужом облаке. Здесь 4900 ₽ один раз — это меньше года подписки, и дальше вы не платите никогда, а база лежит у вас в телефоне.</div></details>
       <details><summary>Подписки точно нет? Обновления платные?</summary><div class="a">Подписки нет, оплата одна. Обновления бесплатны: программа сама покажет, что вышла новая версия — достаточно обновить страницу.</div></details>
       <details><summary>А если куплю и не подойдёт? Деньги вернёте?</summary><div class="a">По общему правилу возврата нет — поэтому демо и открыто для всех без кода и регистрации. Это та же программа с готовыми примерами: откройте карточку пациента, добавьте визит, загляните в «Финансы». Всё видно за минуту, и решение вы принимаете уже посмотрев. Если что-то непонятно — спросите меня в Telegram до оплаты, отвечу.<br><br>Но я живой человек: если вы явно ошиблись с покупкой, напишите — разберёмся по-человечески. Обещать это заранее не буду, а вот бросать вас с проблемой точно не стану.</div></details>
-      <details><summary>А если программа у меня не заработает?</summary><div class="a">Если код так и не пришёл или программа не запускается по моей вине и я не смог помочь — верну деньги полностью. Это прописано в оферте.</div></details>
-      <details><summary>Дадите чек?</summary><div class="a">Да. Я работаю официально как самозанятый — сразу после оплаты пришлю чек из налогового приложения «Мой налог».</div></details>
+      <details><summary>А если программа у меня не заработает?</summary><div class="a">Если после оплаты вы так и не получили код или программа не запускается по моей вине и я не смог помочь — верну деньги полностью. Это прописано в оферте.</div></details>
+      <details><summary>Дадите чек?</summary><div class="a">Да. Я работаю официально как самозанятый. Покупка проходит без регистрации, поэтому я не знаю, куда отправить чек — просто напишите мне в Telegram <a href="https://t.me/aikiren" target="_blank" style="color:inherit">@aikiren</a>, и я пришлю чек из налогового приложения «Мой налог».</div></details>
       <details><summary>А если сайт перестанет работать?</summary><div class="a">Ваша база всегда у вас: в любой момент выгружается в обычный файл Excel одной кнопкой. Вы ничего не потеряете.</div></details>
     </div>
   </div>
@@ -1078,7 +1078,10 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
   function settingsHTML(){
     var has=!!settings.pinHash;
     return '<div class="container"><div class="card">'+
-      '<h2 class="form-title">Настройки</h2>'+
+      '<div style="display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:6px">'+
+        '<h2 class="form-title" style="margin:0">Настройки</h2>'+
+        '<button class="btn btn-outline btn-sm" data-action="settings-close">← К пациентам</button>'+
+      '</div>'+
       '<p class="form-sub">PIN-код защищает карты пациентов, если телефон или компьютер попадёт в чужие руки. Спрашивается при каждом открытии программы.</p>'+
       '<div class="form-grid"><div class="full">'+
         '<label class="label">Ваша специальность</label>'+
@@ -1095,7 +1098,6 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
       '<div class="form-actions">'+
         '<button class="btn btn-primary" data-action="pin-save">'+(has?"Сменить PIN":"Установить PIN")+'</button>'+
         (has?'<button class="btn btn-outline" data-action="pin-remove">Снять PIN</button>':'')+
-        '<button class="btn btn-ghost" data-action="settings-close">Назад</button>'+
       '</div>'+
       '<hr style="border:none;border-top:1px solid var(--border);margin:14px 0">'+
       '<div class="form-grid"><div class="full">'+
@@ -1133,6 +1135,8 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
       '</div>'+
       '<div id="snaplist" class="hint">Загружаю список копий…</div>'+
       '<div class="note" style="margin-top:10px">⚠ Снимки лежат на этом же устройстве. Потеряете телефон — пропадут вместе с ним. Поэтому «💾 Резервная копия» в Excel по-прежнему обязательна.</div>'+
+      '<hr style="border:none;border-top:1px solid var(--border);margin:14px 0">'+
+      '<div class="form-actions"><button class="btn btn-primary" data-action="settings-close" style="width:100%">← Готово, вернуться к пациентам</button></div>'+
     '</div></div>';
   }
   function renderSnapList(){

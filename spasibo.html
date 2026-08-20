@@ -37,7 +37,7 @@
 <div class="container">
   <div class="ok-badge">✓</div>
   <h1 class="title">Спасибо за покупку!</h1>
-  <p class="lead"><span style="color:var(--accent);font-weight:700">Kirenix</span> Учёт — оплата получена</p>
+  <p class="lead" id="leadtxt"><span style="color:var(--accent);font-weight:700">Kirenix</span> Учёт — оплата получена</p>
 
   <div class="card" id="autocard" style="display:none">
     <h2>Ваш код доступа</h2>
@@ -47,15 +47,15 @@
   <div class="card" id="waitcard">
     <h2>Что дальше</h2>
     <ol>
-      <li><b>Код доступа придёт в Telegram в течение 15 минут</b> (обычно быстрее). Если вы оплатили ночью — утром.</li>
-      <li>Вместе с кодом придёт <b>чек</b> из приложения «Мой налог» — я работаю официально как самозанятый.</li>
-      <li>Откроете <a href="https://uchet.kirenix.ru">uchet.kirenix.ru</a> → «Войти по коду» → введёте код и своё имя. Один раз.</li>
+      <li><b>Код доступа появится на этой странице</b> — обычно в течение минуты после оплаты. Никуда уходить не нужно.</li>
+      <li>Скопируете код, откроете <a href="https://uchet.kirenix.ru">uchet.kirenix.ru</a> → «Войти по коду» → введёте код и своё имя. Один раз.</li>
+      <li>Нужен <b>чек</b>? Напишите в Telegram <a href="https://t.me/aikiren">@aikiren</a> — пришлю из приложения «Мой налог». Работаю официально как самозанятый.</li>
     </ol>
-    <div class="good">Код не пришёл в течение часа? Напишите мне — <a href="https://t.me/aikiren">@aikiren</a>, решу сразу.</div>
+    <div class="good">Код не появился, закрыли страницу или открыли её на другом устройстве? Напишите мне — <a href="https://t.me/aikiren">@aikiren</a> — и приложите скрин оплаты из банка, выдам код вручную сразу.</div>
   </div>
 
   <div class="card">
-    <h2>Пока ждёте — сделайте одну вещь</h2>
+    <h2>Пока код проверяется — сделайте одну вещь</h2>
     <p><b>Добавьте значок программы на экран телефона.</b> Это не про удобство: если открывать программу только через браузер и не заходить неделю, телефон может очистить её память вместе с записями. У значка на экране «Домой» такого ограничения нет.</p>
     <p style="margin-bottom:0">Как это сделать — в инструкции, раздел 2.</p>
     <div class="note">И главное правило на будущее: раз в неделю нажимайте «Резервная копия». Программа сама напомнит.</div>
@@ -111,7 +111,7 @@ var FN_URL = "https://fbtbefprcnpnqbyxgebo.supabase.co/functions/v1/kirenix";
           if(w) w.innerHTML='<h2>Что дальше</h2>'+
             '<ol><li>Откройте <a href="https://uchet.kirenix.ru">uchet.kirenix.ru</a> → «Войти по коду» → вставьте код и своё имя. Один раз.</li>'+
             '<li>Добавьте значок программы на экран телефона — как, написано ниже. Это важно.</li>'+
-            '<li>Чек из «Мой налог» пришлю в Telegram в течение дня.</li></ol>'+
+            '<li>Нужен чек — напишите мне в Telegram, пришлю из «Мой налог».</li></ol>'+
             '<div class="good">Что-то не получается? Напишите мне — <a href="https://t.me/aikiren">@aikiren</a>, помогу сразу.</div>';
           out.innerHTML='<p>Скопируйте его целиком — он вводится один раз:</p>'+
             '<div style="font-family:ui-monospace,Menlo,Consolas,monospace;font-size:13px;background:#F1F3F8;'+
@@ -119,7 +119,7 @@ var FN_URL = "https://fbtbefprcnpnqbyxgebo.supabase.co/functions/v1/kirenix";
             '<button class="btn btn-primary" id="copybtn" style="border:none;cursor:pointer;font-family:inherit;width:100%">Скопировать код</button>'+
             '<div style="height:10px"></div>'+
             '<a class="btn btn-ghost" href="https://uchet.kirenix.ru" style="width:100%">Открыть программу и войти</a>'+
-            '<div class="good" style="margin-top:14px">Чек из «Мой налог» пришлю в Telegram — обычно в течение дня. Работаю официально как самозанятый.</div>';
+            '<div class="good" style="margin-top:14px">Если вам нужен чек — напишите в Telegram <a href="https://t.me/aikiren">@aikiren</a>, пришлю из приложения «Мой налог». Работаю официально как самозанятый.</div>';
           var b=document.getElementById("copybtn");
           if(b) b.addEventListener("click",function(){
             var t=(document.getElementById("tok")||{}).textContent||"";
@@ -129,8 +129,10 @@ var FN_URL = "https://fbtbefprcnpnqbyxgebo.supabase.co/functions/v1/kirenix";
           return;
         }
         if(tries<10){ setTimeout(ask, 2000); return; }   // банк иногда отвечает не сразу
+        var lt=document.getElementById("leadtxt");
+        if(lt) lt.innerHTML='<span style="color:var(--accent);font-weight:700">Kirenix</span> Учёт — оплата ещё проверяется';
         out.innerHTML='<div class="note">Оплата пока не подтвердилась. Иногда банк думает пару минут — обновите страницу через минуту.<br><br>'+
-          'Если код так и не появился, напишите мне <a href="https://t.me/aikiren">@aikiren</a> и покажите чек об оплате — выдам вручную сразу.</div>';
+          'Если код так и не появился, напишите мне <a href="https://t.me/aikiren">@aikiren</a> и приложите скрин оплаты из банка — выдам вручную сразу.</div>';
       })
       .catch(function(){
         if(tries<10){ setTimeout(ask, 2000); return; }
