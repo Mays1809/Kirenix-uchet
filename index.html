@@ -815,17 +815,26 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
     return h;
   }
   // спрашиваем сервер, какие места заняты, чтобы показать это владельцу кода
-  function loadDevInfo(){
+  var devInfoBusy = false;
+  function loadDevInfo(force){
     if(!ACT_URL || !license || !license.key) return;
+    if(devInfoBusy) return;
+    if(devInfo && !force) return;          // уже знаем — лишний раз не дёргаем сервер
+    devInfoBusy = true;
+    setTimeout(function(){ devInfoBusy=false; }, 8000);
+    // сеть может отсутствовать целиком (старый браузер, офлайн) — экран из-за этого ломаться не должен
+    try{
     fetch(String(ACT_URL).replace(/\/+$/,"")+"/devinfo",{method:"POST",
       headers:{"content-type":"application/json"},
       body:JSON.stringify({lic:license.key, dev:deviceId()})})
       .then(function(r){ return r.json(); })
-      .then(function(d){ if(d && d.ok){ devInfo=d; render(); } })
-      .catch(function(){});
+      .then(function(d){ devInfoBusy=false; if(d && d.ok){ devInfo=d; render(); } })
+      .catch(function(){ devInfoBusy=false; });
+    }catch(e){ devInfoBusy=false; }
   }
   function doSelfReset(btn){
     try{ if(btn){ btn.setAttribute("disabled","1"); btn.textContent="Освобождаю…"; } }catch(e){}
+    try{
     fetch(String(ACT_URL).replace(/\/+$/,"")+"/selfreset",{method:"POST",
       headers:{"content-type":"application/json"},
       body:JSON.stringify({lic:license.key, dev:deviceId()})})
@@ -839,9 +848,10 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
         }
         if(d && d.reason==="cooldown"){ showToast("Можно будет через "+(d["ждать_дней"]||0)+" дн. Напишите мне, помогу сразу."); }
         else { showToast("Не получилось. Напишите мне в Telegram, освобожу вручную."); }
-        loadDevInfo();
+        loadDevInfo(true);
       })
       .catch(function(){ showToast("Нет связи с сервером. Попробуйте позже."); });
+    }catch(e){ showToast("Нет связи с сервером. Попробуйте позже."); }
   }
 
   function landingHTML(){
@@ -1163,6 +1173,32 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
       '</div>'+
       '<hr style="border:none;border-top:1px solid var(--border);margin:14px 0">'+
       '<div class="form-grid"><div class="full">'+
+        '<label class="label">Ваш доступ</label>'+
+        '<div class="hint">Эти сведения могут понадобиться, если вы обратитесь за помощью. Номер лицензии — не пароль: сам по себе он ничего не открывает, пересылать его безопасно.</div>'+
+        '<div style="background:#F7F8FC;border:1px solid var(--border);border-radius:10px;padding:12px 14px;margin-top:10px">'+
+          '<div style="display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap">'+
+            '<span style="font-size:13.5px;color:var(--muted)">Номер лицензии</span>'+
+            '<b style="font-size:15px">'+esc((license&&license.id) ? license.id : "старого образца")+'</b>'+
+          '</div>'+
+          (devInfo && devInfo.ok
+            ? '<div style="display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-top:7px">'+
+                '<span style="font-size:13.5px;color:var(--muted)">Устройств занято</span>'+
+                '<b style="font-size:15px">'+((devInfo.devices||[]).length)+' из '+(devInfo.limit||2)+'</b>'+
+              '</div>'+
+              ((devInfo.devices||[]).map(function(d,i){
+                return '<div style="display:flex;justify-content:space-between;gap:10px;font-size:12.5px;color:var(--muted);margin-top:4px">'+
+                  '<span>Устройство '+(i+1)+(d["это_моё"]?' (это)':'')+'</span>'+
+                  '<span>заходили '+devDate(d["последний_вход"])+'</span></div>';
+              }).join(""))
+            : '')+
+        '</div>'+
+        '<div class="hint" style="margin-top:8px">Если код перестанет пускать на новом телефоне — назовите этот номер, и вам быстро помогут.</div>'+
+      '</div></div>'+
+      '<div class="form-actions">'+
+        '<button class="btn btn-outline" data-action="copy-key">Скопировать код доступа</button>'+
+      '</div>'+
+      '<hr style="border:none;border-top:1px solid var(--border);margin:14px 0">'+
+      '<div class="form-grid"><div class="full">'+
         '<label class="label">Профиль: '+esc(license&&license.owner?license.owner:"")+'</label>'+
         '<div class="hint">Выход сбросит код доступа и вернёт к экрану входа. Записи пациентов останутся на этом устройстве — при входе тем же кодом они будут на месте.</div>'+
       '</div></div>'+
@@ -1237,7 +1273,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
       }catch(e){}
       return;
     }
-    if(view==="settings"){ root.innerHTML = settingsHTML(); renderSnapList(); return; }
+    if(view==="settings"){ root.innerHTML = settingsHTML(); renderSnapList(); loadDevInfo(); return; }
     if(view==="visit"){ root.innerHTML = visitHTML(); return; }
     if(view==="photos"){ root.innerHTML = photosHTML(); loadPhotoGrid(); return; }
     if(view==="finance"){ root.innerHTML = financeViewHTML(); return; }
@@ -2154,6 +2190,14 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
       render(); showToast("Программа очищена. Введите код и восстановите записи из копии Excel.");
     }
     else if(a==="self-reset"){ doSelfReset(t); }
+    else if(a==="copy-key"){
+      var _k=(license&&license.key)?String(license.key):"";
+      if(!_k){ showToast("Код не найден"); return; }
+      if(navigator.clipboard) navigator.clipboard.writeText(_k).then(
+        function(){ showToast("Код скопирован ✓ Сохраните его в надёжном месте"); },
+        function(){ prompt("Ваш код доступа:", _k); });
+      else prompt("Ваш код доступа:", _k);
+    }
     else if(a==="logout"){ if(confirm("Выйти из профиля?\n\nКод доступа сбросится, откроется экран входа. Записи пациентов останутся на этом устройстве — при входе тем же кодом они будут на месте.")){ try{ localStorage.removeItem(LIC_KEY); }catch(e){} license=null; pinUnlocked=false; locked=false; deviceBlocked=false; view="list"; render(); } }
     else if(a==="spec-save"){ var _sp=(document.getElementById("set_spec")||{}).value||""; settings.specialty=(_sp==="не выбрано"?"":_sp); saveSettings(); render(); showToast("Специальность сохранена"); }
     else if(a==="export"){ exportExcel(); }
