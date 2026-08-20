@@ -505,6 +505,25 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
       .then(function(r){ return r.json(); })
       .catch(function(){ return {ok:false, reason:"net"}; });
   }
+  // Разрешение выдаётся на конкретное устройство и раз в две недели обновляется.
+  // Без этого сервер не знал бы, что устройством пользуются, а освобождённое
+  // место продолжало бы работать бесконечно.
+  var ACT_TTL_DAYS = 14;
+  function actStale(act){
+    try{
+      var d=String(act && act.d || "");
+      if(!/^\d{4}-\d{2}-\d{2}$/.test(d)) return true;
+      return (Date.now() - new Date(d+"T00:00:00Z").getTime()) / 86400000 > ACT_TTL_DAYS;
+    }catch(e){ return false; }
+  }
+  function refreshActivation(){
+    askActivation(license.key).then(function(r){
+      if(r && r.ok && r.act){ license.act=r.act; license.dev=deviceId(); saveLicense(); return; }
+      // место освободили или код отозвали — честно закрываемся
+      if(r && (r.reason==="limit" || r.reason==="revoked")){ deviceBlocked=true; render(); loadDevInfo(true); }
+      // нет связи — молчим и попробуем при следующем открытии
+    });
+  }
   // при каждом запуске: подпись кода на месте и это то самое устройство
   function ensureActivation(){
     if(demoMode || !license || !license.id) return;
@@ -516,7 +535,8 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
       if(!ACT_URL || d.o===1) return;                    // привязка выключена или лицензия без неё
       if(license.act){
         verifyAct(license.act).then(function(act){
-          if(!act || act.id!==license.id || act.dev!==deviceId()){ deviceBlocked=true; render(); loadDevInfo(); }
+          if(!act || act.id!==license.id || act.dev!==deviceId()){ deviceBlocked=true; render(); loadDevInfo(); return; }
+          if(actStale(act)) refreshActivation();
         });
         return;
       }
@@ -831,6 +851,35 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
       .then(function(d){ devInfoBusy=false; if(d && d.ok){ devInfo=d; render(); } })
       .catch(function(){ devInfoBusy=false; });
     }catch(e){ devInfoBusy=false; }
+  }
+  // освободить чужое место из настроек: «продала старый телефон»
+  function freeSlot(i, btn){
+    if(!ACT_URL || !license || !license.key || !(i>=0)) return;
+    if(!confirm("Освободить место устройства "+(i+1)+"?\n\nЗаписи на нём никуда не денутся. Чтобы снова им пользоваться, там придётся ввести код заново.")) return;
+    try{ if(btn){ btn.setAttribute("disabled","1"); btn.textContent="Освобождаю…"; } }catch(e){}
+    try{
+    fetch(String(ACT_URL).replace(/\/+$/,"")+"/selfreset",{method:"POST",
+      headers:{"content-type":"application/json"},
+      body:JSON.stringify({lic:license.key, dev:deviceId(), slot:i})})
+      .then(function(r){ return r.json(); })
+      .then(function(d){
+        if(d && d.ok){ showToast("Место освобождено ✓"); }
+        else if(d && d.reason==="cooldown"){ showToast("Можно будет через "+(d["ждать_дней"]||0)+" дн. Напишите мне, освобожу сразу."); }
+        else if(d && d.reason==="self"){ showToast("Это устройство отвязывается через «Выйти из профиля»"); }
+        else { showToast("Не получилось. Напишите мне в Telegram."); }
+        loadDevInfo(true);
+      })
+      .catch(function(){ showToast("Нет связи с сервером. Попробуйте позже."); loadDevInfo(true); });
+    }catch(e){ showToast("Нет связи с сервером. Попробуйте позже."); }
+  }
+  // отдать своё место при выходе, чтобы оно не висело занятым
+  function unbindMe(){
+    if(!ACT_URL || !license || !license.key) return;
+    try{
+      fetch(String(ACT_URL).replace(/\/+$/,"")+"/unbind",{method:"POST",
+        headers:{"content-type":"application/json"},
+        body:JSON.stringify({lic:license.key, dev:deviceId()})}).catch(function(){});
+    }catch(e){}
   }
   function doSelfReset(btn){
     try{ if(btn){ btn.setAttribute("disabled","1"); btn.textContent="Освобождаю…"; } }catch(e){}
@@ -1186,12 +1235,20 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
                 '<b style="font-size:15px">'+((devInfo.devices||[]).length)+' из '+(devInfo.limit||2)+'</b>'+
               '</div>'+
               ((devInfo.devices||[]).map(function(d,i){
-                return '<div style="display:flex;justify-content:space-between;gap:10px;font-size:12.5px;color:var(--muted);margin-top:4px">'+
-                  '<span>Устройство '+(i+1)+(d["это_моё"]?' (это)':'')+'</span>'+
-                  '<span>заходили '+devDate(d["последний_вход"])+'</span></div>';
+                var своё = !!d["это_моё"];
+                return '<div style="display:flex;justify-content:space-between;align-items:center;gap:10px;'+
+                  'font-size:12.5px;color:var(--muted);margin-top:6px;padding-top:6px;border-top:1px solid var(--border)">'+
+                  '<span>Устройство '+(i+1)+(своё?' — это, текущее':'')+'<br>заходили '+devDate(d["последний_вход"])+'</span>'+
+                  (своё
+                    ? '<span style="font-size:11.5px">отвязать — «Выйти из профиля»</span>'
+                    : '<button class="btn btn-outline btn-sm" data-action="free-slot" data-id="'+i+'">Освободить</button>')+
+                  '</div>';
               }).join(""))
             : '')+
         '</div>'+
+        (devInfo && devInfo.ok && (devInfo.devices||[]).length>1
+          ? '<div class="hint" style="margin-top:8px">Продали или потеряли устройство — освободите его место здесь, тогда новое войдёт без вопросов. Так можно раз в два месяца.</div>'
+          : '')+
         '<div class="hint" style="margin-top:8px">Если код перестанет пускать на новом телефоне — назовите этот номер, и вам быстро помогут.</div>'+
       '</div></div>'+
       '<div class="form-actions">'+
@@ -1233,6 +1290,15 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
       '</div>'+
       '<div id="snaplist" class="hint">Загружаю список копий…</div>'+
       '<div class="note" style="margin-top:10px">⚠ Снимки лежат на этом же устройстве. Потеряете телефон — пропадут вместе с ним. Поэтому «💾 Резервная копия» в Excel по-прежнему обязательна.</div>'+
+      '<hr style="border:none;border-top:1px solid var(--border);margin:14px 0">'+
+      '<div class="form-grid"><div class="full">'+
+        '<label class="label">Нужна помощь?</label>'+
+        '<div class="hint">Пишите в любое время — отвечает живой человек, а не робот. Если вопрос про доступ, приложите номер лицензии сверху: так разберёмся быстрее.</div>'+
+      '</div></div>'+
+      '<div class="form-actions">'+
+        '<a class="btn btn-primary" href="'+TG_URL+'" target="_blank" rel="noopener" style="text-decoration:none">💬 Написать в Telegram</a>'+
+        '<a class="btn btn-outline" href="help.html" target="_blank" style="text-decoration:none">📘 Инструкция</a>'+
+      '</div>'+
       '<hr style="border:none;border-top:1px solid var(--border);margin:14px 0">'+
       '<div class="form-actions"><button class="btn btn-primary" data-action="settings-close" style="width:100%">← Готово, вернуться к пациентам</button></div>'+
     '</div></div>';
@@ -1379,6 +1445,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
             '<button class="btn btn-outline" data-action="export"'+(patients.length?"":" disabled")+' title="Сохранить резервную копию всех пациентов в Excel">💾 Резервная копия</button>'+
             '<button class="btn btn-outline" data-action="photo-export"'+(patients.length?"":" disabled")+' title="Сохранить все фотографии всех пациентов в один файл — резервная копия фото">📷 Копия фото</button>'+
             '<a class="btn btn-outline" href="help.html" target="_blank" title="Инструкция: как всё работает" style="text-decoration:none">📘 Инструкция</a>'+
+            '<a class="btn btn-outline" href="'+TG_URL+'" target="_blank" rel="noopener" title="Написать разработчику — помогу разобраться" style="text-decoration:none">💬 Помощь</a>'+
             '<button class="btn btn-outline" data-action="finance" title="Финансы и доход">₽ Финансы</button>'+
             '<button class="btn btn-outline" data-action="settings" title="Настройки и PIN-код">⚙</button>'+
             '<button class="btn btn-primary" data-action="new">+ Пациент</button>'+
@@ -2190,6 +2257,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
       render(); showToast("Программа очищена. Введите код и восстановите записи из копии Excel.");
     }
     else if(a==="self-reset"){ doSelfReset(t); }
+    else if(a==="free-slot"){ freeSlot(parseInt(id,10), t); }
     else if(a==="copy-key"){
       var _k=(license&&license.key)?String(license.key):"";
       if(!_k){ showToast("Код не найден"); return; }
@@ -2198,7 +2266,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
         function(){ prompt("Ваш код доступа:", _k); });
       else prompt("Ваш код доступа:", _k);
     }
-    else if(a==="logout"){ if(confirm("Выйти из профиля?\n\nКод доступа сбросится, откроется экран входа. Записи пациентов останутся на этом устройстве — при входе тем же кодом они будут на месте.")){ try{ localStorage.removeItem(LIC_KEY); }catch(e){} license=null; pinUnlocked=false; locked=false; deviceBlocked=false; view="list"; render(); } }
+    else if(a==="logout"){ if(confirm("Выйти из профиля?\n\nКод доступа сбросится, откроется экран входа. Записи пациентов останутся на этом устройстве — при входе тем же кодом они будут на месте.\n\nМесто этого устройства освободится: код снова можно будет открыть где угодно.")){ unbindMe(); try{ localStorage.removeItem(LIC_KEY); }catch(e){} license=null; devInfo=null; pinUnlocked=false; locked=false; deviceBlocked=false; view="list"; render(); } }
     else if(a==="spec-save"){ var _sp=(document.getElementById("set_spec")||{}).value||""; settings.specialty=(_sp==="не выбрано"?"":_sp); saveSettings(); render(); showToast("Специальность сохранена"); }
     else if(a==="export"){ exportExcel(); }
     else if(a==="import"){ fileInput.value=""; fileInput.click(); }
