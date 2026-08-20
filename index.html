@@ -369,6 +369,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
   var meta = { lastBackup:null, changes:0 };
   var license = null;          // {key, owner} — активация копии
   var locked = false;          // ключ отключён через manifest.json
+  var lockReason = "";         // "legacy" — код старого образца, остальное — отзыв
   var deviceBlocked = false;   // код занят на других устройствах
   var newsMsg = "";            // сообщение от Kirenix (из manifest.json)
   var newsHidden = false;
@@ -572,7 +573,8 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
           if(m.revoked && license && license.id && m.revoked.indexOf(license.id)>-1){ locked=true; render(); return; }
           if(m.legacy===false){
             legacyOK=false;
-            if(license && !license.id){ locked=true; render(); return; }   // старый ключ больше не действует
+            // старый ключ больше не действует — это не блокировка, а смена формата кодов
+            if(license && !license.id){ locked=true; lockReason="legacy"; render(); return; }
           }
           if(m.message) newsMsg=String(m.message);
           if(m.latest && String(m.latest)!==APP_VERSION) updateAvailable=true;
@@ -1135,6 +1137,21 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
   }
 
   function lockHTML(){
+    // Смена формата кодов — не наказание, и пугать человека незачем
+    if(lockReason==="legacy"){
+      return '<div class="container"><div class="lockcard">'+
+        '<h2>Нужен новый код доступа</h2>'+
+        '<p>Программа перешла на коды нового образца — они надёжнее и защищают вашу покупку от копирования. '+
+        'Ваш прежний код больше не подходит, новый выдаётся бесплатно и навсегда.</p>'+
+        '<p><b>Ваши записи целы</b> и остались на этом устройстве. Как только введёте новый код, всё будет на месте — ничего заново вносить не нужно.</p>'+
+        '<a class="btn btn-primary" href="'+TG_URL+'" target="_blank" rel="noopener" style="width:100%;justify-content:center;text-decoration:none">Написать и получить новый код</a>'+
+        '<div style="height:10px"></div>'+
+        '<button class="btn btn-outline" data-action="logout" style="width:100%;justify-content:center">У меня уже есть новый код</button>'+
+        '<div style="height:10px"></div>'+
+        '<button class="btn btn-ghost" data-action="export"'+(patients.length?'':' disabled')+' style="width:100%;justify-content:center">Сохранить пациентов в Excel</button>'+
+        '<div class="activation-note">На всякий случай можно сделать копию записей прямо сейчас.</div>'+
+      '</div></div>';
+    }
     return '<div class="container"><div class="lockcard">'+
       '<h2>Доступ приостановлен</h2>'+
       '<p>Код доступа этой копии отключён. Чтобы возобновить работу, свяжитесь с Kirenix.<br><br>'+
@@ -2257,7 +2274,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
       if(!confirm("Последнее подтверждение.\n\nСейчас будут удалены все записи, фото и настройки на этом устройстве. Восстановить их можно будет только из файла Excel («Восстановить из копии») и файла фото.\n\nСтереть?")) return;
       try{ localStorage.removeItem(STORE_KEY); localStorage.removeItem(META_KEY); localStorage.removeItem(SETTINGS_KEY); localStorage.removeItem(LIC_KEY); }catch(e){}
       try{ if(typeof indexedDB!=="undefined") indexedDB.deleteDatabase("kirenix_photos"); }catch(e){}
-      patients=[]; meta={lastBackup:null,changes:0}; settings={pinHash:null}; license=null; pinUnlocked=false; locked=false; view="list";
+      patients=[]; meta={lastBackup:null,changes:0}; settings={pinHash:null}; license=null; pinUnlocked=false; locked=false; lockReason=""; view="list";
       render(); showToast("Программа очищена. Введите код и восстановите записи из копии Excel.");
     }
     else if(a==="self-reset"){ doSelfReset(t); }
@@ -2270,7 +2287,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
         function(){ prompt("Ваш код доступа:", _k); });
       else prompt("Ваш код доступа:", _k);
     }
-    else if(a==="logout"){ if(confirm("Выйти из профиля?\n\nКод доступа сбросится, откроется экран входа. Записи пациентов останутся на этом устройстве — при входе тем же кодом они будут на месте.\n\nМесто этого устройства освободится: код снова можно будет открыть где угодно.")){ unbindMe(); try{ localStorage.removeItem(LIC_KEY); }catch(e){} license=null; devInfo=null; pinUnlocked=false; locked=false; deviceBlocked=false; view="list"; render(); } }
+    else if(a==="logout"){ if(confirm("Выйти из профиля?\n\nКод доступа сбросится, откроется экран входа. Записи пациентов останутся на этом устройстве — при входе тем же кодом они будут на месте.\n\nМесто этого устройства освободится: код снова можно будет открыть где угодно.")){ unbindMe(); try{ localStorage.removeItem(LIC_KEY); }catch(e){} license=null; devInfo=null; pinUnlocked=false; locked=false; lockReason=""; deviceBlocked=false; view="list"; render(); } }
     else if(a==="spec-save"){ var _sp=(document.getElementById("set_spec")||{}).value||""; settings.specialty=(_sp==="не выбрано"?"":_sp); saveSettings(); render(); showToast("Специальность сохранена"); }
     else if(a==="export"){ exportExcel(); }
     else if(a==="import"){ fileInput.value=""; fileInput.click(); }
