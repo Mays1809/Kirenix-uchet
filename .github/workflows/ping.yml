@@ -1,0 +1,24 @@
+# Будильник для Supabase.
+# На бесплатном тарифе проект засыпает, если неделю не было обращений к базе.
+# Спящий проект — это не только неработающая оплата, но и невозможность
+# войти по коду на новом устройстве. Поэтому раз в сутки стучимся сами.
+name: ping
+
+on:
+  schedule:
+    - cron: "0 9 * * *"     # каждый день в 12:00 по Москве
+  workflow_dispatch:         # и кнопкой вручную, если понадобится
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Разбудить сервер
+        run: |
+          echo "Стучимся в функцию…"
+          code=$(curl -s -o /tmp/out.txt -w "%{http_code}" \
+            https://fbtbefprcnpnqbyxgebo.supabase.co/functions/v1/kirenix/ping)
+          echo "Ответ: $code"
+          cat /tmp/out.txt
+          echo
+          test "$code" = "200"
