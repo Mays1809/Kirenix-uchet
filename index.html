@@ -47,8 +47,16 @@
     box-shadow:0 10px 30px rgba(40,50,90,.08);background:#F6F7FB;line-height:0}
   .vid{width:100%;height:auto;display:block}
   .vid-note{margin:14px 0 0;text-align:center;font-size:14.5px;color:var(--muted)}
+  .quote{margin:20px 0 0;padding:16px 20px;background:var(--accent-light);border-left:4px solid var(--accent);
+    border-radius:0 12px 12px 0;font-size:16px;line-height:1.65;color:#2C3A78}
+  .quote-who{display:block;margin-top:10px;font-size:14px;font-weight:700;color:var(--accent)}
   .linklike{background:none;border:none;padding:0;font:inherit;color:var(--accent);
     text-decoration:underline;cursor:pointer}
+  /* Окно «сделайте копию» — последний рубеж, когда баннер уже игнорируют */
+  .modal-back{min-height:70vh;display:flex;align-items:center;justify-content:center;padding:20px}
+  .modal-card{background:#fff;border:1px solid var(--border);border-radius:16px;
+    box-shadow:0 18px 50px rgba(40,50,90,.18);padding:26px 24px;max-width:520px;width:100%}
+  .modal-card p{font-size:15px;line-height:1.6;margin:0 0 10px;color:var(--text)}
   /* Настройки: тут и PIN, и шифрование, и код доступа — кнопку видно сразу */
   .btn-set{background:var(--accent-light);color:#2C3A78;border:1.5px solid #C7D4FF}
   .btn-set:hover{background:#E2EAFF}
@@ -739,7 +747,10 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
 
   function daysSince(ts){ return ts ? (Date.now()-ts)/86400000 : Infinity; }
   function needBackup(){
-    if(!patients.length || reminderHidden) return false;
+    if(!patients.length) return false;
+    // Крестик прячет напоминание только пока оно не срочное. Иначе человек
+    // закрывает его один раз и месяцами работает без копии — так и теряют базы.
+    if(reminderHidden && !backupUrgent()) return false;
     if(!meta.lastBackup) return (meta.changes||0)>=3;
     if((meta.changes||0)<=0) return false;
     return daysSince(meta.lastBackup)>=5 || meta.changes>=10;
@@ -748,6 +759,37 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
     if(!patients.length) return false;
     if(!meta.lastBackup) return (meta.changes||0)>=8;
     return daysSince(meta.lastBackup)>=14 || meta.changes>=25;
+  }
+  // Крайний случай: копии не было вовсе при заметной базе либо месяц без копии.
+  // Тут уже мало баннера — показываем окно, которое нельзя проскроллить.
+  function backupCritical(){
+    if(!patients.length) return false;
+    if(!meta.lastBackup) return patients.length>=5 && (meta.changes||0)>=15;
+    return daysSince(meta.lastBackup)>=30;
+  }
+  var BK_ASK_KEY = "kirenix_backup_ask_v1";
+  function criticalAskedToday(){
+    try{
+      var d=localStorage.getItem(BK_ASK_KEY)||"";
+      return d === new Date().toISOString().slice(0,10);
+    }catch(e){ return true; }
+  }
+  function markCriticalAsked(){
+    try{ localStorage.setItem(BK_ASK_KEY, new Date().toISOString().slice(0,10)); }catch(e){}
+  }
+  function backupCriticalHTML(){
+    var дней = meta.lastBackup ? Math.floor(daysSince(meta.lastBackup)) : null;
+    return '<div class="modal-back"><div class="modal-card">'+
+      '<h2 style="margin:0 0 10px">Копии нет — данные под угрозой</h2>'+
+      '<p>'+(дней!==null
+        ? 'Последняя резервная копия была <b>'+дней+' дн. назад</b>.'
+        : 'Резервной копии не было ни разу, а в программе уже <b>'+patients.length+' пациент'+plural(patients.length)+'</b>.')+'</p>'+
+      '<p>Записи хранятся только на этом устройстве. Очистка браузера, поломка или потеря телефона — и они пропадут безвозвратно: у меня их нет, восстановить будет неоткуда.</p>'+
+      '<p style="margin-bottom:16px">Копия занимает пару секунд: файл Excel сохранится в загрузки. Перешлите его себе в мессенджер или на почту — этого достаточно.</p>'+
+      '<button class="btn btn-primary" data-action="export" style="width:100%;justify-content:center">💾 Сделать копию сейчас</button>'+
+      '<div style="height:8px"></div>'+
+      '<button class="btn btn-ghost" data-action="backup-later" style="width:100%;justify-content:center">Напомнить завтра</button>'+
+    '</div></div>';
   }
   function backupInfo(){
     return meta.lastBackup ? "последняя копия: "+formatTs(meta.lastBackup) : "резервной копии ещё не было";
@@ -1075,6 +1117,27 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
   </div>
 </section>
 
+<section class="sec-tight" style="background:#fff;border-top:1px solid var(--border);border-bottom:1px solid var(--border)">
+  <div class="wrap narrow">
+    <p class="kicker">Отзыв</p>
+    <h2>«Раньше просто не вела базу — было лень»</h2>
+    <p class="sec-lead">Валерия Студеникина, косметолог — о том, что изменилось.</p>
+    <div class="vidbox">
+      <video class="vid" src="otzyv.mp4" poster="otzyv-poster.jpg"
+             controls playsinline preload="none"
+             controlslist="nodownload" disablepictureinpicture
+             aria-label="Видеоотзыв косметолога Валерии Студеникиной"></video>
+    </div>
+    <blockquote class="quote">
+      «Сейчас я прямо на приёме открываю и сразу вбиваю, вообще не теряя времени.
+      Противопоказания, анамнез, что делала и сколько — здесь всё-всё написано.
+      Когда пациент приходит повторно, я просто открываю его карту и уже всё вижу.
+      Запомнить это, конечно же, нереально.»
+      <span class="quote-who">Валерия Студеникина, косметолог</span>
+    </blockquote>
+  </div>
+</section>
+
 <section id="price">
   <div class="wrap">
     <p class="kicker">Цена</p>
@@ -1379,6 +1442,12 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
           _pi.focus();
         }
       }catch(e){}
+      return;
+    }
+    // Окно про копию показываем раз в сутки и только на списке пациентов,
+    // чтобы не прерывать заполнение карточки на полуслове.
+    if(view==="list" && !demoMode && backupCritical() && !criticalAskedToday()){
+      root.innerHTML = backupCriticalHTML();
       return;
     }
     if(view==="settings"){ root.innerHTML = settingsHTML(); renderSnapList(); loadDevInfo(); return; }
@@ -2142,7 +2211,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
     var out=XLSX.write(wb,{bookType:"xlsx",type:"array"});
     var blob=new Blob([out],{type:"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"});
     downloadBlob(blob,name);
-    markBackup(); reminderHidden=false;
+    markBackup(); reminderHidden=false; try{ localStorage.removeItem(BK_ASK_KEY); }catch(e){}
     if(!locked) render();
     showToast("Резервная копия сохранена в «Загрузки» ✓  ("+name+")");
   }
@@ -2318,6 +2387,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
     else if(a==="save-form"){ saveForm(); }
     else if(a==="cancel-form"){ editId=null; view="list"; render(); }
     else if(a==="dismiss-reminder"){ reminderHidden=true; render(); }
+    else if(a==="backup-later"){ markCriticalAsked(); render(); showToast("Хорошо, напомню завтра"); }
     else if(a==="dismiss-ios"){ settings.iosHintHidden=true; saveSettings(); render(); }
     else if(a==="dismiss-news"){ newsHidden=true; render(); }
     else if(a==="set-status"){
