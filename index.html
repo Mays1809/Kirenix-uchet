@@ -623,6 +623,27 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
       return m ? m[1] : "";
     }catch(e){ return ""; }
   }
+  // Клик по самому кадру должен запускать видео: на постере нарисована
+  // кнопка play, и человек жмёт именно в неё, а не в панель снизу.
+  function setupVideos(){
+    try{
+      var vs = document.querySelectorAll("video.vid"), i;
+      for(i=0;i<vs.length;i++){
+        (function(v){
+          if(v.getAttribute("data-wired")==="1") return;
+          v.setAttribute("data-wired","1");
+          if(!v.controls) return;              // обзор играет сам, ему клик не нужен
+          v.style.cursor = "pointer";
+          v.addEventListener("click", function(e){
+            var r = v.getBoundingClientRect();
+            if(e.clientY > r.bottom - 46) return;   // не мешаем родной панели снизу
+            if(v.paused){ var p=v.play(); if(p&&p.catch) p.catch(function(){}); }
+            else v.pause();
+          });
+        })(vs[i]);
+      }
+    }catch(e){}
+  }
   function setupBuyButtons(){
     try{
       var tag=adTag();
@@ -1121,7 +1142,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
   <div class="wrap narrow">
     <p class="kicker">Отзыв</p>
     <h2>«Раньше просто не вела базу — было лень»</h2>
-    <p class="sec-lead">Валерия Студеникина, косметолог — о том, что изменилось.</p>
+    <p class="sec-lead">Валерия Студеникина, врач-косметолог и дерматовенеролог из Казани — о том, что изменилось.</p>
     <div class="vidbox">
       <video class="vid" src="otzyv.mp4" poster="otzyv-poster.jpg"
              controls playsinline preload="none"
@@ -1133,7 +1154,8 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
       Противопоказания, анамнез, что делала и сколько — здесь всё-всё написано.
       Когда пациент приходит повторно, я просто открываю его карту и уже всё вижу.
       Запомнить это, конечно же, нереально.»
-      <span class="quote-who">Валерия Студеникина, косметолог</span>
+      <span class="quote-who">Валерия Студеникина — врач-косметолог, дерматовенеролог, Казань ·
+        <a href="https://t.me/valeriya_studenikina" target="_blank" rel="noopener nofollow" style="color:inherit">@valeriya_studenikina</a></span>
     </blockquote>
   </div>
 </section>
@@ -1426,7 +1448,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
     document.body.classList.remove('lp-mode');
     if(locked){ root.innerHTML = lockHTML(); return; }
     if(deviceBlocked){ root.innerHTML = devBlockHTML(); return; }
-    if(!license){ document.body.classList.add('lp-mode'); root.innerHTML = landingHTML(); setupBuyButtons(); window.scrollTo(0,0); return; }
+    if(!license){ document.body.classList.add('lp-mode'); root.innerHTML = landingHTML(); setupBuyButtons(); setupVideos(); window.scrollTo(0,0); return; }
     if(encActive() && !DEK){ root.innerHTML = unlockHTML(); focusUnlock(); return; }
     if(settings.pinHash && !pinUnlocked){
       root.innerHTML = pinHTML();
