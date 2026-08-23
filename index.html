@@ -617,12 +617,25 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
   // Метка канала для замера рекламы: ссылка вида uchet.kirenix.ru/?c=chat1
   // Метка уходит в платёжную ссылку — в статистике видно, откуда пришли деньги.
   // На сайте она нигде не сохраняется и никуда не отправляется.
+  // Метка запоминается на 30 дней. Человек редко покупает в первое же посещение:
+  // приходит из поста, смотрит демо, закрывает, возвращается через неделю уже
+  // по прямой ссылке. Без этого такая покупка выглядела бы как «ниоткуда»,
+  // и канал, который её привёл, в статистике оказался бы пустым.
+  var AD_KEY="kirenix_ad_tag_v1", AD_TTL=30*864e5;
   function adTag(){
     try{
       var m=String(location.search||"").match(/[?&]c=([A-Za-z0-9_-]{1,20})/);
-      return m ? m[1] : "";
+      if(m){
+        try{ localStorage.setItem(AD_KEY, JSON.stringify({c:m[1], t:Date.now()})); }catch(e){}
+        return m[1];
+      }
+      var s=null;
+      try{ s=JSON.parse(localStorage.getItem(AD_KEY)||"null"); }catch(e){ s=null; }
+      if(s && s.c && (Date.now()-(s.t||0))<AD_TTL) return String(s.c).slice(0,20);
+      return "";
     }catch(e){ return ""; }
   }
+  try{ adTag(); }catch(e){}   // запомнить метку сразу при заходе, а не только при покупке
   // Клик по самому кадру должен запускать видео: на постере нарисована
   // кнопка play, и человек жмёт именно в неё, а не в панель снизу.
   function setupVideos(){
