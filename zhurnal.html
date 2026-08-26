@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Журнал учёта процедур косметолога — скачать бланк и распечатать</title>
+<meta name="description" content="Готовый журнал учёта процедур для косметолога: какие графы нужны, образец таблицы, отдельный журнал учёта препаратов с сериями и сроками годности. Распечатать или скачать в Excel бесплатно.">
+<link rel="canonical" href="https://uchet.kirenix.ru/zhurnal.html">
+<meta property="og:title" content="Журнал учёта процедур косметолога — готовый бланк">
+<meta property="og:description" content="Какие графы нужны в журнале, образец таблицы и журнал учёта препаратов. Скачать бесплатно.">
+<meta property="og:type" content="article">
+<style>
+  :root{
+    --bg:#F6F7FB; --card:#fff; --accent:#3B5BDB; --accent-light:#EDF2FF;
+    --text:#1A1A2E; --muted:#6B7280; --border:#E5E7EB;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0}
+  body{background:var(--bg);color:var(--text);
+    font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;
+    padding:22px 18px 60px;-webkit-font-smoothing:antialiased;line-height:1.62}
+  .container{max-width:900px;margin:0 auto}
+  h1{font-size:26px;line-height:1.25;margin:0 0 8px}
+  h1 span{color:var(--accent)}
+  .lead{margin:0 0 18px;color:var(--muted);font-size:15px}
+  a{color:var(--accent)}
+  .card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:24px;margin:16px 0}
+  h2{font-size:19px;margin:26px 0 10px}
+  h3{font-size:15.5px;margin:18px 0 6px}
+  p,li{font-size:15px}
+  p{margin:0 0 11px}
+  ol,ul{margin:0 0 11px;padding-left:22px}
+  li{margin-bottom:7px}
+  .note{background:#FFF8E1;border:1px solid #FFE0A3;border-radius:10px;padding:12px 15px;font-size:14px;color:#7A5D00;margin:14px 0}
+  .tip{background:var(--accent-light);border:1px solid #D7E0FF;border-radius:10px;padding:14px 16px;font-size:14.5px;color:#2C3A78;margin:14px 0}
+  .btn{display:inline-block;background:var(--accent);color:#fff;border:none;border-radius:10px;
+    padding:12px 20px;font-size:15px;font-weight:600;cursor:pointer;text-decoration:none;font-family:inherit}
+  .btn.ghost{background:#fff;color:var(--accent);border:1.5px solid var(--accent)}
+  .btns{display:flex;gap:10px;flex-wrap:wrap;margin:16px 0 4px}
+  .sheet{background:#fff;border:1px solid var(--border);border-radius:12px;padding:24px;margin:16px 0;overflow-x:auto}
+  .sheet .head{text-align:center;font-weight:700;font-size:16px;margin-bottom:4px}
+  .sheet .sub{text-align:center;font-size:13px;color:var(--muted);margin-bottom:16px}
+  table{width:100%;border-collapse:collapse;font-size:13.5px}
+  th,td{border:1px solid #9CA3AF;padding:7px 8px;text-align:left;vertical-align:top}
+  th{background:#F1F3F8;font-weight:600;font-size:12.5px}
+  td{height:34px}
+  .faq-q{font-weight:700;margin:18px 0 4px;font-size:15.5px}
+  .footer-note{max-width:900px;margin:26px auto 0;text-align:center;font-size:12.5px;color:#9CA3AF}
+  @media print{
+    body{background:#fff;padding:0}
+    .noprint{display:none !important}
+    .sheet{border:none;border-radius:0;padding:0;page-break-after:always}
+    .container{max-width:100%}
+    @page{size:landscape}
+  }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <h1>Журнал учёта процедур косметолога: <span>готовый бланк</span></h1>
+  <p class="lead">Какие графы нужны на самом деле, образец таблицы и отдельный журнал препаратов. Распечатать или скачать в Excel.</p>
+
+  <div class="card noprint">
+    <p>Журнал нужен не для проверяющих. Он нужен вам — в тот день, когда пациентка позвонит через полгода и спросит: «а чем вы мне тогда кололи, у меня реакция». Если препарат, серия и объём записаны, вы отвечаете за минуту. Если нет — вспоминаете и надеетесь.</p>
+    <div class="btns">
+      <button class="btn" onclick="window.print()">🖨 Распечатать оба журнала</button>
+      <button class="btn ghost" onclick="dlCsv()">⬇️ Скачать для Excel</button>
+    </div>
+  </div>
+
+  <div class="card noprint">
+    <h2>Какие графы действительно нужны</h2>
+    <p>Обязательного по закону единого образца для косметологического кабинета нет — форму вы определяете сами. Но есть набор граф, без которых журнал бесполезен.</p>
+    <ol>
+      <li><b>Дата и время.</b> Время важно, если в один день несколько процедур у одного человека.</li>
+      <li><b>ФИО пациента.</b> Полностью, а не «Ольга с работы».</li>
+      <li><b>Процедура и зона.</b> «Биоревитализация, периорбитальная зона», а не просто «уколы».</li>
+      <li><b>Препарат, производитель.</b> Название полностью, включая линейку.</li>
+      <li><b>Серия и срок годности.</b> Самая пропускаемая графа и самая важная при разборе осложнений. Переписывайте прямо с упаковки.</li>
+      <li><b>Объём или количество.</b> Миллилитры, единицы, число проходов.</li>
+      <li><b>Номер процедуры в курсе.</b> «3 из 6» — сразу видно, где человек находится.</li>
+      <li><b>Реакция.</b> Хотя бы одно слово: «норма», «отёк», «покраснение до вечера».</li>
+      <li><b>Стоимость.</b> Чтобы журнал заодно закрывал вопрос «сколько я заработала за месяц».</li>
+      <li><b>Подпись специалиста.</b></li>
+    </ol>
+
+    <div class="note">
+      <b>Что чаще всего забывают.</b> Серию и срок годности препарата. Пока всё хорошо, они кажутся лишними. В день осложнения это первое, что спросят — и единственное, что связывает реакцию пациента с конкретной партией. Если у препарата отзывная партия, без серии вы даже не узнаете, что попали в неё.
+    </div>
+
+    <h2>Отдельно — журнал препаратов</h2>
+    <p>Второй журнал ведут те, кто закупает препараты партиями: приход, расход, остаток. Он отвечает на два вопроса: сколько у меня осталось и не истёк ли срок. Бланк — ниже, второй таблицей.</p>
+
+    <h2>Сколько хранить</h2>
+    <p>Заполненные журналы хранят вместе с картами пациентов. Разумный ориентир — всё время, пока пациент к вам ходит, и несколько лет после последнего визита. Выбрасывать в конце года не стоит: претензии по осложнениям приходят с задержкой.</p>
+  </div>
+
+  <div class="sheet">
+    <div class="head">ЖУРНАЛ УЧЁТА ПРОЦЕДУР</div>
+    <div class="sub">Специалист ________________________________  Период с ______________ по ______________</div>
+    <table>
+      <tr>
+        <th style="width:70px">Дата, время</th>
+        <th style="width:150px">ФИО пациента</th>
+        <th style="width:150px">Процедура, зона</th>
+        <th style="width:150px">Препарат, производитель</th>
+        <th style="width:110px">Серия, срок годности</th>
+        <th style="width:70px">Объём</th>
+        <th style="width:60px">№ в курсе</th>
+        <th style="width:110px">Реакция</th>
+        <th style="width:70px">Стоимость</th>
+        <th style="width:80px">Подпись</th>
+      </tr>
+      <tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+      <tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+      <tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+      <tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+      <tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+      <tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+      <tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+      <tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+      <tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+      <tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+      <tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+      <tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+      <tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+      <tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+      <tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+      <tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+      <tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+      <tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+      <tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+      <tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+    </table>
+  </div>
+
+  <div class="sheet">
+    <div class="head">ЖУРНАЛ УЧЁТА ПРЕПАРАТОВ</div>
+    <div class="sub">Приход, расход, остаток. Специалист ________________________________</div>
+    <table>
+      <tr>
+        <th style="width:70px">Дата</th>
+        <th style="width:190px">Препарат, производитель</th>
+        <th style="width:110px">Серия</th>
+        <th style="width:90px">Срок годности</th>
+        <th style="width:80px">Приход</th>
+        <th style="width:80px">Расход</th>
+        <th style="width:80px">Остаток</th>
+        <th style="width:130px">Условия хранения / примечание</th>
+        <th style="width:80px">Подпись</th>
+      </tr>
+      <tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+      <tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+      <tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+      <tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+      <tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+      <tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+      <tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+      <tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+      <tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+      <tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+      <tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+      <tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+      <tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+      <tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+      <tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+    </table>
+  </div>
+
+  <div class="card noprint">
+    <div class="btns">
+      <button class="btn" onclick="window.print()">🖨 Распечатать оба журнала</button>
+      <button class="btn ghost" onclick="dlCsv()">⬇️ Скачать для Excel</button>
+    </div>
+    <p style="font-size:13.5px;color:var(--muted);margin-top:10px">Печать идёт в альбомной ориентации — так помещаются все графы. Файл для Excel открывается в любой таблице, заголовки уже расставлены.</p>
+  </div>
+
+  <div class="card noprint">
+    <h2>Частые вопросы</h2>
+
+    <p class="faq-q">Обязателен ли журнал по закону?</p>
+    <p>Единой обязательной формы для косметологического кабинета нет. Но записи о процедурах и препаратах — часть медицинской документации, и при разборе жалобы их спросят первыми. Вести журнал в своей форме законно и правильно.</p>
+
+    <p class="faq-q">Можно вести в тетради?</p>
+    <p>Можно. Важно, чтобы записи были последовательными, без вырванных страниц и с датами. Проблема тетради в другом: через год в ней невозможно быстро найти нужного человека и посмотреть его историю целиком.</p>
+
+    <p class="faq-q">А если вести в заметках телефона или в Excel?</p>
+    <p>Лучше, чем ничего, но есть две ловушки. Первая — заметки не структурированы, и через полгода вы не найдёте, какая серия была у препарата в марте. Вторая — файл на телефоне пропадает вместе с телефоном, если нет копии.</p>
+
+    <p class="faq-q">Нужно ли записывать стоимость?</p>
+    <p>Не обязательно, но удобно: тогда журнал заодно отвечает на вопрос, сколько вы заработали за месяц, и не нужно считать отдельно.</p>
+
+    <div class="tip">
+      <b>Если надоест переписывать от руки.</b> Мы сделали <a href="https://uchet.kirenix.ru">Kirenix Учёт</a> — программу, где то же самое ведётся в карточке пациента: процедуры, препараты, курс, фото до и после, суммы визитов. Всё выгружается в Excel одной кнопкой, а данные хранятся только на вашем устройстве — без облака и без подписки. Бланки выше при этом остаются вашими: скачивайте и пользуйтесь, даже если программа не понадобится.
+    </div>
+  </div>
+
+  <p style="text-align:center" class="noprint">
+    <a href="https://uchet.kirenix.ru">← На главную</a> ·
+    <a href="soglasie.html">Бланк согласия</a> ·
+    <a href="help.html">Инструкция</a>
+  </p>
+</div>
+<div class="footer-note noprint">Kirenix Учёт · Бланки бесплатные, использовать можно свободно.</div>
+
+<script>
+"use strict";
+function dlCsv(){
+  var rows = [
+    ["ЖУРНАЛ УЧЁТА ПРОЦЕДУР"],
+    ["Дата, время","ФИО пациента","Процедура, зона","Препарат, производитель","Серия","Срок годности","Объём","№ в курсе","Реакция","Стоимость","Подпись"],
+    [], [], [], [], [], [], [], [], [], [], [], [], [], [], [],
+    [],
+    ["ЖУРНАЛ УЧЁТА ПРЕПАРАТОВ"],
+    ["Дата","Препарат, производитель","Серия","Срок годности","Приход","Расход","Остаток","Условия хранения / примечание","Подпись"],
+    [], [], [], [], [], [], [], [], [], []
+  ];
+  var csv = rows.map(function(r){
+    return r.map(function(c){
+      c = String(c==null?"":c);
+      return /[";\n]/.test(c) ? '"'+c.replace(/"/g,'""')+'"' : c;
+    }).join(";");
+  }).join("\r\n");
+  // BOM — иначе Excel откроет кириллицу кракозябрами
+  var blob = new Blob(["﻿"+csv], {type:"text/csv;charset=utf-8"});
+  var a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = "Журнал косметолога.csv";
+  document.body.appendChild(a);
+  a.click();
+  setTimeout(function(){ URL.revokeObjectURL(a.href); a.remove(); }, 1500);
+}
+</script>
+</body>
+</html>

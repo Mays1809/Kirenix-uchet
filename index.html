@@ -607,6 +607,9 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
   // ═══════════════════════════════════════════════════════════════
   var PAY_URL = "";
   var TG_URL  = "https://t.me/aikiren";
+  // Запасной канал связи. Telegram в России замедляют, и если он однажды
+  // не откроется у клиентки — почта останется единственным способом позвать на помощь.
+  var MAIL_ADDR = "kirenixuchethelp@gmail.com";
 
   // ═══════════════════════════════════════════════════════════════
   //  ОПЛАТА ЧЕРЕЗ ЮKASSA. Адрес функции из Supabase — тот же, что в ACT_URL.
@@ -916,7 +919,9 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
       h += '<p>Если вы сменили телефон или почистили браузер — напишите мне, освобожу место за минуту. Это обычное дело.</p>';
     }
 
-    h += '<a class="btn btn-outline" href="https://t.me/aikiren" style="width:100%;justify-content:center">Написать в Telegram</a>'+
+    h += '<a class="btn btn-outline" href="'+TG_URL+'" style="width:100%;justify-content:center">Написать в Telegram</a>'+
+      '<div style="height:8px"></div>'+
+      '<a class="btn btn-ghost" href="mailto:'+MAIL_ADDR+'" style="width:100%;justify-content:center">Или на почту '+MAIL_ADDR+'</a>'+
       '<div style="height:10px"></div>'+
       '<button class="btn btn-ghost" data-action="logout" style="width:100%;justify-content:center">Ввести другой код</button>'+
       '<div class="activation-note">Ваши записи на этом устройстве целы и никуда не делись.</div>'+
@@ -1224,7 +1229,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
       <details><summary>Подписки точно нет? Обновления платные?</summary><div class="a">Подписки нет, оплата одна. Обновления бесплатны: программа сама покажет, что вышла новая версия — достаточно обновить страницу.</div></details>
       <details><summary>А если куплю и не подойдёт? Деньги вернёте?</summary><div class="a">По общему правилу возврата нет — поэтому демо и открыто для всех без кода и регистрации. Это та же программа с готовыми примерами: откройте карточку пациента, добавьте визит, загляните в «Финансы». Всё видно за минуту, и решение вы принимаете уже посмотрев. Если что-то непонятно — спросите меня в Telegram до оплаты, отвечу.<br><br>Но я живой человек: если вы явно ошиблись с покупкой, напишите — разберёмся по-человечески. Обещать это заранее не буду, а вот бросать вас с проблемой точно не стану.</div></details>
       <details><summary>А если программа у меня не заработает?</summary><div class="a">Если после оплаты вы так и не получили код или программа не запускается по моей вине и я не смог помочь — верну деньги полностью. Это прописано в оферте.</div></details>
-      <details><summary>Дадите чек?</summary><div class="a">Да. Я работаю официально как самозанятый. Покупка проходит без регистрации, поэтому я не знаю, куда отправить чек — просто напишите мне в Telegram <a href="https://t.me/aikiren" target="_blank" style="color:inherit">@aikiren</a>, и я пришлю чек из налогового приложения «Мой налог».</div></details>
+      <details><summary>Дадите чек?</summary><div class="a">Да. Я работаю официально как самозанятый. Покупка проходит без регистрации, поэтому я не знаю, куда отправить чек — просто напишите мне в Telegram <a href="https://t.me/aikiren" target="_blank" style="color:inherit">@aikiren</a> или на почту <a href="mailto:kirenixuchethelp@gmail.com" style="color:inherit">kirenixuchethelp@gmail.com</a>, и я пришлю чек из налогового приложения «Мой налог».</div></details>
       <details><summary>А если сайт перестанет работать?</summary><div class="a">Ваша база всегда у вас: в любой момент выгружается в обычный файл Excel одной кнопкой. Вы ничего не потеряете.</div></details>
     </div>
   </div>
@@ -1247,8 +1252,11 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
     <div>© 2026 Kirenix Учёт · Данные хранятся на устройстве пользователя<br>Самозанятый Шевелев К. В., ИНН 166026856302</div>
     <div>
       <a href="help.html">Инструкция</a>
+      <a href="soglasie.html">Бланк согласия</a>
+      <a href="zhurnal.html">Журнал процедур</a>
       <a href="oferta.html">Оферта и политика</a>
       <a href="https://t.me/aikiren">Написать в Telegram</a>
+      <a href="mailto:kirenixuchethelp@gmail.com">Почта</a>
     </div>
   </div>
 </footer>
@@ -1433,10 +1441,11 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
       '<hr style="border:none;border-top:1px solid var(--border);margin:14px 0">'+
       '<div class="form-grid"><div class="full">'+
         '<label class="label">Нужна помощь?</label>'+
-        '<div class="hint">Пишите в любое время — отвечает живой человек, а не робот. Если вопрос про доступ, приложите номер лицензии сверху: так разберёмся быстрее.</div>'+
+        '<div class="hint">Пишите в любое время — отвечает живой человек, а не робот. Если вопрос про доступ, приложите номер лицензии сверху: так разберёмся быстрее. Не открывается Telegram — пишите на почту, это тот же человек.</div>'+
       '</div></div>'+
       '<div class="form-actions">'+
         '<a class="btn btn-primary" href="'+TG_URL+'" target="_blank" rel="noopener" style="text-decoration:none">💬 Написать в Telegram</a>'+
+        '<a class="btn btn-outline" href="mailto:'+MAIL_ADDR+'" style="text-decoration:none">✉️ Написать на почту</a>'+
         '<a class="btn btn-outline" href="help.html" target="_blank" style="text-decoration:none">📘 Инструкция</a>'+
       '</div>'+
       '<hr style="border:none;border-top:1px solid var(--border);margin:14px 0">'+
