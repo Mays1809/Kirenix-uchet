@@ -342,7 +342,37 @@
 </style>
 </head>
 <body>
+<style>
+  /* Лист назначений: на экране прячем, при печати показываем только его */
+  #printArea{display:none}
+  .pb-item{display:flex;gap:10px;align-items:flex-start;padding:10px 12px;border:1px solid var(--border);
+    border-radius:10px;margin-bottom:8px;background:#fff}
+  .pb-item.empty{opacity:.55}
+  .pb-item input[type=checkbox]{width:20px;height:20px;margin-top:2px;flex:0 0 auto}
+  .pb-b{flex:1;min-width:0}
+  .pb-t{font-weight:600;font-size:14.5px}
+  .pb-p{font-size:12.5px;color:var(--muted);margin-top:2px;overflow:hidden;text-overflow:ellipsis;
+    display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
+  .pb-x{background:none;border:none;color:var(--muted);font-size:17px;cursor:pointer;padding:0 4px;line-height:1}
+  .pb-x:hover{color:#C62828}
+  .proto-hist{font-size:13px;color:var(--muted)}
+  .proto-hist a{cursor:pointer;color:var(--accent);text-decoration:underline}
+  .proto-note{background:#FFF8E1;border:1px solid #FFE0A3;border-radius:10px;
+    padding:11px 14px;font-size:13.5px;color:#7A5D00;line-height:1.5}
+  @media print{
+    body > *:not(#printArea){display:none !important}
+    #printArea{display:block !important}
+    @page{margin:14mm}
+  }
+  .pr-doc{font-family:Georgia,'Times New Roman',serif;color:#000;font-size:12pt;line-height:1.5}
+  .pr-h{text-align:center;font-size:15pt;font-weight:700;letter-spacing:.5px;margin-bottom:4px}
+  .pr-sub{text-align:center;font-size:11pt;margin-bottom:16px;padding-bottom:10px;border-bottom:1px solid #000}
+  .pr-sec{font-size:12.5pt;font-weight:700;margin:14px 0 4px;page-break-after:avoid}
+  .pr-t{white-space:pre-wrap;margin:0 0 6px}
+  .pr-f{margin-top:22px;padding-top:10px;border-top:1px solid #000;font-size:10.5pt}
+</style>
 <div id="root"></div>
+<div id="printArea"></div>
 <input type="file" id="fileInput" accept=".xlsx,.xls" style="display:none">
 <div id="toast" class="toast"></div>
 <script>
@@ -1440,6 +1470,16 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
       '<div class="note" style="margin-top:10px">⚠ Снимки лежат на этом же устройстве. Потеряете телефон — пропадут вместе с ним. Поэтому «💾 Резервная копия» в Excel по-прежнему обязательна.</div>'+
       '<hr style="border:none;border-top:1px solid var(--border);margin:14px 0">'+
       '<div class="form-grid"><div class="full">'+
+        '<label class="label">Листы назначений</label>'+
+        '<div class="hint">Блоки текста, которые повторяются у всех пациентов: списки средств, режим, питание. Заполняются один раз, дальше подставляются в лист галочкой. Собрать лист — кнопка 📋 в карточке пациента.</div>'+
+      '</div>'+
+      field("set_protocontact","Контакт для пациентов",settings.protoContact,{full:true,placeholder:"+7 900 123-45-67 или @nickname",hint:"Печатается внизу листа назначений, чтобы пациент знал, куда написать с вопросом"})+
+      '</div>'+
+      '<div class="form-actions">'+
+        '<button class="btn btn-outline" data-action="proto-lib-settings">✎ Библиотека блоков'+(protoFilled()?(' ('+protoFilled()+')'):'')+'</button>'+
+      '</div>'+
+      '<hr style="border:none;border-top:1px solid var(--border);margin:14px 0">'+
+      '<div class="form-grid"><div class="full">'+
         '<label class="label">Нужна помощь?</label>'+
         '<div class="hint">Пишите в любое время — отвечает живой человек, а не робот. Если вопрос про доступ, приложите номер лицензии сверху: так разберёмся быстрее. Не открывается Telegram — пишите на почту, это тот же человек.</div>'+
       '</div></div>'+
@@ -1494,6 +1534,8 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
       root.innerHTML = backupCriticalHTML();
       return;
     }
+    if(view==="proto"){ root.innerHTML = protoHTML(); return; }
+    if(view==="protolib"){ root.innerHTML = protoLibHTML(); return; }
     if(view==="settings"){ root.innerHTML = settingsHTML(); renderSnapList(); loadDevInfo(); return; }
     if(view==="visit"){ root.innerHTML = visitHTML(); return; }
     if(view==="photos"){ root.innerHTML = photosHTML(); loadPhotoGrid(); return; }
@@ -2047,6 +2089,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
           '<div class="pactions">'+
             '<button class="badge '+bc+'" data-action="status" data-id="'+esc(p.id)+'" title="Нажмите, чтобы сменить статус">'+esc(p.status)+'</button>'+
             '<button class="icon-btn" data-action="photos" data-id="'+esc(p.id)+'" title="Фото до/после">📷</button>'+
+            '<button class="icon-btn" data-action="proto" data-id="'+esc(p.id)+'" title="Лист назначений">📋</button>'+
             '<button class="icon-btn edit" data-action="edit" data-id="'+esc(p.id)+'" title="Изменить">✎</button>'+
             '<button class="icon-btn del" data-action="delete" data-id="'+esc(p.id)+'" title="Удалить">✕</button>'+
           '</div>'+
@@ -2318,6 +2361,204 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
     reader.readAsArrayBuffer(file);
   }
 
+  // ═══════════════════════════════════════════════════════════════
+  //  ЛИСТЫ НАЗНАЧЕНИЙ
+  //  Идея простая: девяносто процентов текста в листе одинаковы для всех
+  //  пациентов — списки средств, питьевой режим, питание, режим сна.
+  //  Поэтому их заводят один раз как блоки, а в карточке только отмечают
+  //  галочками нужные и дописывают персональную часть.
+  // ═══════════════════════════════════════════════════════════════
+  var PROTO_KEY = "kirenix_protocols_v1";
+  var protoBlocks = [];      // [{id,title,text}]
+  var protoPatient = null;   // id пациента, для которого собираем лист
+  var protoSel = {};         // {blockId:true}
+  var protoExtra = "";       // персональная часть — наружная терапия и схема
+  var protoEditId = null;    // какой блок редактируем в библиотеке
+
+  var PROTO_STARTER = ["Очищение","Увлажнение","Плотные кремы",
+    "Липидовосстанавливающая сыворотка","СПФ","Уход за телом","Губы",
+    "Кремы для глаз","Питьевой режим","Режим сна","Питание: что можно",
+    "Питание: что ограничить","После процедуры: чего избегать"];
+
+  function loadProto(){
+    try{
+      var s=localStorage.getItem(PROTO_KEY);
+      if(s){ var d=JSON.parse(s); if(d && Array.isArray(d.blocks)) protoBlocks=d.blocks; }
+    }catch(e){ protoBlocks=[]; }
+  }
+  function saveProto(){
+    if(demoMode) return;
+    try{ localStorage.setItem(PROTO_KEY, JSON.stringify({blocks:protoBlocks})); }
+    catch(e){ showToast("Не хватило места сохранить блоки. Удалите что-нибудь ненужное."); }
+  }
+  function protoMakeStarter(){
+    protoBlocks = PROTO_STARTER.map(function(t){ return {id:genId(), title:t, text:""}; });
+    saveProto();
+  }
+  function protoBlock(bid){
+    return protoBlocks.filter(function(b){ return b.id===bid; })[0] || null;
+  }
+  function protoFilled(){ return protoBlocks.filter(function(b){ return (b.text||"").trim(); }).length; }
+  function protoPat(){ return patients.filter(function(x){ return x.id===protoPatient; })[0] || null; }
+
+  function protoFio(p){
+    return [p.lastName,p.firstName,p.middleName].filter(Boolean).join(" ");
+  }
+  // собранный лист: персональная часть первой, дальше отмеченные блоки по порядку
+  function protoParts(){
+    var out=[];
+    var ex=(protoExtra||"").trim();
+    if(ex) out.push({title:"Наружная терапия и схема применения", text:ex});
+    protoBlocks.forEach(function(b){
+      if(protoSel[b.id] && (b.text||"").trim()) out.push({title:b.title, text:(b.text||"").trim()});
+    });
+    return out;
+  }
+
+  // контакт для подписи листа — сохраняем при выходе из настроек
+  function saveProtoContact(){
+    var el=document.getElementById("set_protocontact");
+    if(!el) return;
+    var v=String(el.value||"").trim().slice(0,80);
+    if(v!==(settings.protoContact||"")){ settings.protoContact=v; saveSettings(); }
+  }
+
+  // текст из поля не привязан к переменной, поэтому забираем его перед любым действием
+  function protoGrab(){
+    var el=document.getElementById("proto_extra");
+    if(el) protoExtra=el.value;
+  }
+
+  function protoPrint(){
+    var p=protoPat(); if(!p){ showToast("Пациент не найден"); return; }
+    var parts=protoParts();
+    if(!parts.length){ showToast("Отметьте хотя бы один блок или впишите назначения"); return; }
+    var who=(license&&license.owner)?license.owner:"";
+    var contact=(settings.protoContact||"").trim();
+    var foot=[];
+    if(who) foot.push("Специалист: "+esc(who));
+    if(contact) foot.push("Связь: "+esc(contact));
+    var html='<div class="pr-doc">'+
+      '<div class="pr-h">ЛИСТ НАЗНАЧЕНИЙ</div>'+
+      '<div class="pr-sub">'+esc(protoFio(p))+' &nbsp;·&nbsp; '+formatDate(today())+
+        (p.diagnosis?(' &nbsp;·&nbsp; '+esc(p.diagnosis)):'')+'</div>'+
+      parts.map(function(s){
+        return '<div class="pr-sec">'+esc(s.title)+'</div><div class="pr-t">'+esc(s.text)+'</div>';
+      }).join("")+
+      (p.nextVisit ? '<div class="pr-sec">Следующий визит</div><div class="pr-t">'+formatDate(p.nextVisit)+'</div>' : '')+
+      (foot.length ? '<div class="pr-f">'+foot.join(' &nbsp;·&nbsp; ')+'</div>' : '')+
+    '</div>';
+    var pa=document.getElementById("printArea");
+    if(!pa){ showToast("Не получилось открыть печать"); return; }
+    pa.innerHTML=html;
+    setTimeout(function(){ try{ window.print(); }catch(e){ showToast("Печать недоступна в этом браузере"); } }, 60);
+  }
+
+  // сохраняем не текст, а состав листа: он занимает считаные байты
+  function protoSave(){
+    var p=protoPat(); if(!p) return;
+    var ids=protoBlocks.filter(function(b){ return protoSel[b.id]; }).map(function(b){ return b.id; });
+    if(!ids.length && !(protoExtra||"").trim()){ showToast("Пока нечего сохранять"); return; }
+    if(!Array.isArray(p.protocols)) p.protocols=[];
+    p.protocols.unshift({ id:genVid(), date:today(), ids:ids, extra:(protoExtra||"").trim() });
+    if(p.protocols.length>20) p.protocols=p.protocols.slice(0,20);
+    persist(); bumpChange(); render();
+    showToast("Лист сохранён в карточке ✓");
+  }
+  function protoLoad(vid){
+    var p=protoPat(); if(!p) return;
+    var rec=(p.protocols||[]).filter(function(x){ return x.id===vid; })[0];
+    if(!rec) return;
+    protoSel={}; (rec.ids||[]).forEach(function(i){ protoSel[i]=true; });
+    protoExtra=rec.extra||"";
+    render();
+  }
+
+  function protoHTML(){
+    var p=protoPat();
+    if(!p){ view="list"; return '<div class="container"><div class="card"><h2 class="form-title">Пациент не найден</h2></div></div>'; }
+    var filled=protoFilled();
+    var list = protoBlocks.length ? protoBlocks.map(function(b){
+      var txt=(b.text||"").trim();
+      var on=!!protoSel[b.id];
+      return '<label class="pb-item'+(txt?'':' empty')+'">'+
+        '<input type="checkbox" data-action="proto-tog" data-bid="'+esc(b.id)+'"'+(on?' checked':'')+(txt?'':' disabled')+'>'+
+        '<span class="pb-b"><span class="pb-t">'+esc(b.title)+'</span>'+
+          '<span class="pb-p">'+(txt?esc(txt.slice(0,120)):'пусто — заполните в библиотеке блоков')+'</span></span>'+
+      '</label>';
+    }).join("") : '<div class="hint">Блоков пока нет.</div>';
+
+    var hist = (p.protocols&&p.protocols.length) ? (
+      '<div class="proto-hist" style="margin-top:14px">Выданные листы: '+
+      p.protocols.slice(0,6).map(function(r){
+        return '<a data-action="proto-load" data-vid="'+esc(r.id)+'">'+formatDate(r.date)+'</a>';
+      }).join(" · ")+' <span>— нажмите, чтобы собрать такой же</span></div>') : "";
+
+    return '<div class="container"><div class="card">'+
+      '<h2 class="form-title">Лист назначений</h2>'+
+      '<p class="form-sub">'+esc(protoFio(p))+' · '+formatDate(today())+'. '+
+        'Отметьте нужные блоки, допишите персональную часть — и распечатайте или сохраните в PDF, чтобы отправить пациенту.</p>'+
+      '<div class="form-grid">'+
+        '<div class="full"><label class="label">Наружная терапия и схема применения</label>'+
+          '<textarea class="textarea" id="proto_extra" style="min-height:140px" placeholder="Например: утром клиндовит на всё лицо, через 20 минут увлажняющий крем. Вечером эффезел тонким слоем 2 раза в неделю, вводить постепенно.">'+esc(protoExtra)+'</textarea>'+
+          '<div class="hint">Это единственное, что придётся написать заново для каждого пациента. Остальное берётся из блоков.</div></div>'+
+      '</div>'+
+      '<hr style="border:none;border-top:1px solid var(--border);margin:16px 0">'+
+      '<div style="display:flex;align-items:baseline;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-bottom:10px">'+
+        '<label class="label" style="margin:0">Что включить в лист</label>'+
+        '<button class="btn btn-ghost btn-sm" data-action="proto-lib">✎ Библиотека блоков</button>'+
+      '</div>'+
+      (filled ? '' : '<div class="proto-note" style="margin-bottom:10px">Блоки ещё пустые. Откройте библиотеку и вставьте свои списки средств и рекомендаций — это делается один раз, дальше они будут подставляться сами.</div>')+
+      list+
+      hist+
+      '<div class="form-actions" style="margin-top:16px">'+
+        '<button class="btn btn-primary" data-action="proto-print">🖨 Печать или PDF</button>'+
+        '<button class="btn btn-outline" data-action="proto-save">Сохранить в карточке</button>'+
+        '<button class="btn btn-ghost" data-action="proto-back">Назад</button>'+
+      '</div>'+
+    '</div></div>';
+  }
+
+  function protoLibHTML(){
+    var ed = protoEditId ? protoBlock(protoEditId) : null;
+    var editor = ed ? (
+      '<div class="card" style="margin-bottom:14px">'+
+        '<div class="form-grid">'+
+          field("pb_title","Название блока",ed.title,{full:true,placeholder:"Например: Очищение"})+
+          '<div class="full"><label class="label">Текст</label>'+
+            '<textarea class="textarea" id="pb_text" style="min-height:220px" placeholder="Вставьте сюда свой список — по одному пункту в строке. Именно этот текст попадёт в лист без изменений.">'+esc(ed.text||"")+'</textarea>'+
+            '<div class="hint">Можно скопировать из вашего документа Word и вставить целиком.</div></div>'+
+        '</div>'+
+        '<div class="form-actions">'+
+          '<button class="btn btn-primary" data-action="pb-save">Сохранить блок</button>'+
+          '<button class="btn btn-ghost" data-action="pb-cancel">Отмена</button>'+
+        '</div>'+
+      '</div>') : "";
+
+    var rows = protoBlocks.length ? protoBlocks.map(function(b){
+      var txt=(b.text||"").trim();
+      return '<div class="pb-item'+(txt?'':' empty')+'">'+
+        '<span class="pb-b" data-action="pb-edit" data-bid="'+esc(b.id)+'" style="cursor:pointer">'+
+          '<span class="pb-t">'+esc(b.title)+'</span>'+
+          '<span class="pb-p">'+(txt?esc(txt.slice(0,140)):'пусто — нажмите, чтобы заполнить')+'</span></span>'+
+        '<button class="pb-x" data-action="pb-up" data-bid="'+esc(b.id)+'" title="Выше">↑</button>'+
+        '<button class="pb-x" data-action="pb-del" data-bid="'+esc(b.id)+'" title="Удалить">✕</button>'+
+      '</div>';
+    }).join("") : '<div class="hint">Блоков пока нет. Нажмите «Начать с готового набора» — появятся типовые названия, останется вставить в них свой текст.</div>';
+
+    return '<div class="container"><div class="card">'+
+      '<h2 class="form-title">Библиотека блоков</h2>'+
+      '<p class="form-sub">Куски текста, которые повторяются у всех пациентов: списки средств, режим, питание. Заводятся один раз, дальше подставляются в лист галочкой.</p>'+
+      editor+
+      rows+
+      '<div class="form-actions" style="margin-top:14px">'+
+        '<button class="btn btn-primary" data-action="pb-new">+ Новый блок</button>'+
+        (protoBlocks.length ? '' : '<button class="btn btn-outline" data-action="pb-starter">Начать с готового набора</button>')+
+        '<button class="btn btn-ghost" data-action="pb-back">'+(protoPatient?'← К листу':'← Назад')+'</button>'+
+      '</div>'+
+    '</div></div>';
+  }
+
   // ---------- обработка нажатий ----------
   root.addEventListener("click",function(e){
     var t=e.target.closest("[data-action]"); if(!t) return;
@@ -2392,6 +2633,59 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
     else if(a==="del-visit"){ var _pp=patients.filter(function(x){return x.id===id;})[0]; if(_pp){ var _vid=t.getAttribute("data-vid"); _pp.visits=visitsOf(_pp).filter(function(x){return x.id!==_vid;}); recalc(_pp); persist(); bumpChange(); render(); showToast("Визит удалён"); } }
     else if(a==="save-visit"){ saveVisit(); }
     else if(a==="cancel-visit"){ view="list"; visitEdit=null; render(); }
+    else if(a==="proto"){
+      protoPatient=id; protoSel={}; protoEditId=null;
+      var _pp=patients.filter(function(x){return x.id===id;})[0];
+      // персональную часть подставляем из «Назначений» карточки — часто там уже всё есть
+      protoExtra=(_pp&&_pp.prescription)?_pp.prescription:"";
+      if(!protoBlocks.length) protoMakeStarter();
+      view="proto"; render();
+    }
+    else if(a==="proto-tog"){
+      var _tb=t.getAttribute("data-bid");
+      if(t.checked) protoSel[_tb]=true; else delete protoSel[_tb];
+      return;   // без перерисовки, иначе слетит набранный текст
+    }
+    else if(a==="proto-back"){ protoGrab(); protoPatient=null; view="list"; render(); }
+    else if(a==="proto-lib"){ protoGrab(); protoEditId=null; view="protolib"; render(); }
+    else if(a==="proto-print"){ protoGrab(); protoPrint(); }
+    else if(a==="proto-save"){ protoGrab(); protoSave(); }
+    else if(a==="proto-load"){ protoLoad(t.getAttribute("data-vid")); }
+    else if(a==="pb-back"){ view=protoPatient?"proto":"settings"; protoEditId=null; render(); }
+    else if(a==="pb-new"){
+      var nb={id:genId(), title:"Новый блок", text:""};
+      protoBlocks.push(nb); saveProto(); protoEditId=nb.id; view="protolib"; render();
+    }
+    else if(a==="pb-starter"){ protoMakeStarter(); render(); showToast("Набор создан — заполните блоки своим текстом"); }
+    else if(a==="pb-edit"){ protoEditId=t.getAttribute("data-bid"); render(); }
+    else if(a==="pb-cancel"){ protoEditId=null; render(); }
+    else if(a==="pb-save"){
+      var _b=protoBlock(protoEditId);
+      if(_b){
+        var _t=(document.getElementById("pb_title")||{}).value||"";
+        var _x=(document.getElementById("pb_text")||{}).value||"";
+        _b.title=_t.trim()||"Без названия";
+        _b.text=_x;
+        saveProto();
+      }
+      protoEditId=null; render(); showToast("Блок сохранён ✓");
+    }
+    else if(a==="pb-del"){
+      var _bid=t.getAttribute("data-bid");
+      var _bb=protoBlock(_bid);
+      if(_bb && confirm("Удалить блок «"+_bb.title+"»?\n\nТекст внутри пропадёт. Уже распечатанные листы это не изменит.")){
+        protoBlocks=protoBlocks.filter(function(x){ return x.id!==_bid; });
+        delete protoSel[_bid];
+        if(protoEditId===_bid) protoEditId=null;
+        saveProto(); render();
+      }
+    }
+    else if(a==="pb-up"){
+      var _u=t.getAttribute("data-bid");
+      var _i=protoBlocks.findIndex ? protoBlocks.findIndex(function(x){return x.id===_u;}) : -1;
+      if(_i<0){ for(var _k=0;_k<protoBlocks.length;_k++){ if(protoBlocks[_k].id===_u){ _i=_k; break; } } }
+      if(_i>0){ var _tmp=protoBlocks[_i-1]; protoBlocks[_i-1]=protoBlocks[_i]; protoBlocks[_i]=_tmp; saveProto(); render(); }
+    }
     else if(a==="photos"){ photoPatient=id; view="photos"; render(); }
     else if(a==="photos-back"){ view="list"; render(); }
     else if(a==="add-photo"){ addPhotoFromInput(); }
@@ -2399,7 +2693,8 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
     else if(a==="photo-export"){ photoExport(); }
     else if(a==="photo-import"){ photoJsonInput.value=""; photoJsonInput.click(); }
     else if(a==="settings"){ view="settings"; render(); }
-    else if(a==="settings-close"){ view="list"; render(); }
+    else if(a==="settings-close"){ saveProtoContact(); view="list"; render(); }
+    else if(a==="proto-lib-settings"){ saveProtoContact(); protoPatient=null; protoEditId=null; view="protolib"; render(); }
     else if(a==="pin-unlock"){ var _pv=(document.getElementById("pin_in")||{}).value||""; if(hashPin(_pv)===settings.pinHash){ pinUnlocked=true; render(); } else { showToast("Неверный PIN"); } }
     else if(a==="pin-save"){ var _np=String(((document.getElementById("pin_new")||{}).value)||"").trim(); if(!/^[0-9]{4,8}$/.test(_np)){ showToast("PIN — от 4 до 8 цифр"); return; } settings.pinHash=hashPin(_np); saveSettings(); pinUnlocked=true; view="list"; render(); showToast("PIN установлен ✓"); }
     else if(a==="pin-remove"){ settings.pinHash=null; saveSettings(); showToast("PIN снят"); render(); }
@@ -2473,6 +2768,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
   loadMeta();
   loadLicense();
   loadSettings();
+  loadProto();
   if(license) checkManifest();
   ensureActivation();
   try{ setTimeout(maybeAutoSnapshot, 1500); }catch(e){}
