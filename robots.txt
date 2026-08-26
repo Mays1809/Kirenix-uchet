@@ -1,0 +1,8 @@
+User-agent: *
+Allow: /
+Disallow: /spasibo.html
+Disallow: /keygen.html
+Disallow: /landing.html
+Disallow: /Kirenix-презентация.html
+
+Sitemap: https://uchet.kirenix.ru/sitemap.xml
