@@ -359,6 +359,18 @@
   .proto-hist a{cursor:pointer;color:var(--accent);text-decoration:underline}
   .proto-note{background:#FFF8E1;border:1px solid #FFE0A3;border-radius:10px;
     padding:11px 14px;font-size:13.5px;color:#7A5D00;line-height:1.5}
+  /* Кнопку листа делаем подписанной: одну иконку среди других просто не замечают */
+  .btn-proto{border:1.5px solid var(--accent);background:var(--accent-light,#EDF2FF);color:#2C3A78;
+    cursor:pointer;font-family:inherit;font-size:13px;font-weight:600;padding:6px 11px;
+    border-radius:9px;min-height:34px;white-space:nowrap;display:inline-flex;align-items:center;gap:5px}
+  .btn-proto:hover{background:#DDE6FF}
+  .proto-steps{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:10px;margin:4px 0 16px}
+  .proto-step{background:#F6F7FB;border:1px solid var(--border);border-radius:10px;padding:12px 14px}
+  .proto-step b{display:block;font-size:13px;color:var(--accent);margin-bottom:3px}
+  .proto-step span{font-size:13px;line-height:1.5}
+  .proto-how{background:#EDF2FF;border:1px solid #D7E0FF;border-radius:10px;padding:13px 15px;
+    font-size:13.5px;color:#2C3A78;line-height:1.55;margin-bottom:14px}
+  .proto-how b{color:#1A2A5E}
   @media print{
     body > *:not(#printArea){display:none !important}
     #printArea{display:block !important}
@@ -1132,6 +1144,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
     <p class="sec-lead">Не громоздкая CRM, а простой учёт, который открывается за секунду и работает прямо в телефоне.</p>
     <div class="cards">
       <div class="feat"><div class="ic">🗂️</div><h3>Карточка пациента целиком</h3><p>Процедуры, противопоказания, заметки, даты визитов и возраст — всё в одном месте.</p></div>
+      <div class="feat"><div class="ic">📋</div><h3>Листы назначений за минуту</h3><p>Списки средств, питьевой режим, питание вы заводите один раз. Дальше отмечаете галочками нужное, дописываете наружную терапию — и печатаете готовый лист или отправляете пациенту в PDF.</p></div>
       <div class="feat"><div class="ic">🏷️</div><h3>Статусы и напоминания</h3><p>Первичный, постоянный, на курсе. Сразу видно, кому пора на следующий визит.</p></div>
       <div class="feat"><div class="ic">🔒</div><h3>Данные только у вас</h3><p>База хранится на вашем устройстве. Ничего не уходит в облако — ни у кого нет доступа.</p></div>
       <div class="feat"><div class="ic">🔐</div><h3>Шифрование записей и фото</h3><p>Можно закрыть базу паролем: карты, суммы и снимки превращаются в набор символов. Потеряли телефон — прочитать их не сможет никто.</p></div>
@@ -2089,7 +2102,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
           '<div class="pactions">'+
             '<button class="badge '+bc+'" data-action="status" data-id="'+esc(p.id)+'" title="Нажмите, чтобы сменить статус">'+esc(p.status)+'</button>'+
             '<button class="icon-btn" data-action="photos" data-id="'+esc(p.id)+'" title="Фото до/после">📷</button>'+
-            '<button class="icon-btn" data-action="proto" data-id="'+esc(p.id)+'" title="Лист назначений">📋</button>'+
+            '<button class="btn-proto" data-action="proto" data-id="'+esc(p.id)+'" title="Собрать лист назначений и распечатать">📋 Лист</button>'+
             '<button class="icon-btn edit" data-action="edit" data-id="'+esc(p.id)+'" title="Изменить">✎</button>'+
             '<button class="icon-btn del" data-action="delete" data-id="'+esc(p.id)+'" title="Удалить">✕</button>'+
           '</div>'+
@@ -2496,8 +2509,12 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
 
     return '<div class="container"><div class="card">'+
       '<h2 class="form-title">Лист назначений</h2>'+
-      '<p class="form-sub">'+esc(protoFio(p))+' · '+formatDate(today())+'. '+
-        'Отметьте нужные блоки, допишите персональную часть — и распечатайте или сохраните в PDF, чтобы отправить пациенту.</p>'+
+      '<p class="form-sub">'+esc(protoFio(p))+' · '+formatDate(today())+'</p>'+
+      '<div class="proto-steps">'+
+        '<div class="proto-step"><b>1. Один раз</b><span>Вставьте свои списки средств в блоки — из Word, целиком. Это делается только в первый раз.</span></div>'+
+        '<div class="proto-step"><b>2. Каждому пациенту</b><span>Отмечаете галочками нужные блоки и пишете только наружную терапию.</span></div>'+
+        '<div class="proto-step"><b>3. Отдаёте</b><span>Печатаете или сохраняете в PDF и отправляете в мессенджер.</span></div>'+
+      '</div>'+
       '<div class="form-grid">'+
         '<div class="full"><label class="label">Наружная терапия и схема применения</label>'+
           '<textarea class="textarea" id="proto_extra" style="min-height:140px" placeholder="Например: утром клиндовит на всё лицо, через 20 минут увлажняющий крем. Вечером эффезел тонким слоем 2 раза в неделю, вводить постепенно.">'+esc(protoExtra)+'</textarea>'+
@@ -2548,7 +2565,11 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
 
     return '<div class="container"><div class="card">'+
       '<h2 class="form-title">Библиотека блоков</h2>'+
-      '<p class="form-sub">Куски текста, которые повторяются у всех пациентов: списки средств, режим, питание. Заводятся один раз, дальше подставляются в лист галочкой.</p>'+
+      '<div class="proto-how">'+
+        '<b>Зачем это.</b> В листе назначений почти весь текст повторяется у каждого пациента — списки очищающих средств, кремов, СПФ, питьевой режим, питание. Переписывать это каждый раз не нужно.<br><br>'+
+        '<b>Что делать.</b> Нажмите на название блока, вставьте туда свой текст — можно скопировать прямо из документа Word и вставить целиком, как есть. Сохраните. Повторите для остальных блоков.<br><br>'+
+        '<b>Дальше.</b> В карточке пациента нажимаете «📋 Лист», отмечаете галочками нужные блоки, дописываете наружную терапию — и лист готов. Порядок блоков здесь = порядок разделов в листе, стрелкой ↑ можно двигать.'+
+      '</div>'+
       editor+
       rows+
       '<div class="form-actions" style="margin-top:14px">'+
