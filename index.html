@@ -392,6 +392,65 @@
   .calev.plan{background:var(--accent-light);color:#2C46B8;font-weight:600}
   .calev.done{background:#E8F5EC;color:#166534}
   .calmore{font-size:10px;color:var(--muted);padding-left:5px}
+  .calev .calt{font-variant-numeric:tabular-nums;opacity:.75;font-weight:700}
+  /* Расписание в настройках */
+  .schdays{display:flex;gap:6px;flex-wrap:wrap}
+  .schday{display:flex;align-items:center;gap:5px;border:1px solid var(--border);border-radius:9px;
+    padding:7px 11px;font-size:13.5px;font-weight:600;cursor:pointer;background:#fff;user-select:none}
+  .schday input{width:16px;height:16px;margin:0}
+  /* Режим записи — экран для клиента */
+  .kiosk{min-height:100vh;background:#F4F6FB;padding:20px 14px 40px}
+  .kwrap{max-width:560px;margin:0 auto}
+  .khead{text-align:center;margin-bottom:22px}
+  .khead h1{font-size:24px;margin:0 0 4px}
+  .khead p{margin:0;color:var(--muted);font-size:14px}
+  .kday{background:#fff;border:1px solid var(--border);border-radius:14px;padding:14px 16px;margin-bottom:12px}
+  .kdh{font-weight:700;font-size:15px;margin-bottom:10px}
+  .kdh span{font-weight:400;color:var(--muted);font-size:13px}
+  .kdh em{font-style:normal;color:#B45309;font-size:12px;font-weight:600}
+  .kslots{display:grid;grid-template-columns:repeat(auto-fill,minmax(86px,1fr));gap:8px}
+  .kslot{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:48px;
+    border-radius:10px;font-size:15px;font-weight:700;font-variant-numeric:tabular-nums;
+    border:1px solid var(--border);background:#fff;font-family:inherit}
+  .kslot.free{cursor:pointer;border-color:#C9D6FF;background:var(--accent-light,#EDF2FF);color:#2C46B8}
+  .kslot.free:active{background:#D7E0FF}
+  .kslot.busy{color:#B9BEC9;background:#FAFBFC;border-color:#EEF0F4}
+  .kslot.busy i{font-style:normal;font-size:10px;font-weight:600;opacity:.8}
+  .kslot.past{color:#D4D7DE;background:#FAFBFC;border-color:#F0F1F4;text-decoration:line-through}
+  .kpick{background:#fff;border:1px solid var(--border);border-radius:14px;padding:18px;text-align:center;
+    font-size:15px;margin-bottom:18px;line-height:1.6}
+  .kpick b{font-size:26px;color:var(--accent)}
+  .kbig{font-size:17px;padding:13px 14px}
+  .kbtn{width:100%;justify-content:center;margin-top:14px;min-height:50px;font-size:16px}
+  .kerr{background:#FEF2F2;border:1px solid #FECACA;color:#B91C1C;border-radius:10px;
+    padding:10px 13px;font-size:13.5px;margin-top:12px}
+  .kok{background:#fff;border:1px solid var(--border);border-radius:16px;padding:32px 22px;text-align:center}
+  .kbig-ok{width:62px;height:62px;line-height:62px;border-radius:50%;background:#E8F5EC;color:#166534;
+    font-size:32px;font-weight:700;margin:0 auto 10px}
+  .kexit{display:block;margin:26px auto 0;background:none;border:none;color:#C7CBD4;
+    font-size:12px;cursor:pointer;font-family:inherit;padding:8px}
+  .kexit:hover{color:var(--muted)}
+  /* Экран «Сегодня» */
+  .tcard{background:#fff;border:1px solid var(--border);border-radius:14px;padding:14px 16px;margin-bottom:10px}
+  .trow1{display:flex;align-items:baseline;gap:12px;margin-bottom:4px}
+  .ttime{font-size:20px;font-weight:700;color:var(--accent);font-variant-numeric:tabular-nums}
+  .tname{font-size:16px;font-weight:600;color:inherit;text-decoration:none;border-bottom:1px dashed var(--border)}
+  .tprev{font-size:13px;color:var(--muted);margin-bottom:10px}
+  .tprev b{color:#166534;font-weight:600}
+  .tin{margin-bottom:8px}
+  .tchips{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px}
+  .tchip{border:1px solid var(--border);background:#F6F7FB;border-radius:20px;padding:4px 11px;
+    font-size:12.5px;cursor:pointer;font-family:inherit;color:var(--muted)}
+  .tchip:hover{border-color:#C9D6FF;color:#2C46B8;background:var(--accent-light,#EDF2FF)}
+  .tacts{display:flex;gap:8px;flex-wrap:wrap}
+  /* Кого записать */
+  .fslist{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:8px}
+  .fsp{display:flex;flex-direction:column;align-items:flex-start;gap:2px;text-align:left;
+    border:1px solid var(--border);background:#fff;border-radius:11px;padding:11px 13px;
+    cursor:pointer;font-family:inherit}
+  .fsp:hover{border-color:#C9D6FF;background:var(--accent-light,#EDF2FF)}
+  .fsp b{font-size:14.5px}
+  .fsp span{font-size:12px;color:var(--muted)}
   .callegend{display:flex;gap:14px;font-size:12px;color:var(--muted);margin:12px 0 4px;flex-wrap:wrap;align-items:center}
   .callegend i{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:5px;vertical-align:-1px}
   @media(max-width:640px){
@@ -480,7 +539,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
   var META_KEY  = "patients_meta_v1";
   var LIC_KEY   = "kirenix_license_v1";
   var SETTINGS_KEY = "kirenix_settings_v1";
-  var APP_VERSION = "1.6";
+  var APP_VERSION = "1.9";
 
   var patients = [];
   var meta = { lastBackup:null, changes:0 };
@@ -499,6 +558,11 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
   var visitEdit = null;
   var financePeriod = "month";
   var calMonth = null; // "YYYY-MM", текущий месяц календаря; null = этот месяц
+  var kioskSlot = null;  // "YYYY-MM-DD ЧЧ:ММ" — выбранное клиентом окно
+  var kioskErr  = "";
+  var kioskDone = "";    // текст подтверждения после записи
+  var fsSlot = null;     // выбранное мастером свободное окно
+  var fsErr  = "";
   var photoPatient = null;
   var search = "";
   var statusFilter = "Все";
@@ -866,7 +930,10 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
   function visitsOf(p){ return Array.isArray(p.visits)?p.visits:[]; }
   function recalc(p){
     var vs=visitsOf(p).slice().sort(function(a,b){ return String(a.date||"")<String(b.date||"")?-1:1; });
-    p.visits=vs; var lv=vs.length?vs[vs.length-1]:null;
+    p.visits=vs;
+    // Будущая запись — ещё не визит: «последним» её считать нельзя
+    var done=vs.filter(function(x){ return !x.planned; });
+    var lv=done.length?done[done.length-1]:null;
     p.visitDate=lv?lv.date:(p.visitDate||""); p.procedure=lv?lv.proc:(p.procedure||"");
   }
   function patientPaidTotal(p){ var t=0; visitsOf(p).forEach(function(v){ var a=parseFloat(String(v.amount==null?"":v.amount).replace(",","."))||0; if(a>0 && v.paid!=="не оплачено") t+=a; }); return t; }
@@ -923,7 +990,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
       '<h2 style="margin:0 0 10px">Копии нет — данные под угрозой</h2>'+
       '<p>'+(дней!==null
         ? 'Последняя резервная копия была <b>'+дней+' дн. назад</b>.'
-        : 'Резервной копии не было ни разу, а в программе уже <b>'+patients.length+' пациент'+plural(patients.length)+'</b>.')+'</p>'+
+        : 'Резервной копии не было ни разу, а в программе уже <b>'+patients.length+' '+W()+plural(patients.length)+'</b>.')+'</p>'+
       '<p>Записи хранятся только на этом устройстве. Очистка браузера, поломка или потеря телефона — и они пропадут безвозвратно: у меня их нет, восстановить будет неоткуда.</p>'+
       '<p style="margin-bottom:16px">Копия занимает пару секунд: файл Excel сохранится в загрузки. Перешлите его себе в мессенджер или на почту — этого достаточно.</p>'+
       '<button class="btn btn-primary" data-action="export" style="width:100%;justify-content:center">💾 Сделать копию сейчас</button>'+
@@ -1510,13 +1577,34 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
     return '<div class="container"><div class="card">'+
       '<div style="display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:6px">'+
         '<h2 class="form-title" style="margin:0">Настройки</h2>'+
-        '<button class="btn btn-outline btn-sm" data-action="settings-close">← К пациентам</button>'+
+        '<button class="btn btn-outline btn-sm" data-action="settings-close">← К '+W("мндт")+'</button>'+
       '</div>'+
       '<p class="form-sub">PIN-код защищает карты пациентов, если телефон или компьютер попадёт в чужие руки. Спрашивается при каждом открытии программы.</p>'+
       '<div class="form-grid"><div class="full">'+
         '<label class="label">Ваша специальность</label>'+
-        '<select class="input" id="set_spec">'+["не выбрано","косметолог","дерматолог","трихолог","другое"].map(function(o){ return '<option'+((settings.specialty||"не выбрано")===o?' selected':'')+'>'+o+'</option>'; }).join("")+'</select>'+
-        '<div class="hint">Определяет, раскрыта ли медкарта в форме по умолчанию (у косметолога — свёрнута).</div>'+
+        '<select class="input" id="set_spec">'+ALL_SPECS.map(function(o){ return '<option'+((settings.specialty||"не выбрано")===o?' selected':'')+'>'+o+'</option>'; }).join("")+'</select>'+
+        '<div class="hint">У немедицинских специальностей блок с диагнозом и фототипом скрывается, а «пациент» меняется на «клиент». Записи при этом не теряются.</div>'+
+      '</div></div>'+
+      '<div class="form-grid"><div class="full">'+
+        '<label class="label">Рабочее расписание — для режима записи</label>'+
+        '<div class="schdays">'+["Пн","Вт","Ср","Чт","Пт","Сб","Вс"].map(function(d,i){
+          var on = schedule().days.indexOf(i+1)>-1;
+          return '<label class="schday"><input type="checkbox" id="sd_'+(i+1)+'"'+(on?' checked':'')+'><span>'+d+'</span></label>';
+        }).join("")+'</div>'+
+        '<div class="form-grid" style="margin-top:10px">'+
+          field("sch_from","Начало дня",schedule().from,{type:"time"})+
+          field("sch_to","Конец дня",schedule().to,{type:"time"})+
+          '<div><label class="label">Длительность приёма</label><select class="input" id="sch_step">'+
+            [30,45,60,90,120].map(function(m){ return '<option value="'+m+'"'+(schedule().step===m?' selected':'')+'>'+m+' минут</option>'; }).join("")+
+          '</select></div>'+
+        '</div>'+
+        '<button class="btn btn-outline" data-action="sched-save" style="margin-top:10px">Сохранить расписание</button>'+
+        '<div class="hint">Из расписания собираются свободные окна в «🕘 Свободные окна» — там же их можно скопировать одним нажатием и отправить клиенту в сообщении.</div>'+
+      '</div></div>'+
+      '<div class="form-grid"><div class="full">'+
+        '<label class="label">Режим записи — если у вас планшет на стойке</label>'+
+        '<button class="btn btn-outline" data-action="kiosk-on">🤝 Включить режим записи</button>'+
+        '<div class="hint">Экран станет таким, что устройство можно оставить клиентам: видно только свободное время, ваши '+W("мнрд")+', телефоны и деньги скрыты. Выход — по PIN, поэтому без PIN режим не включается. Нужно редко: обычно удобнее «🕘 Свободные окна».</div>'+
       '</div></div>'+
       '<div class="form-actions" style="margin:0 0 6px"><button class="btn btn-outline" data-action="spec-save">Сохранить специальность</button></div>'+
       '<hr style="border:none;border-top:1px solid var(--border);margin:14px 0">'+
@@ -1630,7 +1718,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
       box.innerHTML='<div style="margin-top:12px"><b style="font-size:13.5px">Сохранённые копии:</b></div>'+
         list.map(function(s){
           return '<div class="vrow"><span class="vd">'+formatTs(s.ts)+'</span>'+
-            '<span class="vp">'+s.count+' пациент'+plural(s.count)+' · '+esc(s.reason||"")+'</span>'+
+            '<span class="vp">'+s.count+' '+W()+plural(s.count)+' · '+esc(s.reason||"")+'</span>'+
             '<button class="btn btn-outline btn-sm" data-action="snap-restore" data-id="'+esc(s.id)+'">Вернуть</button></div>';
         }).join("");
     }).catch(function(){ box.innerHTML='<div class="hint">Копии на этом устройстве недоступны.</div>'; });
@@ -1643,6 +1731,9 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
     if(deviceBlocked){ root.innerHTML = devBlockHTML(); return; }
     if(!license){ document.body.classList.add('lp-mode'); root.innerHTML = landingHTML(); setupBuyButtons(); setupVideos(); window.scrollTo(0,0); return; }
     if(encActive() && !DEK){ root.innerHTML = unlockHTML(); focusUnlock(); return; }
+    // Режим записи идёт ДО PIN-кода: клиент должен им пользоваться без пароля.
+    // Выйти из него без PIN нельзя, поэтому чужие данные всё равно закрыты.
+    if(settings.kiosk && settings.pinHash){ root.innerHTML = kioskHTML(); window.scrollTo(0,0); return; }
     if(settings.pinHash && !pinUnlocked){
       root.innerHTML = pinHTML();
       try{
@@ -1672,6 +1763,8 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
     if(view==="photos"){ root.innerHTML = photosHTML(); loadPhotoGrid(); return; }
     if(view==="finance"){ root.innerHTML = financeViewHTML(); return; }
     if(view==="calendar"){ root.innerHTML = calendarHTML(); return; }
+    if(view==="today"){ root.innerHTML = todayHTML(); return; }
+    if(view==="freeslots"){ root.innerHTML = freeSlotsHTML(); return; }
     if(view==="form"){ root.innerHTML=formHTML(); return; }
 
     var s=stats();
@@ -1702,7 +1795,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
       '<div class="reminder'+(_bkU?' urgent':'')+'">'+
         '<div class="reminder-txt">'+(_bkU?'⚠️':'🔔')+' <b>'+(_bkU?'Давно не было копии — данные под угрозой.':'Пора сделать резервную копию.')+'</b> '+
           (meta.lastBackup ? 'С последней копии — '+meta.changes+' изменени'+(meta.changes===1?"е":meta.changes<5?"я":"й")+', прошло '+Math.floor(daysSince(meta.lastBackup))+' дн.'
-                           : 'Копии ещё не было ('+patients.length+' пациент'+plural(patients.length)+').')+
+                           : 'Копии ещё не было ('+patients.length+' '+W()+plural(patients.length)+').')+
           ' Данные хранятся только на этом устройстве: очистите браузер, смените или потеряете телефон — без копии они пропадут. Нажмите «Сделать копию», это 2 секунды.'+
           '<div class="reminder-sub">📷 Фото хранятся отдельно от Excel — делайте и их копию тоже. Перенос на новый телефон: копия Excel → «Восстановить из копии» (раздел 7 инструкции).</div>'+
         '</div>'+
@@ -1766,7 +1859,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
         '<div class="header">'+
           '<div>'+
             '<h1 class="title"><span style="color:var(--accent)">Kirenix</span> Учёт</h1>'+
-            '<p class="lead">Кабинет: '+esc(license.owner)+(settings.specialty?(' · '+esc(settings.specialty)):'')+' · автосохранение включено · '+s.total+' пациент'+plural(s.total)+' · '+backupInfo()+
+            '<p class="lead">Кабинет: '+esc(license.owner)+(settings.specialty?(' · '+esc(settings.specialty)):'')+' · автосохранение включено · '+s.total+' '+W()+plural(s.total)+' · '+backupInfo()+
               (updateAvailable?' · <b>доступна новая версия — обновите страницу (Cmd+R)</b>':'')+'</p>'+
           '</div>'+
           '<div class="actions">'+
@@ -1775,10 +1868,12 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
             '<button class="btn btn-outline" data-action="photo-export"'+(patients.length?"":" disabled")+' title="Сохранить все фотографии всех пациентов в один файл — резервная копия фото">📷 Копия фото</button>'+
             '<a class="btn btn-outline" href="help.html" target="_blank" title="Инструкция: как всё работает" style="text-decoration:none">📘 Инструкция</a>'+
             '<a class="btn btn-outline" href="'+TG_URL+'" target="_blank" rel="noopener" title="Написать разработчику — помогу разобраться" style="text-decoration:none">💬 Помощь</a>'+
+            '<button class="btn btn-outline" data-action="today" title="Кто придёт сегодня и что делали в прошлый раз">☀️ Сегодня</button>'+
+            '<button class="btn btn-outline" data-action="freeslots" title="Когда я свободен — и скопировать список для сообщения">🕘 Свободные окна</button>'+
             '<button class="btn btn-outline" data-action="calendar" title="Кто и когда придёт — календарь визитов">📅 Календарь</button>'+
             '<button class="btn btn-outline" data-action="finance" title="Финансы и доход">₽ Финансы</button>'+
             '<button class="btn btn-set" data-action="settings" title="PIN-код, шифрование, ваш код доступа и устройства"><span class="gear">⚙</span>Настройки</button>'+
-            '<button class="btn btn-primary" data-action="new">+ Пациент</button>'+
+            '<button class="btn btn-primary" data-action="new">+ '+W("Им")+'</button>'+
           '</div>'+
         '</div>'+
         newsHTML+
@@ -2058,11 +2153,11 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
   }
   function photosHTML(){
     var p=patients.filter(function(x){return x.id===photoPatient;})[0];
-    if(!p){ view="list"; return '<div class="container"><div class="card"><h2 class="form-title">Пациент не найден</h2><p class="form-sub">Возможно, запись была удалена.</p><div class="form-actions"><button class="btn btn-primary" data-action="photos-back">← К пациентам</button></div></div></div>'; }
+    if(!p){ view="list"; return '<div class="container"><div class="card"><h2 class="form-title">Пациент не найден</h2><p class="form-sub">Возможно, запись была удалена.</p><div class="form-actions"><button class="btn btn-primary" data-action="photos-back">← К '+W("мндт")+'</button></div></div></div>'; }
     return '<div class="container">'+
       '<div class="header"><div><h1 class="title">📷 Фото — '+esc(p.lastName)+' '+esc(p.firstName)+'</h1>'+
         '<p class="lead">Фотографии хранятся только на этом устройстве. Для копии — кнопка «Сохранить все фото».</p></div>'+
-        '<div class="actions"><button class="btn btn-ghost" data-action="photos-back">← К пациентам</button></div></div>'+
+        '<div class="actions"><button class="btn btn-ghost" data-action="photos-back">← К '+W("мндт")+'</button></div></div>'+
       '<div class="card">'+
         '<div class="form-grid">'+
           '<div><label class="label">Тип снимка</label><select class="input" id="photo_kind"><option>до</option><option>после</option><option>—</option></select></div>'+
@@ -2179,7 +2274,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
     if(list.length===0){
       box.innerHTML='<div class="empty">'+
         (patients.length===0
-          ? 'Пациентов пока нет.<br>Нажмите <b>«+ Пациент»</b>, чтобы добавить первого.'
+          ? (isMed()?'Пациентов':'Клиентов')+' пока нет.<br>Нажмите <b>«+ '+W("Им")+'»</b>, чтобы добавить первого.'
           : 'Никого не найдено по этому запросу или фильтру.')+
         '</div>';
       return;
@@ -2188,7 +2283,8 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
       var bc=badgeClass(p.status);
       var agev = p.birthDate ? '<span class="agev">'+age(p.birthDate)+' лет</span>' : "";
       var proc = p.procedure ? '<div class="pproc">💉 '+esc(p.procedure)+'</div>' : "";
-      var next = p.nextVisit ? '<span>След. визит: '+formatDate(p.nextVisit)+'</span>' : "";
+      var _nt = fmtTime(p.nextTime);
+      var next = p.nextVisit ? '<span>Записан: '+formatDate(p.nextVisit)+(_nt?' в '+_nt:'')+'</span>' : "";
       var phone = p.phone ? '<span>☎ '+esc(p.phone)+'</span>' : "";
       var warn = p.contra ? '<div class="pwarn">⚠ Противопоказания: '+esc(p.contra)+'</div>' : "";
       var notes = p.notes ? '<div class="pnotes">'+esc(p.notes)+'</div>' : "";
@@ -2250,6 +2346,38 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
       '<label class="label">'+esc(label)+'</label>'+ctrl+hint+'</div>';
   }
 
+  // ——— Специальность: словарь и видимость медицинского блока ———
+  // Косметологу нужны фототип, МКБ-10 и назначения. Массажисту, мастеру
+  // маникюра и тренеру они не нужны и только мешают — прячем их целиком.
+  var MED_SPECS = ["косметолог","дерматолог","трихолог"];
+  var ALL_SPECS = ["не выбрано","косметолог","дерматолог","трихолог","массажист",
+                   "мастер маникюра","тату-мастер","фитнес-тренер","другое"];
+  function isMed(){
+    var s = (settings && settings.specialty) ? settings.specialty : "";
+    return !s || MED_SPECS.indexOf(s) > -1;   // не выбрано — ведём себя как раньше
+  }
+  // Слово «пациент» уместно у врача и режет слух у тренера.
+  function W(form){
+    var med = isMed();
+    switch(form){
+      case "рд":   return med ? "пациента"  : "клиента";
+      case "вн":   return med ? "пациента"  : "клиента";
+      case "мнрд": return med ? "пациентов" : "клиентов";
+      case "Им":   return med ? "Пациент"   : "Клиент";
+      case "мндт": return med ? "пациентам" : "клиентам";
+      default:     return med ? "пациент"   : "клиент";
+    }
+  }
+  // Время в формате ЧЧ:ММ или пусто. Пустое время всегда уезжает в конец дня.
+  function timeKey(t){
+    t = String(t == null ? "" : t).trim();
+    return /^\d{1,2}:\d{2}$/.test(t) ? ("0"+t).slice(-5) : "99:99";
+  }
+  function fmtTime(t){
+    t = String(t == null ? "" : t).trim();
+    return /^\d{1,2}:\d{2}$/.test(t) ? ("0"+t).slice(-5) : "";
+  }
+
   // Дата создания карточки. Отдельного поля нет — она зашита в id, который
   // генерируется как Date.now() в 36-й системе плюс пять случайных символов.
   // Всё, что пришло из Excel или из демо, не разбирается: возвращаем пусто.
@@ -2277,7 +2405,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
     var p = editId ? patients.filter(function(x){return x.id===editId;})[0] : null;
     p = p || {};
     formStatus = editId ? (STATUS.indexOf(p.status)>-1?p.status:"Первичный") : "Первичный";
-    var medOpen = (settings.specialty!=="косметолог");
+    var medOpen = (settings.specialty!=="косметолог") && isMed();
 
     var segBtns = STATUS.map(function(st){
       return '<button type="button" class="'+(formStatus===st?"on":"")+'" data-action="set-status" data-status="'+esc(st)+'">'+esc(st)+'</button>';
@@ -2285,7 +2413,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
     var statusHint = STATUS.map(function(st){ return st+" — "+STATUS_HELP[st]; }).join(" · ");
 
     return '<div class="container"><div class="card">'+
-      '<h2 class="form-title">'+(editId?"Изменить пациента":"Новый пациент")+'</h2>'+
+      '<h2 class="form-title">'+(editId?("Изменить "+W("вн")):("Новый "+W()))+'</h2>'+
       '<p class="form-sub">Обязательны только Фамилия и Имя. Остальное можно не заполнять. Всё сохранится автоматически.</p>'+
       (editId ? cardMetaHTML(p) : "")+
       '<div class="form-grid">'+
@@ -2294,7 +2422,8 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
         field("f_middleName","Отчество",p.middleName,{placeholder:"Петровна"})+
         field("f_phone","Телефон",p.phone,{type:"tel",placeholder:"+7 900 123-45-67",hint:"Чтобы можно было позвонить пациенту"})+
         field("f_birthDate","Дата рождения",p.birthDate,{type:"date",hint:"Возраст посчитается сам — важно для процедур"})+
-        field("f_nextVisit","Следующий визит",p.nextVisit,{type:"date",hint:"Когда ждёте пациента снова (можно не заполнять)"})+
+        field("f_nextVisit","Следующий визит",p.nextVisit,{type:"date",hint:"Когда ждёте снова (можно не заполнять)"})+
+        field("f_nextTime","Время записи",p.nextTime,{type:"time",hint:"Во сколько записан — появится в календаре"})+
         field("f_contra","Противопоказания и аллергии",p.contra,{full:true,placeholder:"Например: беременность, аллергия на лидокаин",hint:"Важно для безопасности процедур (можно не заполнять)"})+
         field("f_anamnesis","Анамнез и общее здоровье",p.anamnesis,{full:true,textarea:true,placeholder:"Хронические болезни, лекарства, аллергии, беременность/лактация",hint:"Фон здоровья пациента — важно перед процедурами"})+
         field("f_courseDone","Курс: пройдено сеансов",p.courseDone,{type:"number",min:0,hint:"Если пациент проходит курс"})+
@@ -2302,6 +2431,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
         field("f_care","Рекомендации по уходу",p.care,{full:true,textarea:true,placeholder:"Домашний уход, что можно и нельзя после процедуры",hint:"Можно показать или отправить пациенту"})+
         (editId ? "" : ('<div class="full"><div class="firstvisit"><div class="fv-title">Первый визит (необязательно)</div><div class="form-grid">'+
           field("f_v_date","Дата визита",today(),{type:"date"})+
+          field("f_v_time","Время","",{type:"time"})+
           field("f_v_amount","Стоимость, ₽","",{type:"number",min:0})+
           field("f_v_proc","Процедура","",{full:true,placeholder:"Например: чистка, пилинг, мезотерапия"})+
           field("f_v_paid","Оплата","оплачено",{select:["оплачено","не оплачено","предоплата"]})+
@@ -2316,7 +2446,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
         '<div class="full"><label class="label">Заметки</label>'+
           '<textarea class="textarea" id="f_notes" placeholder="Любые заметки: пожелания, реакция кожи, рекомендации">'+esc(p.notes||"")+'</textarea>'+
           '<div class="hint">Всё, что полезно помнить об этом пациенте.</div></div>'+
-        '<div class="full"><details class="medsec"'+(medOpen?' open':'')+'>'+
+        (isMed() ? ('<div class="full"><details class="medsec"'+(medOpen?' open':'')+'>'+
           '<summary>🩺 Медкарта и согласие — фототип, диагноз, назначения (необязательно)</summary>'+
           '<div class="form-grid" style="margin-top:12px">'+
             field("f_phototype","Фототип по Фицпатрику",p.phototype||"—",{select:["—","I","II","III","IV","V","VI"]})+
@@ -2324,7 +2454,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
             field("f_diagnosis","Диагноз (можно код МКБ-10)",p.diagnosis,{full:true,placeholder:"Например: L70.0 акне обыкновенное"})+
             field("f_prescription","Назначения",p.prescription,{full:true,textarea:true,placeholder:"Препараты, схема, дозировки"})+
           '</div>'+
-        '</details></div>'+
+        '</details></div>') : "")+
       '</div>'+
       '<div class="form-actions">'+
         '<button class="btn btn-primary" data-action="save-form">'+(editId?"Сохранить изменения":"Добавить пациента")+'</button>'+
@@ -2339,11 +2469,19 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
     var data={
       lastName:v("f_lastName"), firstName:v("f_firstName"), middleName:v("f_middleName"),
       phone:v("f_phone"), birthDate:v("f_birthDate"),
-      nextVisit:v("f_nextVisit"), contra:v("f_contra"),
+      nextVisit:v("f_nextVisit"), nextTime:v("f_nextTime"), contra:v("f_contra"),
       notes:v("f_notes"), status:formStatus,
-      anamnesis:v("f_anamnesis"), care:v("f_care"), courseDone:v("f_courseDone"), courseTotal:v("f_courseTotal"),
-      phototype:v("f_phototype"), diagnosis:v("f_diagnosis"), prescription:v("f_prescription"), consentDate:v("f_consentDate")
+      anamnesis:v("f_anamnesis"), care:v("f_care"), courseDone:v("f_courseDone"), courseTotal:v("f_courseTotal")
     };
+    // Медицинский блок есть в форме только у медицинских специальностей.
+    // Если его на экране нет — эти поля не трогаем вообще, иначе смена
+    // специальности молча стёрла бы диагноз, назначения и фототип.
+    if(document.getElementById("f_diagnosis")){
+      data.phototype=v("f_phototype");
+      data.diagnosis=v("f_diagnosis");
+      data.prescription=v("f_prescription");
+      data.consentDate=v("f_consentDate");
+    }
     if(!data.lastName||!data.firstName){ showToast("Заполните обязательные поля: Фамилия и Имя"); return; }
     if(editId){
       patients=patients.map(function(p){ return p.id===editId?Object.assign({},p,data):p; });
@@ -2351,19 +2489,19 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
     }else{
       data.id=genId();
       var fvDate=v("f_v_date"), fvAmount=v("f_v_amount"), fvProc=v("f_v_proc"), fvPaid=v("f_v_paid")||"оплачено";
-      data.visits = (fvDate||fvAmount||fvProc) ? [{id:genVid(), date:fvDate, proc:fvProc, amount:fvAmount, paid:fvPaid}] : [];
+      data.visits = (fvDate||fvAmount||fvProc) ? [{id:genVid(), date:fvDate, time:v("f_v_time"), proc:fvProc, amount:fvAmount, paid:fvPaid}] : [];
       recalc(data); patients.push(data);
       var phN=savePhotosFromInputs(data.id, fvDate||today(), [["f_v_ph_before","до"],["f_v_ph_after","после"]]);
     }
     persist(); bumpChange(); editId=null; view="list"; render();
-    if(!phN) showToast("Пациент сохранён ✓ (автоматически)");
+    if(!phN) showToast(W("Им")+" сохранён ✓ (автоматически)");
   }
 
   function saveVisit(){
     var v=function(id){ var el=document.getElementById(id); return el?el.value.trim():""; };
     var p=patients.filter(function(x){return x.id===visitPatient;})[0]; if(!p){ view="list"; render(); return; }
     var date=v("f_vs_date"); if(!date){ showToast("Укажите дату визита"); return; }
-    var rec={date:date, proc:v("f_vs_proc"), amount:v("f_vs_amount"), paid:v("f_vs_paid")||"оплачено"};
+    var rec={date:date, time:v("f_vs_time"), proc:v("f_vs_proc"), amount:v("f_vs_amount"), paid:v("f_vs_paid")||"оплачено"};
     if(!Array.isArray(p.visits)) p.visits=[];
     if(visitEdit){ p.visits=p.visits.map(function(x){ return x.id===visitEdit?Object.assign({},x,rec):x; }); }
     else { rec.id=genVid(); p.visits.push(rec); }
@@ -2373,12 +2511,13 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
   }
   function visitHTML(){
     var p=patients.filter(function(x){return x.id===visitPatient;})[0];
-    if(!p){ view="list"; return '<div class="container"><div class="card"><h2 class="form-title">Пациент не найден</h2><p class="form-sub">Возможно, запись была удалена.</p><div class="form-actions"><button class="btn btn-primary" data-action="cancel-visit">← К пациентам</button></div></div></div>'; }
+    if(!p){ view="list"; return '<div class="container"><div class="card"><h2 class="form-title">Пациент не найден</h2><p class="form-sub">Возможно, запись была удалена.</p><div class="form-actions"><button class="btn btn-primary" data-action="cancel-visit">← К '+W("мндт")+'</button></div></div></div>'; }
     var ve = visitEdit ? visitsOf(p).filter(function(x){return x.id===visitEdit;})[0] : null; ve=ve||{};
     return '<div class="container"><div class="card">'+
       '<h2 class="form-title">'+(visitEdit?"Изменить визит":"Новый визит")+' — '+esc(p.lastName)+' '+esc(p.firstName)+'</h2>'+
       '<div class="form-grid">'+
         field("f_vs_date","Дата визита *",ve.date||today(),{type:"date"})+
+        field("f_vs_time","Время",ve.time,{type:"time",hint:"Во сколько записан (можно не заполнять)"})+
         field("f_vs_amount","Стоимость, ₽",ve.amount,{type:"number",min:0})+
         field("f_vs_proc","Процедура",ve.proc,{full:true,placeholder:"Например: чистка, пилинг, мезотерапия"})+
         field("f_vs_paid","Оплата",ve.paid||"оплачено",{select:["оплачено","не оплачено","предоплата"]})+
@@ -2410,8 +2549,16 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
       (map[d]=map[d]||[]).push(o);
     }
     patients.forEach(function(p){
-      if(p.nextVisit) push(p.nextVisit,{kind:"plan",p:p,proc:""});
-      visitsOf(p).forEach(function(v){ push(v.date,{kind:"done",p:p,proc:v.proc||""}); });
+      if(p.nextVisit) push(p.nextVisit,{kind:"plan",p:p,proc:p.procedure||"",time:p.nextTime||""});
+      visitsOf(p).forEach(function(v){ push(v.date,{kind:v.planned?"plan":"done",p:p,proc:v.proc||"",time:v.time||""}); });
+    });
+    // Внутри дня сортируем по времени: сначала записанные на конкретный час,
+    // потом те, у кого время не проставлено.
+    Object.keys(map).forEach(function(d){
+      map[d].sort(function(a,b){
+        var ta=timeKey(a.time), tb=timeKey(b.time);
+        return ta<tb ? -1 : (ta>tb ? 1 : 0);
+      });
     });
     return map;
   }
@@ -2431,6 +2578,302 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
     if(n<0) return Math.abs(n)+" дн. назад";
     return "через "+n+" дн.";
   }
+  // ═══════════════════════════════════════════════════════════════
+  //  РЕЖИМ ЗАПИСИ — экран, который отдают клиенту в руки.
+  //  Это бумажная тетрадь мастера, только цифровая: клиент видит
+  //  свободные окна и вписывает себя сам. Чужие имена, телефоны,
+  //  деньги и заметки на этом экране не показываются никогда.
+  //  Выход — только по PIN, поэтому без PIN режим не включается.
+  // ═══════════════════════════════════════════════════════════════
+  function mins(t){ var a=String(t==null?"":t).split(":"); return (+a[0]||0)*60 + (+a[1]||0); }
+  function hhmm(m){ return ("0"+Math.floor(m/60)).slice(-2)+":"+("0"+(m%60)).slice(-2); }
+
+  function schedule(){
+    var s = (settings && settings.schedule) ? settings.schedule : {};
+    return {
+      days: (Array.isArray(s.days) && s.days.length) ? s.days : [1,2,3,4,5],
+      from: /^\d{1,2}:\d{2}$/.test(s.from||"") ? s.from : "09:00",
+      to:   /^\d{1,2}:\d{2}$/.test(s.to||"")   ? s.to   : "20:00",
+      step: ([30,45,60,90,120].indexOf(+s.step)>-1) ? +s.step : 60
+    };
+  }
+  // Свободные окна конкретного дня по расписанию мастера
+  function slotsFor(iso){
+    var sc=schedule(), a=String(iso||"").split("-");
+    if(a.length!==3) return [];
+    var d=new Date(+a[0],+a[1]-1,+a[2]);
+    var dow=((d.getDay()+6)%7)+1;                  // 1 = понедельник … 7 = воскресенье
+    if(sc.days.indexOf(dow)<0) return [];
+    var out=[], f=mins(sc.from), tt=mins(sc.to);
+    if(sc.step<=0 || tt<=f) return [];
+    for(var m=f; m+sc.step<=tt; m+=sc.step){ out.push(hhmm(m)); if(out.length>48) break; }
+    return out;
+  }
+  function digits10(s){ return String(s==null?"":s).replace(/\D/g,"").slice(-10); }
+  // Кто уже занял это окно. Возвращаем саму карточку, но наружу её не показываем.
+  function takenAt(iso,time){
+    var hit=null;
+    patients.forEach(function(p){
+      if(hit) return;
+      if(p.nextVisit===iso && fmtTime(p.nextTime)===time){ hit=p; return; }
+      visitsOf(p).forEach(function(v){
+        if(!hit && v.planned && v.date===iso && fmtTime(v.time)===time) hit=p;
+      });
+    });
+    return hit;
+  }
+  // Запись клиента. Возвращает "" при успехе или текст ошибки.
+  function kioskBook(iso,time,name,phone){
+    name=String(name==null?"":name).trim().replace(/\s+/g," ");
+    phone=String(phone==null?"":phone).trim();
+    if(name.length<2) return "Напишите, как вас зовут";
+    if(slotsFor(iso).indexOf(time)<0) return "Такого времени нет в расписании";
+    if(takenAt(iso,time)) return "Это время только что заняли — выберите другое";
+
+    var p=null;
+    if(digits10(phone).length===10){
+      p = patients.filter(function(x){ return digits10(x.phone)===digits10(phone); })[0] || null;
+    }
+    if(!p){
+      var parts=name.split(" ");
+      p={ id:genId(), lastName:parts[0]||name, firstName:parts.slice(1).join(" "),
+          middleName:"", phone:phone, birthDate:"", nextVisit:"", nextTime:"",
+          contra:"", anamnesis:"", care:"", courseDone:"", courseTotal:"",
+          status:"Первичный", notes:"Записался сам через режим записи", visits:[] };
+      patients.push(p);
+    }
+    if(!Array.isArray(p.visits)) p.visits=[];
+    p.visits.push({ id:genVid(), date:iso, time:time, planned:true, proc:"", amount:"", paid:"" });
+    recalc(p); persist(); bumpChange();
+    return "";
+  }
+
+  // ═══════════════════════════════════════════════════════════════
+  //  СЕГОДНЯ и СВОБОДНЫЕ ОКНА
+  //  Два вопроса, которые мастер задаёт себе каждый день:
+  //  «что я сегодня делаю» и «когда я свободен».
+  //  Первый нужен утром, второй — когда клиент пишет в мессенджер.
+  // ═══════════════════════════════════════════════════════════════
+
+  // Все записи на день, по времени. Источников два: поле «Следующий визит»
+  // в карточке и будущие визиты с пометкой planned.
+  function bookingsOn(iso){
+    var out=[];
+    patients.forEach(function(p){
+      if(p.nextVisit===iso) out.push({p:p,time:fmtTime(p.nextTime),vid:null,proc:""});
+      visitsOf(p).forEach(function(v){
+        if(v.planned && v.date===iso) out.push({p:p,time:fmtTime(v.time),vid:v.id,proc:v.proc||""});
+      });
+    });
+    out.sort(function(a,b){ var ta=timeKey(a.time), tb=timeKey(b.time); return ta<tb?-1:(ta>tb?1:0); });
+    return out;
+  }
+  // Что делали в прошлый раз — главное, что нужно знать перед приёмом
+  function lastDone(p){
+    // Сортируем явно: полагаться на порядок в массиве нельзя — данные могли
+    // прийти из Excel или быть изменены без recalc, а ошибиться здесь нельзя.
+    var d=visitsOf(p).filter(function(v){ return !v.planned && v.date; })
+      .sort(function(a,b){
+        var ka=String(a.date)+timeKey(a.time), kb=String(b.date)+timeKey(b.time);
+        return ka<kb?-1:(ka>kb?1:0);
+      });
+    return d.length ? d[d.length-1] : null;
+  }
+  // Часто повторяющиеся работы этого мастера — чтобы не печатать руками
+  function topProcs(){
+    var c={};
+    patients.forEach(function(p){
+      visitsOf(p).forEach(function(v){
+        var s=String(v.proc||"").trim();
+        if(s && s.length<=24) c[s]=(c[s]||0)+1;
+      });
+    });
+    return Object.keys(c).sort(function(a,b){ return c[b]-c[a]; }).slice(0,6);
+  }
+
+  function todayHTML(){
+    var td=today(), list=bookingsOn(td);
+    var d=new Date();
+    var DOW=["понедельник","вторник","среда","четверг","пятница","суббота","воскресенье"];
+    var MNR=["января","февраля","марта","апреля","мая","июня","июля","августа","сентября","октября","ноября","декабря"];
+    var chips=topProcs();
+
+    var rows = list.length ? list.map(function(b,i){
+      var ld=lastDone(b.p);
+      var prev = ld
+        ? ('Прошлый раз: '+formatDate(ld.date)+(ld.proc?' — <b>'+esc(ld.proc)+'</b>':''))
+        : 'Приходит впервые';
+      var chipHTML = chips.length
+        ? '<div class="tchips">'+chips.map(function(s){
+            return '<button class="tchip" data-action="today-chip" data-i="'+i+'" data-v="'+esc(s)+'">'+esc(s)+'</button>';
+          }).join("")+'</div>'
+        : '';
+      return '<div class="tcard">'+
+        '<div class="trow1">'+
+          '<span class="ttime">'+(b.time||'—')+'</span>'+
+          '<a class="tname" href="#" data-action="edit" data-id="'+esc(b.p.id)+'">'+esc(b.p.lastName)+' '+esc(b.p.firstName)+'</a>'+
+        '</div>'+
+        '<div class="tprev">'+prev+'</div>'+
+        '<input class="input tin" id="t_proc_'+i+'" placeholder="Что делаем сегодня" value="'+esc(b.proc)+'" autocomplete="off">'+
+        chipHTML+
+        '<div class="tacts">'+
+          '<button class="btn btn-primary btn-sm" data-action="today-done" data-i="'+i+'" data-id="'+esc(b.p.id)+'" data-vid="'+esc(b.vid||"")+'">✓ Пришёл</button>'+
+          '<button class="btn btn-ghost btn-sm" data-action="today-skip" data-id="'+esc(b.p.id)+'" data-vid="'+esc(b.vid||"")+'">Не пришёл</button>'+
+        '</div>'+
+      '</div>';
+    }).join("") : '<div class="empty">На сегодня записей нет. Загляните в «🕘 Свободные окна» — там видно, когда вы свободны, и можно записать кого-то в два касания.</div>';
+
+    return '<div class="container">'+
+      '<div class="header"><div><h1 class="title">☀️ Сегодня</h1>'+
+        '<p class="lead">'+d.getDate()+' '+MNR[d.getMonth()]+', '+DOW[(d.getDay()+6)%7]+' · '+
+        (list.length?('записей: '+list.length):'свободный день')+'</p></div>'+
+        '<div class="actions">'+
+          '<button class="btn btn-outline" data-action="freeslots">🕘 Свободные окна</button>'+
+          '<button class="btn btn-ghost" data-action="settings-close">← К '+W("мндт")+'</button>'+
+        '</div></div>'+
+      rows+
+    '</div>';
+  }
+
+  // Текст для мессенджера: «Свободно: пн 15.09 — 09:00, 11:00»
+  function freeText(){
+    var DOWS=["пн","вт","ср","чт","пт","сб","вс"], out=[];
+    var base=new Date(); base=new Date(base.getFullYear(),base.getMonth(),base.getDate());
+    var nowM=new Date().getHours()*60+new Date().getMinutes();
+    for(var i=0;i<14 && out.length<7;i++){
+      var d=new Date(base.getFullYear(),base.getMonth(),base.getDate()+i);
+      var iso=d.getFullYear()+"-"+("0"+(d.getMonth()+1)).slice(-2)+"-"+("0"+d.getDate()).slice(-2);
+      var free=slotsFor(iso).filter(function(t){
+        if(takenAt(iso,t)) return false;
+        if(i===0 && mins(t)<=nowM) return false;
+        return true;
+      });
+      if(free.length) out.push(DOWS[(d.getDay()+6)%7]+" "+("0"+d.getDate()).slice(-2)+"."+("0"+(d.getMonth()+1)).slice(-2)+" — "+free.join(", "));
+    }
+    return out.length ? ("Свободное время:\n"+out.join("\n")) : "Свободных окон на ближайшие две недели нет.";
+  }
+
+  function freeSlotsHTML(){
+    var DOW=["понедельник","вторник","среда","четверг","пятница","суббота","воскресенье"];
+    var MNR=["января","февраля","марта","апреля","мая","июня","июля","августа","сентября","октября","ноября","декабря"];
+    var td=today(), nowM=new Date().getHours()*60+new Date().getMinutes();
+    var base=new Date(); base=new Date(base.getFullYear(),base.getMonth(),base.getDate());
+    var blocks=[], total=0;
+    for(var i=0;i<14 && blocks.length<7;i++){
+      var d=new Date(base.getFullYear(),base.getMonth(),base.getDate()+i);
+      var iso=d.getFullYear()+"-"+("0"+(d.getMonth()+1)).slice(-2)+"-"+("0"+d.getDate()).slice(-2);
+      var free=slotsFor(iso).filter(function(t){
+        if(takenAt(iso,t)) return false;
+        if(iso===td && mins(t)<=nowM) return false;
+        return true;
+      });
+      if(!free.length) continue;
+      total+=free.length;
+      blocks.push('<div class="kday"><div class="kdh">'+d.getDate()+' '+MNR[d.getMonth()]+
+        ' <span>'+DOW[(d.getDay()+6)%7]+'</span></div><div class="kslots">'+
+        free.map(function(t){
+          return '<button class="kslot free" data-action="fs-pick" data-slot="'+iso+' '+t+'">'+t+'</button>';
+        }).join("")+'</div></div>');
+    }
+
+    // Выбрали окно — показываем, кого записать
+    if(fsSlot){
+      var parts=fsSlot.split(" "), pd=parts[0].split("-");
+      var recent=patients.slice().sort(function(a,b){
+        var la=lastDone(a), lb=lastDone(b);
+        return String(lb?lb.date:"")<String(la?la.date:"")?-1:1;
+      }).slice(0,12);
+      return '<div class="container">'+
+        '<div class="header"><div><h1 class="title">Кого записать</h1>'+
+          '<p class="lead">'+pd[2]+'.'+pd[1]+'.'+pd[0]+' в '+esc(parts[1])+'</p></div>'+
+          '<div class="actions"><button class="btn btn-ghost" data-action="fs-back">← Другое время</button></div></div>'+
+        (fsErr?'<div class="kerr" style="margin-bottom:12px">'+esc(fsErr)+'</div>':'')+
+        '<div class="fslist">'+(recent.length?recent.map(function(p){
+          var ld=lastDone(p);
+          return '<button class="fsp" data-action="fs-book" data-id="'+esc(p.id)+'">'+
+            '<b>'+esc(p.lastName)+' '+esc(p.firstName)+'</b>'+
+            '<span>'+(ld?('был '+formatDate(ld.date)+(ld.proc?' · '+esc(ld.proc):'')):'ещё не приходил')+'</span></button>';
+        }).join(""):'<div class="empty">Список пуст — впишите имя ниже.</div>')+'</div>'+
+        '<div class="card" style="margin-top:14px">'+
+          '<label class="label">Или новый '+W()+'</label>'+
+          '<input class="input" id="fs_name" placeholder="Имя и фамилия" autocomplete="off">'+
+          '<button class="btn btn-outline" data-action="fs-book-new" style="margin-top:10px">Записать</button>'+
+        '</div>'+
+      '</div>';
+    }
+
+    return '<div class="container">'+
+      '<div class="header"><div><h1 class="title">🕘 Свободные окна</h1>'+
+        '<p class="lead">'+(total?('свободно мест: '+total+' · нажмите время, чтобы записать'):'всё занято или расписание не настроено')+'</p></div>'+
+        '<div class="actions">'+
+          '<button class="btn btn-primary" data-action="fs-copy">📋 Скопировать для сообщения</button>'+
+          '<button class="btn btn-ghost" data-action="settings-close">← К '+W("мндт")+'</button>'+
+        '</div></div>'+
+      (blocks.length ? blocks.join("") : '<div class="empty">Свободных окон нет. Проверьте рабочее расписание в настройках.</div>')+
+    '</div>';
+  }
+
+  function kioskHTML(){
+    var sc=schedule(), td=today(), days=[];
+    var base=new Date(); base=new Date(base.getFullYear(),base.getMonth(),base.getDate());
+    for(var i=0;i<14 && days.length<10;i++){
+      var d=new Date(base.getFullYear(),base.getMonth(),base.getDate()+i);
+      var iso=d.getFullYear()+"-"+("0"+(d.getMonth()+1)).slice(-2)+"-"+("0"+d.getDate()).slice(-2);
+      var sl=slotsFor(iso);
+      if(sl.length) days.push({iso:iso,d:d,slots:sl});
+    }
+    var DOW=["понедельник","вторник","среда","четверг","пятница","суббота","воскресенье"];
+    var MNR=["января","февраля","марта","апреля","мая","июня","июля","августа","сентября","октября","ноября","декабря"];
+
+    // Экран подтверждения: окно выбрано, осталось назвать себя
+    if(kioskSlot){
+      var kd=kioskSlot.split(" ")[0], kt=kioskSlot.split(" ")[1];
+      var kdd=new Date(+kd.split("-")[0],+kd.split("-")[1]-1,+kd.split("-")[2]);
+      return '<div class="kiosk"><div class="kwrap">'+
+        '<div class="kpick">'+kdd.getDate()+' '+MNR[kdd.getMonth()]+', '+DOW[(kdd.getDay()+6)%7]+'<br><b>'+esc(kt)+'</b></div>'+
+        '<label class="label">Как вас зовут</label>'+
+        '<input class="input kbig" id="k_name" placeholder="Имя и фамилия" autocomplete="off">'+
+        '<label class="label" style="margin-top:12px">Телефон <span style="font-weight:400;color:var(--muted)">— если хотите</span></label>'+
+        '<input class="input kbig" id="k_phone" type="tel" placeholder="+7" autocomplete="off">'+
+        (kioskErr?'<div class="kerr">'+esc(kioskErr)+'</div>':'')+
+        '<button class="btn btn-primary kbtn" data-action="kiosk-book">Записаться</button>'+
+        '<button class="btn btn-ghost kbtn" data-action="kiosk-back">← Выбрать другое время</button>'+
+      '</div></div>';
+    }
+
+    // Экран «спасибо»
+    if(kioskDone){
+      return '<div class="kiosk"><div class="kwrap kok">'+
+        '<div class="kbig-ok">✓</div>'+
+        '<h2 style="margin:6px 0 4px">Вы записаны</h2>'+
+        '<p style="color:var(--muted);margin:0 0 18px">'+esc(kioskDone)+'</p>'+
+        '<button class="btn btn-primary kbtn" data-action="kiosk-again">Записать ещё кого-то</button>'+
+      '</div></div>';
+    }
+
+    var body = days.length ? days.map(function(x){
+      var free=0;
+      var cells=x.slots.map(function(t){
+        var busy=!!takenAt(x.iso,t);
+        var past=(x.iso===td) && (mins(t) <= (new Date().getHours()*60+new Date().getMinutes()));
+        if(!busy && !past) free++;
+        if(busy) return '<span class="kslot busy">'+t+'<i>занято</i></span>';
+        if(past) return '<span class="kslot past">'+t+'</span>';
+        return '<button class="kslot free" data-action="kiosk-pick" data-slot="'+x.iso+' '+t+'">'+t+'</button>';
+      }).join("");
+      return '<div class="kday"><div class="kdh">'+x.d.getDate()+' '+MNR[x.d.getMonth()]+
+        ' <span>'+DOW[(x.d.getDay()+6)%7]+'</span>'+
+        (free?'':' <em>всё занято</em>')+'</div><div class="kslots">'+cells+'</div></div>';
+    }).join("") : '<div class="empty">Расписание не настроено. Мастер задаёт рабочие дни и часы в настройках.</div>';
+
+    return '<div class="kiosk"><div class="kwrap">'+
+      '<div class="khead"><h1>Запись на приём</h1>'+
+        '<p>'+esc(license.owner||"")+' · выберите свободное время</p></div>'+
+      body+
+      '<button class="kexit" data-action="kiosk-exit" title="Только для мастера">🔒 Выход для мастера</button>'+
+    '</div></div>';
+  }
+
   function calendarHTML(){
     var MN=["Январь","Февраль","Март","Апрель","Май","Июнь","Июль","Август","Сентябрь","Октябрь","Ноябрь","Декабрь"];
     var ym=calYM(), a=ym.split("-"), Y=+a[0], M=+a[1]-1;
@@ -2449,8 +2892,10 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
       if(!out){ for(var k=0;k<list.length;k++){ if(list[k].kind==="plan") planM++; else doneM++; } }
       var inner="";
       for(var j=0;j<list.length && j<2;j++){
-        var o=list[j], ttl=calName(o.p)+(o.proc?" · "+o.proc:"")+(o.kind==="plan"?" — запланирован":"");
-        inner+='<span class="calev '+(o.kind==="plan"?"plan":"done")+'" data-action="edit" data-id="'+esc(o.p.id)+'" title="'+esc(ttl)+'">'+esc(calName(o.p))+'</span>';
+        var o=list[j], tm=fmtTime(o.time);
+        var ttl=(tm?tm+" · ":"")+calName(o.p)+(o.proc?" · "+o.proc:"")+(o.kind==="plan"?" — записан":"");
+        inner+='<span class="calev '+(o.kind==="plan"?"plan":"done")+'" data-action="edit" data-id="'+esc(o.p.id)+'" title="'+esc(ttl)+'">'+
+          (tm?'<b class="calt">'+tm+'</b> ':'')+esc(calName(o.p))+'</span>';
       }
       if(list.length>2) inner+='<span class="calmore">ещё '+(list.length-2)+'</span>';
       cells+='<div class="calcell'+(out?" out":"")+((i%7)>=5?" wknd":"")+(iso===td?" today":"")+'">'+
@@ -2463,21 +2908,25 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
     var up=[];
     Object.keys(ev).forEach(function(d){
       if(d<td) return;
-      ev[d].forEach(function(o){ if(o.kind==="plan") up.push({d:d,p:o.p}); });
+      ev[d].forEach(function(o){ if(o.kind==="plan") up.push({d:d,p:o.p,time:o.time,proc:o.proc}); });
     });
-    up.sort(function(x,y){ return x.d<y.d?-1:(x.d>y.d?1:0); });
+    up.sort(function(x,y){
+      if(x.d!==y.d) return x.d<y.d?-1:1;
+      var ta=timeKey(x.time), tb=timeKey(y.time);
+      return ta<tb?-1:(ta>tb?1:0);
+    });
     var upHTML = up.length
       ? up.slice(0,12).map(function(r){
-          var n=calDaysLeft(r.d);
-          return '<div class="vrow"><span class="vd">'+formatDate(r.d)+'</span>'+
+          var n=calDaysLeft(r.d), tm=fmtTime(r.time);
+          return '<div class="vrow"><span class="vd">'+formatDate(r.d)+(tm?' <b style="color:var(--accent)">'+tm+'</b>':'')+'</span>'+
             '<span class="vp"><a href="#" data-action="edit" data-id="'+esc(r.p.id)+'" style="color:var(--accent);text-decoration:none;font-weight:600">'+esc(r.p.lastName)+' '+esc(r.p.firstName)+'</a>'+(r.p.procedure?' · '+esc(r.p.procedure):'')+'</span>'+
             '<span class="va" style="color:'+(n<=2?"#B45309":"var(--muted)")+';font-weight:600">'+calSoonLabel(n)+'</span></div>';
         }).join("")
-      : '<div class="empty">Ничего не запланировано. Дата следующего визита ставится в карточке пациента — поле «Следующий визит».</div>';
+      : '<div class="empty">Ничего не запланировано. Дата и время записи ставятся в карточке — поля «Следующий визит» и «Время записи».</div>';
 
     return '<div class="container">'+
       '<div class="header"><div><h1 class="title">📅 Календарь визитов</h1><p class="lead">Кто и когда придёт · '+esc(license.owner)+'</p></div>'+
-        '<div class="actions"><button class="btn btn-ghost" data-action="settings-close">← К пациентам</button></div></div>'+
+        '<div class="actions"><button class="btn btn-ghost" data-action="settings-close">← К '+W("мндт")+'</button></div></div>'+
       '<div class="stats finance">'+
         stat("Запланировано в этом месяце",planM,"var(--accent)")+
         stat("Состоялось",doneM,"#2E7D32")+
@@ -2491,18 +2940,19 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
       '</div>'+
       '<div class="calgrid">'+dows+cells+'</div>'+
       '<div class="callegend">'+
-        '<span><i style="background:var(--accent-light)"></i>запланирован</span>'+
+        '<span><i style="background:var(--accent-light)"></i>записан</span>'+
         '<span><i style="background:#E8F5EC"></i>состоялся</span>'+
         '<span>Нажмите на имя — откроется карточка</span>'+
       '</div>'+
-      '<h3 style="font-size:15px;margin:18px 0 4px">Ближайшие визиты</h3>'+
+      '<h3 style="font-size:15px;margin:18px 0 4px">Ближайшие записи</h3>'+
       '<div class="vlist">'+upHTML+'</div>'+
     '</div>';
   }
 
   function financeViewHTML(){
     var now=new Date(), ym=now.getFullYear()+"-"+("0"+(now.getMonth()+1)).slice(-2);
-    var rows=[]; patients.forEach(function(p){ visitsOf(p).forEach(function(v){ rows.push({p:p,v:v}); }); });
+    // Будущие записи в финансы не попадают — денег по ним ещё нет
+    var rows=[]; patients.forEach(function(p){ visitsOf(p).forEach(function(v){ if(!v.planned) rows.push({p:p,v:v}); }); });
     var filtered=rows.filter(function(r){ return financePeriod==="all" ? true : String(r.v.date||"").slice(0,7)===ym; });
     filtered.sort(function(a,b){ return String(a.v.date||"")<String(b.v.date||"")?1:-1; });
     var sum=0, unpaidSum=0;
@@ -2510,7 +2960,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
     var list = filtered.length ? filtered.map(function(r){ var a=parseFloat(String(r.v.amount).replace(",","."))||0; var up=(r.v.paid==="не оплачено"); return '<div class="vrow"><span class="vd">'+formatDate(r.v.date)+'</span><span class="vp">'+esc(r.p.lastName)+' '+esc(r.p.firstName)+' · '+esc(r.v.proc||"—")+'</span><span class="va'+(up?" unpaid":"")+'">'+(a>0?fmtMoney(a)+" ₽":"")+(r.v.paid?" · "+esc(r.v.paid):"")+'</span></div>'; }).join("") : '<div class="empty">За этот период визитов нет.</div>';
     return '<div class="container">'+
       '<div class="header"><div><h1 class="title">₽ Финансы</h1><p class="lead">Доход считается по всем визитам · '+esc(license.owner)+'</p></div>'+
-        '<div class="actions"><button class="btn btn-ghost" data-action="settings-close">← К пациентам</button></div></div>'+
+        '<div class="actions"><button class="btn btn-ghost" data-action="settings-close">← К '+W("мндт")+'</button></div></div>'+
       '<div class="stats finance">'+
         stat(financePeriod==="month"?"Доход за месяц":"Доход всего",fmtMoney(sum)+" ₽","#2E7D32")+
         stat("Не оплачено",fmtMoney(unpaidSum)+" ₽",unpaidSum?"#E53935":"#2E7D32")+
@@ -2535,12 +2985,12 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
 
   function removePatient(id){
     var p=patients.filter(function(x){return x.id===id;})[0];
-    var who=p?(p.lastName+" "+p.firstName):"пациента";
+    var who=p?(p.lastName+" "+p.firstName):W("вн");
     if(!confirm("Удалить "+who+"? Это действие нельзя отменить.")) return;
     patients=patients.filter(function(p){return p.id!==id;});
     if(typeof photoDelByPatient==="function") photoDelByPatient(id);
     persist(); bumpChange(); if(editId===id){editId=null;view="list";} render();
-    showToast("Пациент удалён");
+    showToast(W("Им")+" удалён");
   }
 
   function exportExcel(){
@@ -2549,14 +2999,14 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
       return {
         "ID":p.id,"№":i+1,"Фамилия":p.lastName,"Имя":p.firstName,"Отчество":p.middleName,
         "Дата рождения":formatDate(p.birthDate),"Возраст":age(p.birthDate),"Телефон":p.phone,
-        "Следующий визит":formatDate(p.nextVisit),"Противопоказания":p.contra,"Анамнез":p.anamnesis,
+        "Следующий визит":formatDate(p.nextVisit),"Время записи":fmtTime(p.nextTime),"Противопоказания":p.contra,"Анамнез":p.anamnesis,
         "Курс пройдено":p.courseDone,"Курс всего":p.courseTotal,"Рекомендации":p.care,
         "Фототип":p.phototype,"Диагноз":p.diagnosis,"Назначения":p.prescription,"Согласие":formatDate(p.consentDate),
         "Статус":p.status,"Заметки":p.notes,"Визитов":visitsOf(p).length,"Принёс ₽":patientPaidTotal(p)
       };
     });
-    var vrows=[]; patients.forEach(function(p){ visitsOf(p).forEach(function(vv){ vrows.push({ "ID пациента":p.id,"Пациент":(p.lastName+" "+p.firstName).trim(),"Дата":formatDate(vv.date),"Процедура":vv.proc,"Сумма":vv.amount,"Оплата":vv.paid }); }); });
-    if(!vrows.length) vrows=[{"ID пациента":"","Пациент":"","Дата":"","Процедура":"","Сумма":"","Оплата":""}];
+    var vrows=[]; patients.forEach(function(p){ visitsOf(p).forEach(function(vv){ vrows.push({ "ID пациента":p.id,"Пациент":(p.lastName+" "+p.firstName).trim(),"Дата":formatDate(vv.date),"Время":fmtTime(vv.time),"Запись":vv.planned?"да":"","Процедура":vv.proc,"Сумма":vv.amount,"Оплата":vv.paid }); }); });
+    if(!vrows.length) vrows=[{"ID пациента":"","Пациент":"","Дата":"","Время":"","Запись":"","Процедура":"","Сумма":"","Оплата":""}];
     var wb=XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(wb,XLSX.utils.json_to_sheet(prows),"Пациенты");
     XLSX.utils.book_append_sheet(wb,XLSX.utils.json_to_sheet(vrows),"Визиты");
@@ -2579,7 +3029,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
         var visMap={};
         if(wb.SheetNames.indexOf("Визиты")>-1){
           var vraw=XLSX.utils.sheet_to_json(wb.Sheets["Визиты"],{defval:"",raw:false});
-          vraw.forEach(function(r){ var pid=safeId(r["ID пациента"]); if(!pid) return; (visMap[pid]||(visMap[pid]=[])).push({id:genVid(), date:parseDateCell(r["Дата"]), proc:String(r["Процедура"]||"").trim(), amount:String(r["Сумма"]||"").trim(), paid:String(r["Оплата"]||"оплачено").trim()}); });
+          vraw.forEach(function(r){ var pid=safeId(r["ID пациента"]); if(!pid) return; (visMap[pid]||(visMap[pid]=[])).push({id:genVid(), date:parseDateCell(r["Дата"]), time:fmtTime(r["Время"]), planned:(String(r["Запись"]||"").trim().toLowerCase()==="да"), proc:String(r["Процедура"]||"").trim(), amount:String(r["Сумма"]||"").trim(), paid:String(r["Оплата"]||"оплачено").trim()}); });
         }
         var imported=praw.map(function(r){
           var st=String(r["Статус"]||"").trim();
@@ -2592,6 +3042,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
             birthDate:parseDateCell(r["Дата рождения"]),
             phone:String(r["Телефон"]||"").trim(),
             nextVisit:parseDateCell(r["Следующий визит"]),
+            nextTime:fmtTime(r["Время записи"]),
             contra:String(r["Противопоказания"]||"").trim(),
             anamnesis:String(r["Анамнез"]||"").trim(),
             courseDone:String(r["Курс пройдено"]||"").trim(),
@@ -2711,7 +3162,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
       parts.map(function(s){
         return '<div class="pr-sec">'+esc(s.title)+'</div><div class="pr-t">'+esc(s.text)+'</div>';
       }).join("")+
-      (p.nextVisit ? '<div class="pr-sec">Следующий визит</div><div class="pr-t">'+formatDate(p.nextVisit)+'</div>' : '')+
+      (p.nextVisit ? '<div class="pr-sec">Следующий визит</div><div class="pr-t">'+formatDate(p.nextVisit)+(fmtTime(p.nextTime)?' в '+fmtTime(p.nextTime):'')+'</div>' : '')+
       (foot.length ? '<div class="pr-f">'+foot.join(' &nbsp;·&nbsp; ')+'</div>' : '')+
     '</div>';
     var pa=document.getElementById("printArea");
@@ -2903,6 +3354,99 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
     else if(a==="finance"){ view="finance"; render(); }
     else if(a==="fin-period"){ financePeriod=t.getAttribute("data-period"); render(); }
     else if(a==="calendar"){ view="calendar"; render(); }
+    else if(a==="today"){ view="today"; render(); }
+    else if(a==="freeslots"){ fsSlot=null; fsErr=""; view="freeslots"; render(); }
+    else if(a==="today-chip"){
+      var _el=document.getElementById("t_proc_"+t.getAttribute("data-i"));
+      if(_el){ _el.value=t.getAttribute("data-v")||""; _el.focus(); }
+    }
+    else if(a==="today-done"){
+      var _p=patients.filter(function(x){return x.id===id;})[0]; if(!_p) return;
+      var _pr=((document.getElementById("t_proc_"+t.getAttribute("data-i"))||{}).value||"").trim();
+      var _vid=t.getAttribute("data-vid")||"";
+      if(!Array.isArray(_p.visits)) _p.visits=[];
+      if(_vid){
+        // бронь превращается в состоявшийся визит
+        _p.visits=_p.visits.map(function(v){
+          return v.id===_vid ? Object.assign({},v,{planned:false, proc:_pr||v.proc||""}) : v;
+        });
+      } else {
+        _p.visits.push({id:genVid(), date:today(), time:fmtTime(_p.nextTime), planned:false, proc:_pr, amount:"", paid:"оплачено"});
+      }
+      if(_p.nextVisit===today()){ _p.nextVisit=""; _p.nextTime=""; }
+      recalc(_p); persist(); bumpChange(); render();
+      showToast("Записано ✓ Сумму можно проставить в карточке");
+    }
+    else if(a==="today-skip"){
+      var _p2=patients.filter(function(x){return x.id===id;})[0]; if(!_p2) return;
+      var _vid2=t.getAttribute("data-vid")||"";
+      if(_vid2) _p2.visits=visitsOf(_p2).filter(function(v){ return v.id!==_vid2; });
+      if(_p2.nextVisit===today()){ _p2.nextVisit=""; _p2.nextTime=""; }
+      recalc(_p2); persist(); bumpChange(); render(); showToast("Запись снята");
+    }
+    else if(a==="fs-pick"){ fsSlot=t.getAttribute("data-slot"); fsErr=""; render(); }
+    else if(a==="fs-back"){ fsSlot=null; fsErr=""; render(); }
+    else if(a==="fs-copy"){
+      var _txt=freeText();
+      if(navigator.clipboard) navigator.clipboard.writeText(_txt).then(
+        function(){ showToast("Скопировано ✓ Вставьте в сообщение клиенту"); },
+        function(){ prompt("Свободное время — скопируйте:", _txt); });
+      else prompt("Свободное время — скопируйте:", _txt);
+    }
+    else if(a==="fs-book"){
+      var _bp=patients.filter(function(x){return x.id===id;})[0]; if(!_bp || !fsSlot) return;
+      var _sp=fsSlot.split(" ");
+      if(takenAt(_sp[0],_sp[1])){ fsErr="Это время уже занято"; render(); return; }
+      if(!Array.isArray(_bp.visits)) _bp.visits=[];
+      _bp.visits.push({id:genVid(), date:_sp[0], time:_sp[1], planned:true, proc:"", amount:"", paid:""});
+      recalc(_bp); persist(); bumpChange();
+      fsSlot=null; fsErr=""; render();
+      showToast(_bp.lastName+" записан на "+_sp[1]+" ✓");
+    }
+    else if(a==="fs-book-new"){
+      var _nm=((document.getElementById("fs_name")||{}).value||"").trim();
+      if(!fsSlot) return;
+      var _sp2=fsSlot.split(" ");
+      var _e=kioskBook(_sp2[0],_sp2[1],_nm,"");
+      if(_e){ fsErr=_e; render(); return; }
+      fsSlot=null; fsErr=""; render(); showToast("Записан на "+_sp2[1]+" ✓");
+    }
+    else if(a==="kiosk-on"){
+      if(!settings.pinHash){ showToast("Сначала поставьте PIN — им вы будете выходить из режима записи"); view="settings"; render(); return; }
+      if(!confirm("Включить режим записи?\n\nЭкран станет таким, что телефон можно дать клиенту: он увидит только свободное время и впишет себя.\n\nВаши клиенты, телефоны, деньги и заметки будут скрыты.\n\nВыйти обратно можно будет только по PIN.")) return;
+      settings.kiosk=true; saveSettings();
+      kioskSlot=null; kioskErr=""; kioskDone=""; render();
+    }
+    else if(a==="kiosk-pick"){ kioskSlot=t.getAttribute("data-slot"); kioskErr=""; render(); }
+    else if(a==="kiosk-back"){ kioskSlot=null; kioskErr=""; render(); }
+    else if(a==="kiosk-again"){ kioskDone=""; kioskSlot=null; kioskErr=""; render(); }
+    else if(a==="kiosk-book"){
+      var _kn=(document.getElementById("k_name")||{}).value||"";
+      var _kp=(document.getElementById("k_phone")||{}).value||"";
+      var _parts=String(kioskSlot||"").split(" ");
+      var _err=kioskBook(_parts[0],_parts[1],_kn,_kp);
+      if(_err){ kioskErr=_err; render(); return; }
+      var _d=_parts[0].split("-");
+      kioskDone=_d[2]+"."+_d[1]+"."+_d[0]+" в "+_parts[1];
+      kioskSlot=null; kioskErr=""; render();
+    }
+    else if(a==="kiosk-exit"){
+      var _pin=prompt("PIN мастера, чтобы выйти из режима записи:");
+      if(_pin===null) return;
+      if(hashPin(String(_pin).trim())!==settings.pinHash){ showToast("Неверный PIN"); return; }
+      settings.kiosk=false; saveSettings();
+      kioskSlot=null; kioskErr=""; kioskDone=""; pinUnlocked=true; view="list"; render();
+      showToast("Режим записи выключен");
+    }
+    else if(a==="sched-save"){
+      var _g=function(id){ var el=document.getElementById(id); return el?el.value.trim():""; };
+      var _days=[];
+      for(var _i=1;_i<=7;_i++){ var _c=document.getElementById("sd_"+_i); if(_c && _c.checked) _days.push(_i); }
+      if(!_days.length){ showToast("Отметьте хотя бы один рабочий день"); return; }
+      if(mins(_g("sch_to"))<=mins(_g("sch_from"))){ showToast("Конец дня должен быть позже начала"); return; }
+      settings.schedule={days:_days, from:_g("sch_from"), to:_g("sch_to"), step:+_g("sch_step")||60};
+      saveSettings(); render(); showToast("Расписание сохранено ✓");
+    }
     else if(a==="cal-prev"){ calShift(-1); render(); }
     else if(a==="cal-next"){ calShift(1); render(); }
     else if(a==="cal-today"){ calMonth=null; render(); }
