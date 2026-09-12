@@ -238,6 +238,42 @@
   .lp .prob span{color:var(--muted);font-size:14px}
   @media(max-width:720px){.lp .prob-grid{grid-template-columns:1fr}}
 
+  /* Сравнение «было / стало» */
+  .lp .cmp2{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:30px}
+  .lp .cmp2col{border-radius:14px;padding:20px 22px;border:1px solid var(--border);background:#fff}
+  .lp .cmp2col.was{background:#FAFAFB;border-color:#E6E8EE}
+  .lp .cmp2col.now{border-color:#C9D6FF;background:var(--accent-light,#EDF2FF)}
+  .lp .cmp2h{font-weight:700;font-size:15px;margin-bottom:12px;letter-spacing:.01em}
+  .lp .cmp2col.was .cmp2h{color:var(--muted)}
+  .lp .cmp2col.now .cmp2h{color:#2C46B8}
+  .lp .cmp2 ul{list-style:none;margin:0;padding:0}
+  .lp .cmp2 li{position:relative;padding-left:24px;margin-bottom:11px;font-size:14.5px;line-height:1.5}
+  .lp .cmp2 li:last-child{margin-bottom:0}
+  .lp .cmp2col.was li{color:var(--muted)}
+  .lp .cmp2col.was li:before{content:"—";position:absolute;left:4px;color:#B9BEC9;font-weight:700}
+  .lp .cmp2col.now li:before{content:"✓";position:absolute;left:2px;color:#2E7D32;font-weight:700}
+  @media(max-width:720px){.lp .cmp2{grid-template-columns:1fr}}
+
+  /* Три вкладки карточки — на чистом CSS, без скриптов */
+  .lp .tabs3{margin-top:26px}
+  .lp .tabs3 input{position:absolute;opacity:0;pointer-events:none}
+  .lp .t3bar{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;margin-bottom:16px}
+  .lp .t3bar label{cursor:pointer;border:1px solid var(--border);background:#fff;border-radius:10px;
+    padding:9px 16px;font-size:14px;font-weight:600;color:var(--muted);transition:.15s;user-select:none}
+  .lp .t3bar label:hover{border-color:#C9D6FF;color:#2C46B8}
+  .lp .t3p{display:none;background:#fff;border:1px solid var(--border);border-radius:14px;padding:22px 24px}
+  .lp .t3p .t3n{font-size:12px;font-weight:700;color:var(--accent);letter-spacing:.06em;margin-bottom:6px}
+  .lp .t3p .t3t{font-weight:700;font-size:16px;margin-bottom:8px}
+  .lp .t3p p{margin:0;font-size:15px;line-height:1.6;color:#3E4452}
+  .lp #t3a:checked~.t3bar label[for=t3a],
+  .lp #t3b:checked~.t3bar label[for=t3b],
+  .lp #t3c:checked~.t3bar label[for=t3c]{background:var(--accent);border-color:var(--accent);color:#fff}
+  .lp #t3a:checked~.t3p.pa,
+  .lp #t3b:checked~.t3p.pb2,
+  .lp #t3c:checked~.t3p.pc{display:block}
+  .lp .tabs3 input:focus-visible+.t3bar label,
+  .lp .t3bar label:focus-within{outline:2px solid var(--accent);outline-offset:2px}
+
   .lp .cards{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:34px}
   .lp .feat{background:#fff;border:1px solid var(--border);border-radius:14px;padding:22px}
   .lp .feat .ic{width:42px;height:42px;border-radius:11px;background:var(--accent-light);display:flex;align-items:center;justify-content:center;font-size:21px;margin-bottom:14px}
@@ -341,6 +377,28 @@
   .cmpwrap{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px}
   .cmpcol .cmplbl{font-size:12px;font-weight:700;color:var(--muted);margin-bottom:6px;letter-spacing:.03em}
   .cmpcol img{width:100%;border-radius:12px;border:1px solid var(--border);display:block;background:#F1F3F8}
+  .calbar{display:flex;align-items:center;gap:10px;margin-bottom:12px;flex-wrap:wrap}
+  .calbar .calm{font-weight:700;font-size:16px;min-width:180px;text-align:center}
+  .calgrid{display:grid;grid-template-columns:repeat(7,1fr);gap:6px}
+  .caldow{font-size:11px;font-weight:700;color:var(--muted);text-align:center;padding:4px 0;letter-spacing:.04em;text-transform:uppercase}
+  .calcell{min-height:76px;border:1px solid var(--border);border-radius:10px;padding:5px 6px;background:#fff;font-size:12px;overflow:hidden}
+  .calcell.out{background:#FAFBFC;border-color:#EEF0F4}
+  .calcell.out .caldate{color:#C7CBD4}
+  .calcell.wknd{background:#FCFCFD}
+  .calcell.today{border-color:var(--accent);box-shadow:0 0 0 1px var(--accent) inset}
+  .caldate{font-weight:700;color:var(--muted);margin-bottom:3px}
+  .calcell.today .caldate{color:var(--accent)}
+  .calev{display:block;border-radius:6px;padding:1px 5px;margin-bottom:2px;font-size:11px;line-height:1.35;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;cursor:pointer}
+  .calev.plan{background:var(--accent-light);color:#2C46B8;font-weight:600}
+  .calev.done{background:#E8F5EC;color:#166534}
+  .calmore{font-size:10px;color:var(--muted);padding-left:5px}
+  .callegend{display:flex;gap:14px;font-size:12px;color:var(--muted);margin:12px 0 4px;flex-wrap:wrap;align-items:center}
+  .callegend i{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:5px;vertical-align:-1px}
+  @media(max-width:640px){
+    .calcell{min-height:58px;padding:3px 4px}
+    .calev{font-size:10px;padding:1px 3px}
+    .calgrid{gap:3px}
+  }
 </style>
 </head>
 <body>
@@ -422,7 +480,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
   var META_KEY  = "patients_meta_v1";
   var LIC_KEY   = "kirenix_license_v1";
   var SETTINGS_KEY = "kirenix_settings_v1";
-  var APP_VERSION = "1.5";
+  var APP_VERSION = "1.6";
 
   var patients = [];
   var meta = { lastBackup:null, changes:0 };
@@ -440,6 +498,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
   var visitPatient = null;
   var visitEdit = null;
   var financePeriod = "month";
+  var calMonth = null; // "YYYY-MM", текущий месяц календаря; null = этот месяц
   var photoPatient = null;
   var search = "";
   var statusFilter = "Все";
@@ -1127,6 +1186,63 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
 
 <section class="sec-tight">
   <div class="wrap narrow">
+    <p class="kicker">Разница</p>
+    <h2>Что меняется в первый же день</h2>
+    <div class="cmp2">
+      <div class="cmp2col was">
+        <div class="cmp2h">Тетрадь и таблицы</div>
+        <ul>
+          <li>Записи разложены по разным местам</li>
+          <li>Противопоказания легко пропустить</li>
+          <li>Даты визитов приходится помнить</li>
+        </ul>
+      </div>
+      <div class="cmp2col now">
+        <div class="cmp2h">Карта пациента в Kirenix Учёт</div>
+        <ul>
+          <li>Всё собрано в карточке пациента</li>
+          <li>Противопоказания рядом с процедурами</li>
+          <li>Даты визитов записаны, а не в голове</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="sec-tight">
+  <div class="wrap narrow">
+    <p class="kicker">Картотека</p>
+    <h2>Что хранится в карте пациента косметолога</h2>
+    <div class="tabs3">
+      <input type="radio" name="t3" id="t3a" checked>
+      <input type="radio" name="t3" id="t3b">
+      <input type="radio" name="t3" id="t3c">
+      <div class="t3bar">
+        <label for="t3a">Процедуры</label>
+        <label for="t3b">Противопоказания</label>
+        <label for="t3c">Даты визитов</label>
+      </div>
+      <div class="t3p pa">
+        <div class="t3n">01 — ПРОЦЕДУРЫ</div>
+        <div class="t3t">Что делали и когда</div>
+        <p>Список процедур копится в карточке пациента, а не в тетради и заметках телефона. Рядом — стоимость, оплата и фотографии «до» и «после».</p>
+      </div>
+      <div class="t3p pb2">
+        <div class="t3n">02 — ПРОТИВОПОКАЗАНИЯ</div>
+        <div class="t3t">Видно до начала работы</div>
+        <p>Ограничения и аллергии записаны рядом с историей процедур. Открыли карточку — сразу видно, что нужно учесть. Там же диагноз, фототип и подписанное согласие.</p>
+      </div>
+      <div class="t3p pc">
+        <div class="t3n">03 — ДАТЫ ВИЗИТОВ</div>
+        <div class="t3t">Кто и когда придёт</div>
+        <p>История посещений и дата следующего визита хранятся по каждому пациенту, а в календаре видно всю неделю сразу. Не нужно вспоминать, когда человек был в последний раз.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="sec-tight">
+  <div class="wrap narrow">
     <p class="kicker">Обзор</p>
     <h2>Как это выглядит внутри</h2>
     <div class="vidbox">
@@ -1555,6 +1671,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
     if(view==="visit"){ root.innerHTML = visitHTML(); return; }
     if(view==="photos"){ root.innerHTML = photosHTML(); loadPhotoGrid(); return; }
     if(view==="finance"){ root.innerHTML = financeViewHTML(); return; }
+    if(view==="calendar"){ root.innerHTML = calendarHTML(); return; }
     if(view==="form"){ root.innerHTML=formHTML(); return; }
 
     var s=stats();
@@ -1658,6 +1775,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
             '<button class="btn btn-outline" data-action="photo-export"'+(patients.length?"":" disabled")+' title="Сохранить все фотографии всех пациентов в один файл — резервная копия фото">📷 Копия фото</button>'+
             '<a class="btn btn-outline" href="help.html" target="_blank" title="Инструкция: как всё работает" style="text-decoration:none">📘 Инструкция</a>'+
             '<a class="btn btn-outline" href="'+TG_URL+'" target="_blank" rel="noopener" title="Написать разработчику — помогу разобраться" style="text-decoration:none">💬 Помощь</a>'+
+            '<button class="btn btn-outline" data-action="calendar" title="Кто и когда придёт — календарь визитов">📅 Календарь</button>'+
             '<button class="btn btn-outline" data-action="finance" title="Финансы и доход">₽ Финансы</button>'+
             '<button class="btn btn-set" data-action="settings" title="PIN-код, шифрование, ваш код доступа и устройства"><span class="gear">⚙</span>Настройки</button>'+
             '<button class="btn btn-primary" data-action="new">+ Пациент</button>'+
@@ -2132,6 +2250,29 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
       '<label class="label">'+esc(label)+'</label>'+ctrl+hint+'</div>';
   }
 
+  // Дата создания карточки. Отдельного поля нет — она зашита в id, который
+  // генерируется как Date.now() в 36-й системе плюс пять случайных символов.
+  // Всё, что пришло из Excel или из демо, не разбирается: возвращаем пусто.
+  function createdFromId(id){
+    id=String(id==null?"":id);
+    if(id.length!==13) return "";
+    var ts=parseInt(id.slice(0,8),36);
+    if(!isFinite(ts) || ts<1704067200000 || ts>Date.now()+86400000) return "";
+    var d=new Date(ts);
+    return d.getFullYear()+"-"+("0"+(d.getMonth()+1)).slice(-2)+"-"+("0"+d.getDate()).slice(-2);
+  }
+  function cardMetaHTML(p){
+    var bits=[];
+    var since=createdFromId(p.id);
+    if(since) bits.push("В картотеке с "+formatDate(since));
+    var n=visitsOf(p).length;
+    if(n) bits.push("Визитов: "+n);
+    var paid=patientPaidTotal(p);
+    if(paid>0) bits.push("Оплачено: "+fmtMoney(paid)+" ₽");
+    if(!bits.length) return "";
+    return '<p class="form-sub" style="margin-top:-4px">'+esc(bits.join(" · "))+'</p>';
+  }
+
   function formHTML(){
     var p = editId ? patients.filter(function(x){return x.id===editId;})[0] : null;
     p = p || {};
@@ -2146,6 +2287,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
     return '<div class="container"><div class="card">'+
       '<h2 class="form-title">'+(editId?"Изменить пациента":"Новый пациент")+'</h2>'+
       '<p class="form-sub">Обязательны только Фамилия и Имя. Остальное можно не заполнять. Всё сохранится автоматически.</p>'+
+      (editId ? cardMetaHTML(p) : "")+
       '<div class="form-grid">'+
         field("f_lastName","Фамилия *",p.lastName,{placeholder:"Иванова"})+
         field("f_firstName","Имя *",p.firstName,{placeholder:"Мария"})+
@@ -2249,6 +2391,115 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
       '</div>'+
     '</div></div>';
   }
+  // ——— Календарь визитов ———
+  // Показывает два вида событий: запланированные (поле «Следующий визит»
+  // в карточке) и состоявшиеся (записи из истории визитов).
+  function calYM(){
+    if(calMonth) return calMonth;
+    var n=new Date(); return n.getFullYear()+"-"+("0"+(n.getMonth()+1)).slice(-2);
+  }
+  function calShift(delta){
+    var a=calYM().split("-"), d=new Date(+a[0], +a[1]-1+delta, 1);
+    calMonth = d.getFullYear()+"-"+("0"+(d.getMonth()+1)).slice(-2);
+  }
+  function calEvents(){
+    var map={};
+    function push(d,o){
+      d=String(d==null?"":d).slice(0,10);
+      if(!/^\d{4}-\d{2}-\d{2}$/.test(d)) return;
+      (map[d]=map[d]||[]).push(o);
+    }
+    patients.forEach(function(p){
+      if(p.nextVisit) push(p.nextVisit,{kind:"plan",p:p,proc:""});
+      visitsOf(p).forEach(function(v){ push(v.date,{kind:"done",p:p,proc:v.proc||""}); });
+    });
+    return map;
+  }
+  function calName(p){
+    var f=String(p.firstName||"").trim();
+    return String(p.lastName||"").trim()+(f?" "+f.charAt(0)+".":"") || "Без имени";
+  }
+  function calDaysLeft(iso){
+    var a=iso.split("-"), d=new Date(+a[0],+a[1]-1,+a[2]), t=new Date();
+    t=new Date(t.getFullYear(),t.getMonth(),t.getDate());
+    return Math.round((d-t)/86400000);
+  }
+  function calSoonLabel(n){
+    if(n===0) return "сегодня";
+    if(n===1) return "завтра";
+    if(n===2) return "послезавтра";
+    if(n<0) return Math.abs(n)+" дн. назад";
+    return "через "+n+" дн.";
+  }
+  function calendarHTML(){
+    var MN=["Январь","Февраль","Март","Апрель","Май","Июнь","Июль","Август","Сентябрь","Октябрь","Ноябрь","Декабрь"];
+    var ym=calYM(), a=ym.split("-"), Y=+a[0], M=+a[1]-1;
+    var ev=calEvents(), td=today();
+    var startDow=(new Date(Y,M,1).getDay()+6)%7;      // 0 = понедельник
+    var daysIn=new Date(Y,M+1,0).getDate();
+    var rows=Math.ceil((startDow+daysIn)/7);
+    var planM=0, doneM=0, cells="";
+
+    for(var i=0;i<rows*7;i++){
+      var dnum=i-startDow+1;
+      var out=(dnum<1||dnum>daysIn);
+      var dd=new Date(Y,M,dnum);
+      var iso=dd.getFullYear()+"-"+("0"+(dd.getMonth()+1)).slice(-2)+"-"+("0"+dd.getDate()).slice(-2);
+      var list=ev[iso]||[];
+      if(!out){ for(var k=0;k<list.length;k++){ if(list[k].kind==="plan") planM++; else doneM++; } }
+      var inner="";
+      for(var j=0;j<list.length && j<2;j++){
+        var o=list[j], ttl=calName(o.p)+(o.proc?" · "+o.proc:"")+(o.kind==="plan"?" — запланирован":"");
+        inner+='<span class="calev '+(o.kind==="plan"?"plan":"done")+'" data-action="edit" data-id="'+esc(o.p.id)+'" title="'+esc(ttl)+'">'+esc(calName(o.p))+'</span>';
+      }
+      if(list.length>2) inner+='<span class="calmore">ещё '+(list.length-2)+'</span>';
+      cells+='<div class="calcell'+(out?" out":"")+((i%7)>=5?" wknd":"")+(iso===td?" today":"")+'">'+
+        '<div class="caldate">'+dd.getDate()+'</div>'+inner+'</div>';
+    }
+
+    var dows=["Пн","Вт","Ср","Чт","Пт","Сб","Вс"].map(function(d){ return '<div class="caldow">'+d+'</div>'; }).join("");
+
+    // Ближайшие запланированные визиты — то, ради чего календарь и открывают
+    var up=[];
+    Object.keys(ev).forEach(function(d){
+      if(d<td) return;
+      ev[d].forEach(function(o){ if(o.kind==="plan") up.push({d:d,p:o.p}); });
+    });
+    up.sort(function(x,y){ return x.d<y.d?-1:(x.d>y.d?1:0); });
+    var upHTML = up.length
+      ? up.slice(0,12).map(function(r){
+          var n=calDaysLeft(r.d);
+          return '<div class="vrow"><span class="vd">'+formatDate(r.d)+'</span>'+
+            '<span class="vp"><a href="#" data-action="edit" data-id="'+esc(r.p.id)+'" style="color:var(--accent);text-decoration:none;font-weight:600">'+esc(r.p.lastName)+' '+esc(r.p.firstName)+'</a>'+(r.p.procedure?' · '+esc(r.p.procedure):'')+'</span>'+
+            '<span class="va" style="color:'+(n<=2?"#B45309":"var(--muted)")+';font-weight:600">'+calSoonLabel(n)+'</span></div>';
+        }).join("")
+      : '<div class="empty">Ничего не запланировано. Дата следующего визита ставится в карточке пациента — поле «Следующий визит».</div>';
+
+    return '<div class="container">'+
+      '<div class="header"><div><h1 class="title">📅 Календарь визитов</h1><p class="lead">Кто и когда придёт · '+esc(license.owner)+'</p></div>'+
+        '<div class="actions"><button class="btn btn-ghost" data-action="settings-close">← К пациентам</button></div></div>'+
+      '<div class="stats finance">'+
+        stat("Запланировано в этом месяце",planM,"var(--accent)")+
+        stat("Состоялось",doneM,"#2E7D32")+
+        stat("Ждём в ближайшие 7 дней",up.filter(function(r){ return calDaysLeft(r.d)<=7; }).length,"#E65100")+
+      '</div>'+
+      '<div class="calbar">'+
+        '<button class="btn btn-outline" data-action="cal-prev" title="Предыдущий месяц">←</button>'+
+        '<span class="calm">'+MN[M]+' '+Y+'</span>'+
+        '<button class="btn btn-outline" data-action="cal-next" title="Следующий месяц">→</button>'+
+        '<button class="btn btn-ghost" data-action="cal-today">Сегодня</button>'+
+      '</div>'+
+      '<div class="calgrid">'+dows+cells+'</div>'+
+      '<div class="callegend">'+
+        '<span><i style="background:var(--accent-light)"></i>запланирован</span>'+
+        '<span><i style="background:#E8F5EC"></i>состоялся</span>'+
+        '<span>Нажмите на имя — откроется карточка</span>'+
+      '</div>'+
+      '<h3 style="font-size:15px;margin:18px 0 4px">Ближайшие визиты</h3>'+
+      '<div class="vlist">'+upHTML+'</div>'+
+    '</div>';
+  }
+
   function financeViewHTML(){
     var now=new Date(), ym=now.getFullYear()+"-"+("0"+(now.getMonth()+1)).slice(-2);
     var rows=[]; patients.forEach(function(p){ visitsOf(p).forEach(function(v){ rows.push({p:p,v:v}); }); });
@@ -2651,6 +2902,10 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
     else if(a==="demo-exit"){ exitDemo(); }
     else if(a==="finance"){ view="finance"; render(); }
     else if(a==="fin-period"){ financePeriod=t.getAttribute("data-period"); render(); }
+    else if(a==="calendar"){ view="calendar"; render(); }
+    else if(a==="cal-prev"){ calShift(-1); render(); }
+    else if(a==="cal-next"){ calShift(1); render(); }
+    else if(a==="cal-today"){ calMonth=null; render(); }
     else if(a==="add-visit"){ visitPatient=id; visitEdit=null; view="visit"; render(); }
     else if(a==="edit-visit"){ visitPatient=id; visitEdit=t.getAttribute("data-vid"); view="visit"; render(); }
     else if(a==="del-visit"){ var _pp=patients.filter(function(x){return x.id===id;})[0]; if(_pp){ var _vid=t.getAttribute("data-vid"); _pp.visits=visitsOf(_pp).filter(function(x){return x.id!==_vid;}); recalc(_pp); persist(); bumpChange(); render(); showToast("Визит удалён"); } }
