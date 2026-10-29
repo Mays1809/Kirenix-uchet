@@ -22,3 +22,23 @@ jobs:
           cat /tmp/out.txt
           echo
           test "$code" = "200"
+
+  # GitHub сам выключает расписание, если в открытом репозитории 60 дней ничего не менялось.
+  # Поэтому, когда последнее изменение старше 40 дней, делаем пустой коммит — файлы и сайт не меняются.
+  # Запуск кнопкой (Run workflow) делает такую отметку сразу — так можно проверить, что всё работает.
+  keepalive:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - name: Не дать GitHub выключить будильник
+        run: |
+          days=$(( ( $(date +%s) - $(git log -1 --format=%ct) ) / 86400 ))
+          echo "Последнее изменение в репозитории: $days дн. назад"
+          if [ "$days" -ge 40 ] || [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            git config user.name "github-actions[bot]"
+            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+            git commit --allow-empty -m "Будильник: отметка, чтобы GitHub не выключил расписание"
+            git push origin HEAD:${{ github.ref_name }}
+          fi
