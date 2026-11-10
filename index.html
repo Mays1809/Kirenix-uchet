@@ -1417,12 +1417,12 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
         <li>Демо на сайте — посмотрите всю программу до оплаты, без кода</li>
         <li>Код бессрочный — оплатили один раз и пользуетесь всегда</li>
         <li>Работает на двух ваших устройствах — телефон и компьютер</li>
-        <li>Официальный чек из «Мой налог» — по запросу</li>
+        <li>Официальный чек из «Мой налог» — на каждую покупку</li>
       </ul>
       <a class="btn btn-primary btn-lg buy-btn" href="https://t.me/aikiren" style="width:100%">Купить за 4900 ₽</a>
       <div style="height:10px"></div>
       <a class="btn btn-ghost btn-lg" href="https://t.me/aikiren" style="width:100%">Задать вопрос в Telegram</a>
-      <p class="price-note">Работаю официально как самозанятый. Нужен чек — напишите в Telegram, пришлю.<br>Перед покупкой откройте демо — оно повторяет всю программу. <b>Возврата по общему правилу нет</b>, условия в <a href="oferta.html" target="_blank" style="color:inherit;text-decoration:underline">оферте</a>.</p>
+      <p class="price-note">Работаю официально как самозанятый: чек из «Мой налог» оформляю на каждую покупку. Напишите в Telegram или на почту — пришлю его вам.<br>Перед покупкой откройте демо — оно повторяет всю программу. <b>Возврата по общему правилу нет</b>, условия в <a href="oferta.html" target="_blank" style="color:inherit;text-decoration:underline">оферте</a>.</p>
     </div>
   </div>
 </section>
@@ -1824,7 +1824,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
         '<div class="reminder-txt">👀 <b>Это демо — пациенты вымышленные, ваши записи так не сохранятся.</b> '+
         'Пощупайте всё: откройте карточку, добавьте визит, загляните в «Финансы». В настоящей программе всё это остаётся у вас на устройстве.</div>'+
         '<div class="reminder-actions">'+
-          '<a class="btn btn-primary btn-sm buy-btn" href="https://t.me/aikiren">Купить за 4900 ₽</a>'+
+          '<a class="btn btn-primary btn-sm buy-btn" '+(PAY_FN?'href="#price" data-action="buy-open"':'href="'+TG_URL+'"')+'>Купить за 4900 ₽</a>'+
           '<button class="btn btn-outline btn-sm" data-action="demo-exit">Выйти из демо</button>'+
         '</div>'+
       '</div>') : "";
